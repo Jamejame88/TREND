@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>عجلة الحظ</title>
+<meta name="description" content="جرّب حظك واربح حسمًا يُستلم من المحل الجديد.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#241726;
+  --plum:#38213C;
+  --plum-line:#4E3253;
+  --brass:#C9A227;
+  --brass-soft:#E0BE52;
+  --blush:#E8C4CE;
+  --rose:#B0435F;
+  --paper:#F7F2F0;
+  --muted:#B7A2BC;
+  --ok:#7FBF9A;
+  --err:#F09090;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
+  font-weight:300;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  display:flex;
+  justify-content:center;
+  padding:24px 18px 40px;
+}
+.shell{width:100%;max-width:440px}
+
+.mark{text-align:center;padding:8px 0 22px}
+.mark .rule{width:34px;height:1px;background:var(--brass);margin:0 auto 14px;opacity:.8}
+.mark h1{
+  font-family:"Reem Kufi","IBM Plex Sans Arabic",sans-serif;
+  font-weight:600;
+  font-size:clamp(30px,9vw,42px);
+  letter-spacing:.22em;
+  line-height:1.15;
+  color:var(--brass-soft);
+  direction:ltr;
+  margin-right:-.22em;
+}
+.lockup{display:inline-block;text-align:right}
+.mark p{color:var(--muted);font-size:14px;margin-top:6px}
+.mark .former{
+  font-family:"Reem Kufi","IBM Plex Sans Arabic",sans-serif;
+  font-size:15px;
+  color:var(--blush);
+  letter-spacing:.02em;
+  margin-top:1px;
+  opacity:.9;
+}
+
+.card{
+  background:var(--plum);
+  border:1px solid var(--plum-line);
+  border-radius:18px;
+  padding:22px 20px;
+}
+
+label{display:block;font-size:13px;color:var(--blush);margin:0 0 6px}
+.field{margin-bottom:16px}
+input,select{
+  width:100%;
+  background:#2C1930;
+  border:1px solid var(--plum-line);
+  border-radius:10px;
+  color:var(--paper);
+  font-family:inherit;
+  font-size:16px;
+  font-weight:300;
+  padding:13px 14px;
+  transition:border-color .18s;
+}
+input::placeholder{color:#7E6A83}
+input:focus,select:focus{outline:none;border-color:var(--brass)}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--brass-soft);outline-offset:2px}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:14px 22px,20px 22px;background-size:6px 6px;background-repeat:no-repeat}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+
+input[type="date"]{
+  color-scheme:dark;
+  direction:ltr;
+  text-align:left;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.04em;
+  padding:12px 14px;
+}
+input[type="date"]::-webkit-datetime-edit{padding:0}
+input[type="date"]::-webkit-datetime-edit-text{color:var(--muted);padding:0 4px}
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-year-field{
+  color:var(--paper);padding:2px 4px;border-radius:5px;
+}
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus{
+  background:var(--brass);color:#241726;outline:none;
+}
+input[type="date"]::-webkit-calendar-picker-indicator{
+  filter:invert(80%) sepia(46%) saturate(760%) hue-rotate(2deg);
+  opacity:.85;cursor:pointer;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
+.err{font-size:13px;color:var(--err);margin-top:6px;display:none}
+.err.on{display:block}
+
+button{
+  width:100%;
+  font-family:"Reem Kufi",sans-serif;
+  font-size:16px;
+  font-weight:500;
+  line-height:1.5;
+  padding:15px 12px;
+  border:0;
+  border-radius:10px;
+  cursor:pointer;
+  transition:transform .12s, background .18s;
+}
+.primary{background:var(--brass);color:#241726}
+.primary:hover{background:var(--brass-soft)}
+.primary:active{transform:scale(.985)}
+.primary[disabled]{background:#6B5C33;color:#241726;cursor:not-allowed}
+.ghost{background:transparent;color:var(--blush);border:1px solid var(--plum-line);margin-top:10px;font-size:15px}
+
+.step{display:none}
+.step.on{display:block}
+
+.wheelwrap{position:relative;padding:6px 0 4px}
+.pointer{
+  position:absolute;top:-2px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;
+  border-top:20px solid var(--brass);z-index:2;
+}
+#wheel{display:block;width:100%;height:auto;transform:rotate(0deg)}
+.spinning{transition:transform 5s cubic-bezier(.15,.62,.16,1)}
+@media (prefers-reduced-motion:reduce){.spinning{transition-duration:1.2s}}
+
+.result{text-align:center}
+.result .kicker{font-size:13px;color:var(--blush);letter-spacing:.08em}
+.result h2{font-family:"Reem Kufi",serif;font-weight:600;font-size:29px;margin:8px 0 16px;color:var(--brass-soft);line-height:1.35}
+.code{
+  font-family:"IBM Plex Sans Arabic",monospace;
+  direction:ltr;
+  font-size:25px;
+  font-weight:600;
+  letter-spacing:.18em;
+  background:#2C1930;
+  border:1px dashed var(--brass);
+  border-radius:12px;
+  padding:14px;
+  margin:0 0 8px;
+}
+.terms{font-size:13px;color:var(--muted);margin:14px 0 18px;text-align:right}
+.terms li{margin:5px 0;list-style:none;padding-right:16px;position:relative}
+.terms li::before{content:"";position:absolute;right:0;top:11px;width:5px;height:5px;border-radius:50%;background:var(--brass)}
+.sent{font-size:13px;color:var(--ok);margin-top:12px;display:none}
+.sent.on{display:block}
+.foot{text-align:center;font-size:12px;color:#7E6A83;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="mark">
+    <div class="rule"></div>
+    <div class="lockup">
+      <h1 id="brandName">TREND</h1>
+      <p class="former">بيوتي غاليري</p>
+    </div>
+  </div>
+
+  <section class="card step on" id="stepForm">
+    <div class="field">
+      <label for="name">الاسم</label>
+      <input id="name" type="text" autocomplete="name" required>
+      <p class="err" id="errName">اكتب اسمك أولاً</p>
+    </div>
+
+    <div class="field">
+      <label for="phone">رقم الجوال</label>
+      <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09XXXXXXXX" required>
+      <p class="hint">الرقم مخصص لإرسال الكود والعرض.</p>
+      <p class="err" id="errPhone">الرقم لازم يبلش بـ 09 ويكون 10 أرقام</p>
+    </div>
+
+    <div class="field">
+      <label for="occasion">أهم مناسبة عندك بالسنة (اختياري)</label>
+      <select id="occasion">
+        <option value="">— اختر —</option>
+        <option>عيد ميلاد</option>
+        <option>ذكرى زواج</option>
+        <option>خطوبة</option>
+        <option>تخرّج</option>
+        <option>مولود جديد</option>
+        <option>غير هيك</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="occDate">تاريخ المناسبة (اختياري)</label>
+      <input id="occDate" type="date" lang="en-GB">
+      <p class="hint">لإرسال أفكار هدايا قبل موعد المناسبة ضمن الميزانية.</p>
+    </div>
+
+    <button class="primary" id="toWheel">متابعة</button>
+  </section>
+
+  <section class="card step" id="stepWheel">
+    <div class="wheelwrap">
+      <div class="pointer" aria-hidden="true"></div>
+      <svg id="wheel" viewBox="0 0 300 300" role="img" aria-label="عجلة الجوائز"></svg>
+    </div>
+    <button class="primary" id="spin">لِف العجلة</button>
+  </section>
+
+  <section class="card step" id="stepResult">
+    <div class="result">
+      <p class="kicker">مبروك</p>
+      <h2 id="prizeText"></h2>
+      <div class="code" id="codeText"></div>
+      <p class="hint" id="expiryText"></p>
+    </div>
+    <ul class="terms">
+      <li>الكود يُستلم من المحل الجديد فقط.</li>
+      <li>صالح لعملية شراء واحدة، ولا يُجمع مع عرض آخر.</li>
+      <li>فعّل الكود عبر واتساب حتى ينحفظ باسمك.</li>
+    </ul>
+    <button class="primary" id="waBtn">فعّل الكود على واتساب</button>
+    <button class="ghost" id="copyBtn">انسخ الكود</button>
+    <p class="sent" id="copied">تم نسخ الكود</p>
+  </section>
+
+  <p class="foot" id="footAddr"></p>
+</div>
+
+<script>
+/* ————————————————————————————————
+   عدّل هالقسم بس — الباقي ما بدو تعديل
+———————————————————————————————— */
+const CONFIG = {
+  shopName:    "TREND",
+  address:     "دمشق — دمر البلد، مقابل صالون الرفاعي",
+  whatsapp:    "963934589893",          // رقمك بصيغة دولية بدون +
+  sheetUrl:    "https://script.google.com/macros/s/AKfycbx4zwX9C0PqPvE215aF1AwVs5j8pn7mqzbEx961qYShZDct3dYm4nTvetl8VBAtm9sA/exec",
+  expiryDays:  14,
+  prizes: [
+    { label: "حسم 10%",            weight: 40, tag: "D10" },
+    { label: "حسم 15%",            weight: 25, tag: "D15" },
+    { label: "تغليف هدية مجاني",   weight: 12, tag: "GFT" },
+    { label: "حسم 20%",            weight: 11, tag: "D20" },
+    { label: "هدية صغيرة",         weight:  7, tag: "GIF" },
+    { label: "عطر 10مل بنص السعر", weight:  5, tag: "PRF" }
+  ]
+};
+/* ———————————————————————————————— */
+
+const SEG = CONFIG.prizes.length;
+const ARC = 360 / SEG;
+const $ = id => document.getElementById(id);
+let picked = null, spun = false, entry = {};
+
+$('brandName').textContent = CONFIG.shopName;
+$('footAddr').textContent = CONFIG.address;
+
+/* رسم العجلة */
+(function draw(){
+  const c = 150, r = 138, ns = 'http://www.w3.org/2000/svg';
+  const wheel = $('wheel');
+  const pt = (a, rad) => {
+    const t = (a - 90) * Math.PI / 180;
+    return [c + rad * Math.cos(t), c + rad * Math.sin(t)];
+  };
+  CONFIG.prizes.forEach((p, i) => {
+    const a0 = i * ARC, a1 = a0 + ARC;
+    const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r);
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', `M${c} ${c} L${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1} Z`);
+    path.setAttribute('fill', i % 2 ? '#2C1930' : '#432A48');
+    path.setAttribute('stroke', '#C9A227');
+    path.setAttribute('stroke-width', '.8');
+    wheel.appendChild(path);
+
+    const t = document.createElementNS(ns, 'text');
+    const mid = a0 + ARC / 2;
+    t.setAttribute('x', c);
+    t.setAttribute('y', c - 88);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('fill', '#F7F2F0');
+    t.setAttribute('font-size', '13');
+    t.setAttribute('font-family', 'IBM Plex Sans Arabic, sans-serif');
+    t.setAttribute('transform', `rotate(${mid} ${c} ${c})`);
+    t.textContent = p.label;
+    wheel.appendChild(t);
+  });
+  const hub = document.createElementNS(ns, 'circle');
+  hub.setAttribute('cx', c); hub.setAttribute('cy', c); hub.setAttribute('r', 22);
+  hub.setAttribute('fill', '#C9A227');
+  wheel.appendChild(hub);
+})();
+
+/* تحقق ثم انتقال لصفحة العجلة */
+$('toWheel').addEventListener('click', () => {
+  const name  = $('name').value.trim();
+  const phone = $('phone').value.replace(/\D/g, '');
+  const okName  = name.length >= 2;
+  const okPhone = /^09\d{8}$/.test(phone);
+  $('errName').classList.toggle('on', !okName);
+  $('errPhone').classList.toggle('on', !okPhone);
+  if (!okName || !okPhone) return;
+
+  entry = { name, phone, occasion: $('occasion').value, occDate: $('occDate').value };
+  $('stepForm').classList.remove('on');
+  $('stepWheel').classList.add('on');
+  $('spin').focus();
+});
+['name','phone'].forEach(id =>
+  $(id).addEventListener('input', () => $('err' + id[0].toUpperCase() + id.slice(1)).classList.remove('on'))
+);
+
+/* اختيار الجائزة بالأوزان */
+function pickPrize(){
+  const total = CONFIG.prizes.reduce((s, p) => s + p.weight, 0);
+  let n = Math.random() * total;
+  for (let i = 0; i < SEG; i++){
+    n -= CONFIG.prizes[i].weight;
+    if (n <= 0) return i;
+  }
+  return 0;
+}
+
+function makeCode(tag){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return tag + '-' + s;
+}
+
+/* اللفّة */
+$('spin').addEventListener('click', () => {
+  if (spun) return;
+  spun = true;
+  $('spin').disabled = true;
+  $('spin').textContent = 'عم تلف…';
+
+  const i = pickPrize();
+  picked = CONFIG.prizes[i];
+  const target = 360 * 5 - (i * ARC + ARC / 2);
+
+  const w = $('wheel');
+  w.classList.add('spinning');
+  requestAnimationFrame(() => { w.style.transform = `rotate(${target}deg)`; });
+
+  const wait = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1300 : 5100;
+  setTimeout(finish, wait);
+});
+
+function finish(){
+  const code = makeCode(picked.tag);
+  const exp  = new Date(Date.now() + CONFIG.expiryDays * 864e5);
+  const expStr = exp.toLocaleDateString('ar-SY', { day:'numeric', month:'long' });
+
+  entry.prize = picked.label;
+  entry.code  = code;
+  entry.expiry = exp.toISOString().slice(0, 10);
+  entry.at = new Date().toISOString();
+
+  $('prizeText').textContent  = picked.label;
+  $('codeText').textContent   = code;
+  $('expiryText').textContent = 'صالح لحد ' + expStr;
+
+  const msg = `مرحبا، بدي فعّل كود عجلة الحظ.
+الاسم: ${entry.name}
+الجائزة: ${entry.prize}
+الكود: ${entry.code}`;
+  $('waBtn').onclick = () => {
+    window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+  $('copyBtn').onclick = async () => {
+    try { await navigator.clipboard.writeText(code); $('copied').classList.add('on'); } catch(e){}
+  };
+
+  save(entry);
+  $('stepWheel').classList.remove('on');
+  $('stepResult').classList.add('on');
+}
+
+/* الحفظ على Google Sheet */
+function save(data){
+  if (!CONFIG.sheetUrl) return;
+  fetch(CONFIG.sheetUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(data)
+  }).catch(() => {});
+}
+</script>
+</body>
+</html>
