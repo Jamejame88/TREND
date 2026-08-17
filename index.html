@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TREND</title>
+<meta name="description" content="جرّب حظك واربح حسمًا يُستلم من المحل الجديد.">
+<meta name="theme-color" content="#100D0C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#100D0C;
+  --panel:#191413;
+  --panel-2:#221B19;
+  --gold:#C6A44E;
+  --gold-lt:#EBD9A8;
+  --gold-dk:#8E7434;
+  --line:rgba(198,164,78,.16);
+  --line-strong:rgba(198,164,78,.34);
+  --paper:#F3EEE7;
+  --muted:#96897E;
+  --err:#D98A82;
+  --ok:#8FB99A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(120% 70% at 50% -10%, #241C19 0%, transparent 60%),
+    radial-gradient(90% 50% at 50% 110%, #1B1513 0%, transparent 55%),
+    var(--ink);
+  color:var(--paper);
+  font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
+  font-weight:300;
+  line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+  display:flex;
+  justify-content:center;
+  padding:44px 20px 56px;
+}
+.shell{width:100%;max-width:400px}
+
+/* ——— العلامة ——— */
+.mark{text-align:center;margin-bottom:38px}
+.lockup{display:inline-block;text-align:right}
+.wordmark{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-weight:300;
+  font-size:clamp(42px,13vw,58px);
+  line-height:1;
+  letter-spacing:.34em;
+  direction:ltr;
+  margin-right:-.34em;
+  color:var(--gold-lt);
+  background:linear-gradient(168deg,#8E7434 0%,#EBD9A8 34%,#C6A44E 58%,#F5EBCB 78%,#9C7F3C 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.former{
+  font-family:"Amiri",serif;
+  font-size:15px;
+  color:var(--muted);
+  letter-spacing:.04em;
+  margin-top:6px;
+  line-height:1;
+}
+.divider{
+  width:100%;max-width:180px;height:1px;margin:26px auto 0;
+  background:linear-gradient(90deg,transparent,var(--line-strong) 22%,var(--gold) 50%,var(--line-strong) 78%,transparent);
+  opacity:.75;
+}
+
+/* ——— البطاقة ——— */
+.card{
+  background:linear-gradient(178deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);
+  border-radius:2px;
+  padding:34px 26px 30px;
+  box-shadow:0 24px 60px -30px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+.step{display:none}
+.step.on{display:block;animation:rise .55s cubic-bezier(.22,.7,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ——— الحقول ——— */
+.field{margin-bottom:26px}
+label{
+  display:block;
+  font-size:11.5px;
+  font-weight:400;
+  color:var(--gold);
+  letter-spacing:.16em;
+  margin-bottom:8px;
+  opacity:.9;
+}
+input,select{
+  width:100%;
+  background:transparent;
+  border:0;
+  border-bottom:1px solid var(--line-strong);
+  border-radius:0;
+  color:var(--paper);
+  font-family:inherit;
+  font-size:16px;
+  font-weight:300;
+  padding:8px 2px 11px;
+  transition:border-color .3s ease;
+}
+input:hover,select:hover{border-bottom-color:rgba(198,164,78,.5)}
+input:focus,select:focus{outline:none;border-bottom-color:var(--gold)}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:1px solid var(--gold);outline-offset:4px}
+select{
+  appearance:none;color:var(--paper);cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);
+  background-position:2px 20px,7px 20px;background-size:5px 5px;background-repeat:no-repeat;
+}
+select option{background:var(--panel);color:var(--paper)}
+.hint{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.7}
+.err{font-size:12px;color:var(--err);margin-top:9px;display:none}
+.err.on{display:block}
+
+input[type="date"]{
+  color-scheme:dark;direction:ltr;text-align:left;
+  font-variant-numeric:tabular-nums;letter-spacing:.06em;
+}
+input[type="date"]::-webkit-datetime-edit{padding:0}
+input[type="date"]::-webkit-datetime-edit-text{color:var(--muted);padding:0 4px}
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-year-field{color:var(--paper);padding:1px 3px}
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus{background:var(--gold);color:#100D0C;outline:none}
+input[type="date"]::-webkit-calendar-picker-indicator{
+  filter:invert(72%) sepia(30%) saturate(720%) hue-rotate(2deg);opacity:.7;cursor:pointer;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
+
+/* ——— الأزرار ——— */
+button{
+  width:100%;
+  font-family:"IBM Plex Sans Arabic",sans-serif;
+  font-size:13px;
+  font-weight:400;
+  letter-spacing:.2em;
+  padding:17px 14px;
+  border:0;
+  border-radius:1px;
+  cursor:pointer;
+  transition:filter .3s ease, opacity .3s ease;
+}
+.primary{
+  background:linear-gradient(120deg,#9C7F3C,#E0CB92 42%,#C6A44E 62%,#8E7434);
+  color:#100D0C;
+  font-weight:500;
+  box-shadow:0 10px 26px -14px rgba(198,164,78,.7);
+}
+.primary:hover{filter:brightness(1.07)}
+.primary[disabled]{filter:grayscale(.5) brightness(.65);cursor:default}
+.ghost{
+  background:transparent;color:var(--muted);
+  border:1px solid var(--line-strong);margin-top:12px;
+}
+.ghost:hover{color:var(--gold-lt);border-color:var(--gold)}
+.btn-space{margin-top:32px}
+
+/* ——— العجلة ——— */
+.wheelwrap{position:relative;padding:4px 0 6px}
+.pointer{
+  position:absolute;top:-4px;left:50%;transform:translateX(-50%) rotate(45deg);
+  width:14px;height:14px;background:linear-gradient(135deg,#EBD9A8,#9C7F3C);z-index:2;
+  box-shadow:0 2px 8px rgba(0,0,0,.6);
+}
+#wheel{display:block;width:100%;height:auto;transform:rotate(0deg)}
+.spinning{transition:transform 5.6s cubic-bezier(.1,.58,.12,1)}
+@media (prefers-reduced-motion:reduce){.spinning{transition-duration:1.2s}}
+
+/* ——— النتيجة ——— */
+.result{text-align:center}
+.kicker{font-size:11px;color:var(--gold);letter-spacing:.28em;opacity:.9}
+.result h2{
+  font-family:"Amiri",serif;
+  font-weight:700;
+  font-size:31px;
+  line-height:1.45;
+  margin:14px 0 26px;
+  color:var(--gold-lt);
+}
+.plaque{
+  border-top:1px solid var(--line-strong);
+  border-bottom:1px solid var(--line-strong);
+  padding:20px 10px 18px;
+}
+.plaque .cap{font-size:10.5px;letter-spacing:.24em;color:var(--muted);margin-bottom:10px}
+.code{
+  direction:ltr;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-size:34px;
+  font-weight:400;
+  letter-spacing:.22em;
+  color:var(--gold-lt);
+  line-height:1.1;
+}
+.expiry{font-size:11.5px;color:var(--muted);margin-top:22px;letter-spacing:.04em}
+
+.terms{margin:28px 0 30px;text-align:right}
+.terms li{
+  list-style:none;font-size:12.5px;color:var(--muted);
+  padding-right:16px;position:relative;margin:9px 0;line-height:1.75;
+}
+.terms li::before{
+  content:"";position:absolute;right:0;top:11px;
+  width:4px;height:4px;transform:rotate(45deg);background:var(--gold);opacity:.8;
+}
+.sent{font-size:12px;color:var(--ok);margin-top:14px;display:none;text-align:center;letter-spacing:.05em}
+.sent.on{display:block}
+
+.foot{
+  text-align:center;font-size:11.5px;color:var(--muted);
+  margin-top:30px;letter-spacing:.05em;line-height:1.9;
+}
+.foot .fdiv{
+  width:40px;height:1px;margin:0 auto 16px;
+  background:linear-gradient(90deg,transparent,var(--line-strong),transparent);
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="mark">
+    <div class="lockup">
+      <div class="wordmark" id="brandName">TREND</div>
+      <div class="former">بيوتي غاليري</div>
+    </div>
+    <div class="divider"></div>
+  </header>
+
+  <section class="card step on" id="stepForm">
+    <div class="field">
+      <label for="name">الاسم</label>
+      <input id="name" type="text" autocomplete="name" required>
+      <p class="err" id="errName">اكتب اسمك أولاً</p>
+    </div>
+
+    <div class="field">
+      <label for="phone">رقم الجوال</label>
+      <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09XXXXXXXX" required>
+      <p class="hint">الرقم مخصص لإرسال الكود والعرض.</p>
+      <p class="err" id="errPhone">الرقم لازم يبلش بـ 09 ويكون 10 أرقام</p>
+    </div>
+
+    <div class="field">
+      <label for="occasion">أهم مناسبة عندك بالسنة</label>
+      <select id="occasion">
+        <option value="">اختياري</option>
+        <option>عيد ميلاد</option>
+        <option>ذكرى زواج</option>
+        <option>خطوبة</option>
+        <option>تخرّج</option>
+        <option>مولود جديد</option>
+        <option>غير هيك</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="occDate">تاريخ المناسبة</label>
+      <input id="occDate" type="date" lang="en-GB">
+      <p class="hint">لإرسال أفكار هدايا قبل موعد المناسبة ضمن الميزانية.</p>
+    </div>
+
+    <button class="primary btn-space" id="toWheel">متابعة</button>
+  </section>
+
+  <section class="card step" id="stepWheel">
+    <div class="wheelwrap">
+      <div class="pointer" aria-hidden="true"></div>
+      <svg id="wheel" viewBox="0 0 320 320" role="img" aria-label="عجلة الجوائز"></svg>
+    </div>
+    <button class="primary btn-space" id="spin">لِف العجلة</button>
+  </section>
+
+  <section class="card step" id="stepResult">
+    <div class="result">
+      <p class="kicker">مبروك</p>
+      <h2 id="prizeText"></h2>
+      <div class="plaque">
+        <p class="cap">رمز الاستلام</p>
+        <div class="code" id="codeText"></div>
+      </div>
+      <p class="expiry" id="expiryText"></p>
+    </div>
+    <ul class="terms">
+      <li>الرمز يُستلم من المحل الجديد حصرًا.</li>
+      <li>صالح لعملية شراء واحدة، ولا يُجمع مع عرض آخر.</li>
+      <li>فعّل الرمز عبر واتساب حتى يُحفظ باسمك.</li>
+    </ul>
+    <button class="primary" id="waBtn">تفعيل الرمز عبر واتساب</button>
+    <button class="ghost" id="copyBtn">نسخ الرمز</button>
+    <p class="sent" id="copied">تم نسخ الرمز</p>
+  </section>
+
+  <footer class="foot">
+    <div class="fdiv"></div>
+    <div id="footAddr"></div>
+  </footer>
+</div>
+
+<script>
+/* ————————————————————————————————
+   عدّل هالقسم بس — الباقي ما بدو تعديل
+———————————————————————————————— */
+const CONFIG = {
+  shopName:    "TREND",
+  address:     "دمشق — دمر البلد، مقابل صالون الرفاعي",
+  whatsapp:    "963934589893",
+  sheetUrl:    "https://script.google.com/macros/s/AKfycbx4zwX9C0PqPvE215aF1AwVs5j8pn7mqzbEx961qYShZDct3dYm4nTvetl8VBAtm9sA/exec",
+  expiryDays:  14,
+  prizes: [
+    { label: "حسم 10%",            weight: 40, tag: "D10" },
+    { label: "حسم 15%",            weight: 25, tag: "D15" },
+    { label: "تغليف هدية مجاني",   weight: 12, tag: "GFT" },
+    { label: "حسم 20%",            weight: 11, tag: "D20" },
+    { label: "هدية صغيرة",         weight:  7, tag: "GIF" },
+    { label: "عطر 10مل بنص السعر", weight:  5, tag: "PRF" }
+  ]
+};
+/* ———————————————————————————————— */
+
+const SEG = CONFIG.prizes.length;
+const ARC = 360 / SEG;
+const $ = id => document.getElementById(id);
+let picked = null, spun = false, entry = {};
+
+$('brandName').textContent = CONFIG.shopName;
+$('footAddr').textContent = CONFIG.address;
+
+/* رسم العجلة */
+(function draw(){
+  const c = 160, r = 142, ns = 'http://www.w3.org/2000/svg';
+  const wheel = $('wheel');
+  const el = (t, a) => { const n = document.createElementNS(ns, t); for (const k in a) n.setAttribute(k, a[k]); return n; };
+  const pt = (deg, rad) => {
+    const t = (deg - 90) * Math.PI / 180;
+    return [c + rad * Math.cos(t), c + rad * Math.sin(t)];
+  };
+
+  const defs = el('defs');
+  defs.innerHTML =
+    '<linearGradient id="gRim" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="#8E7434"/><stop offset="35%" stop-color="#EBD9A8"/>' +
+      '<stop offset="65%" stop-color="#C6A44E"/><stop offset="100%" stop-color="#7E6630"/>' +
+    '</linearGradient>' +
+    '<radialGradient id="gHub" cx="35%" cy="30%">' +
+      '<stop offset="0%" stop-color="#F5EBCB"/><stop offset="55%" stop-color="#C6A44E"/>' +
+      '<stop offset="100%" stop-color="#7E6630"/>' +
+    '</radialGradient>';
+  wheel.appendChild(defs);
+
+  wheel.appendChild(el('circle', {cx:c, cy:c, r:152, fill:'none', stroke:'url(#gRim)', 'stroke-width':1.6}));
+  wheel.appendChild(el('circle', {cx:c, cy:c, r:147, fill:'none', stroke:'#C6A44E', 'stroke-width':.4, opacity:.4}));
+
+  CONFIG.prizes.forEach((p, i) => {
+    const a0 = i * ARC, a1 = a0 + ARC;
+    const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r);
+    wheel.appendChild(el('path', {
+      d:`M${c} ${c} L${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1} Z`,
+      fill: i % 2 ? '#181211' : '#241C19',
+      stroke:'#C6A44E', 'stroke-width':.45, 'stroke-opacity':.45
+    }));
+
+    const mid = a0 + ARC / 2;
+    const t = el('text', {
+      x:c, y:c - 96, 'text-anchor':'middle', fill:'#EBD9A8',
+      'font-size':13, 'font-family':'IBM Plex Sans Arabic, sans-serif',
+      'font-weight':300, 'letter-spacing':'.02em',
+      transform:`rotate(${mid} ${c} ${c})`
+    });
+    t.textContent = p.label;
+    wheel.appendChild(t);
+
+    const [sx, sy] = pt(a0, 149.5);
+    wheel.appendChild(el('circle', {cx:sx, cy:sy, r:2.1, fill:'#C6A44E'}));
+  });
+
+  wheel.appendChild(el('circle', {cx:c, cy:c, r:27, fill:'url(#gHub)'}));
+  wheel.appendChild(el('circle', {cx:c, cy:c, r:19, fill:'#141010'}));
+  wheel.appendChild(el('circle', {cx:c, cy:c, r:19, fill:'none', stroke:'#C6A44E', 'stroke-width':.5, opacity:.6}));
+})();
+
+/* التحقق */
+$('toWheel').addEventListener('click', () => {
+  const name  = $('name').value.trim();
+  const phone = $('phone').value.replace(/\D/g, '');
+  const okName  = name.length >= 2;
+  const okPhone = /^09\d{8}$/.test(phone);
+  $('errName').classList.toggle('on', !okName);
+  $('errPhone').classList.toggle('on', !okPhone);
+  if (!okName || !okPhone) return;
+
+  entry = { name, phone, occasion: $('occasion').value, occDate: $('occDate').value };
+  $('stepForm').classList.remove('on');
+  $('stepWheel').classList.add('on');
+  $('spin').focus();
+});
+$('name').addEventListener('input', () => $('errName').classList.remove('on'));
+$('phone').addEventListener('input', () => $('errPhone').classList.remove('on'));
+
+function pickPrize(){
+  const total = CONFIG.prizes.reduce((s, p) => s + p.weight, 0);
+  let n = Math.random() * total;
+  for (let i = 0; i < SEG; i++){ n -= CONFIG.prizes[i].weight; if (n <= 0) return i; }
+  return 0;
+}
+function makeCode(tag){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return tag + '-' + s;
+}
+
+$('spin').addEventListener('click', () => {
+  if (spun) return;
+  spun = true;
+  $('spin').disabled = true;
+  $('spin').textContent = 'جارٍ الدوران';
+
+  const i = pickPrize();
+  picked = CONFIG.prizes[i];
+  const target = 360 * 6 - (i * ARC + ARC / 2);
+
+  const w = $('wheel');
+  w.classList.add('spinning');
+  requestAnimationFrame(() => { w.style.transform = `rotate(${target}deg)`; });
+
+  setTimeout(finish, matchMedia('(prefers-reduced-motion: reduce)').matches ? 1300 : 5700);
+});
+
+function finish(){
+  const code = makeCode(picked.tag);
+  const exp  = new Date(Date.now() + CONFIG.expiryDays * 864e5);
+  const expStr = exp.toLocaleDateString('ar-SY', { day:'numeric', month:'long' });
+
+  entry.prize = picked.label;
+  entry.code  = code;
+  entry.expiry = exp.toISOString().slice(0, 10);
+  entry.at = new Date().toISOString();
+
+  $('prizeText').textContent  = picked.label;
+  $('codeText').textContent   = code;
+  $('expiryText').textContent = 'صالح لغاية ' + expStr;
+
+  const msg = `مرحبا، بدي فعّل رمز عجلة الحظ.
+الاسم: ${entry.name}
+الجائزة: ${entry.prize}
+الرمز: ${entry.code}`;
+  $('waBtn').onclick = () => window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+  $('copyBtn').onclick = async () => {
+    try { await navigator.clipboard.writeText(code); $('copied').classList.add('on'); } catch(e){}
+  };
+
+  save(entry);
+  $('stepWheel').classList.remove('on');
+  $('stepResult').classList.add('on');
+}
+
+function save(data){
+  if (!CONFIG.sheetUrl) return;
+  fetch(CONFIG.sheetUrl, {
+    method:'POST', mode:'no-cors',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(data)
+  }).catch(() => {});
+}
+</script>
+</body>
+</html>
