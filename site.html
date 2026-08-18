@@ -124,6 +124,14 @@ section{margin-top:46px}
 }
 .p-ask:hover{color:var(--gold-lt);border-color:var(--gold)}
 
+.prod.out .thumb img{filter:grayscale(1);opacity:.42}
+.prod.out .p-name,.prod.out .p-price{opacity:.55}
+.badge.out{background:rgba(16,13,12,.82);color:var(--muted);border:1px solid var(--line2)}
+.p-out{
+  width:100%;height:38px;line-height:36px;border:1px dashed var(--line2);
+  text-align:center;font-size:11.5px;color:var(--muted);letter-spacing:.08em;
+}
+
 .stepper{display:flex;height:38px;border:1px solid var(--gold);animation:pop .22s ease-out}
 @keyframes pop{from{transform:scale(.94);opacity:.6}to{transform:none;opacity:1}}
 .stepper button{
@@ -443,6 +451,11 @@ function paintAction(slot){
   var p = slot.p, q = qtyOf(p.name);
   slot.node.innerHTML = '';
 
+  if (p.avail === false){
+    slot.node.appendChild(el('div', 'p-out', 'غير متوفر حاليًا'));
+    return;
+  }
+
   if (money(p.price) <= 0){
     var ask = el('a', 'p-ask', 'اسأل عنه');
     ask.href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' +
@@ -490,7 +503,8 @@ function render(){
   }
 
   list.forEach(function(p){
-    var card = el('div', 'prod');
+    var out  = (p.avail === false);
+    var card = el('div', 'prod' + (out ? ' out' : ''));
 
     var th = el('div', 'thumb');
     if (p.img){
@@ -499,7 +513,9 @@ function render(){
       im.onerror = function(){ th.innerHTML = '<div class="noimg">◆</div>'; };
       th.appendChild(im);
     } else th.innerHTML = '<div class="noimg">◆</div>';
-    if (p.note) th.appendChild(el('span', 'badge', p.note));
+
+    if (out) th.appendChild(el('span', 'badge out', 'نفد'));
+    else if (p.note) th.appendChild(el('span', 'badge', p.note));
     card.appendChild(th);
 
     var b = el('div', 'pbody');
