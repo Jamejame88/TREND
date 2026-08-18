@@ -74,6 +74,15 @@ body{
   opacity:.75;
 }
 
+.occasion{
+  margin-top:22px;font-size:14px;color:var(--muted);
+  letter-spacing:.03em;line-height:1.9;
+}
+.occasion span{
+  display:inline-block;margin-top:2px;color:var(--gold-lt);
+  font-size:15px;letter-spacing:.06em;
+}
+
 /* ——— البطاقة ——— */
 .card{
   background:linear-gradient(178deg,var(--panel-2),var(--panel));
@@ -182,13 +191,17 @@ button{
 
 /* ——— النتيجة ——— */
 .result{text-align:center}
-.kicker{font-size:11px;color:var(--gold);letter-spacing:.28em;opacity:.9}
+.kicker{
+  font-family:"Amiri",serif;
+  font-size:29px;font-weight:700;
+  color:var(--gold);letter-spacing:.04em;line-height:1.3;
+}
 .result h2{
   font-family:"Amiri",serif;
-  font-weight:700;
-  font-size:31px;
-  line-height:1.45;
-  margin:14px 0 26px;
+  font-weight:400;
+  font-size:24px;
+  line-height:1.55;
+  margin:10px 0 26px;
   color:var(--gold-lt);
 }
 .plaque{
@@ -262,6 +275,7 @@ button{
       <div class="former">بيوتي غاليري</div>
     </div>
     <div class="divider"></div>
+    <p class="occasion">بمناسبة افتتاح فرعنا الجديد<br><span>هدايا وحسومات بانتظارك</span></p>
   </header>
 
   <section class="card step on" id="stepForm">
@@ -320,7 +334,7 @@ button{
       <p class="expiry" id="expiryText"></p>
     </div>
     <ul class="terms">
-      <li>الرمز يُستلم من المحل الجديد حصرًا.</li>
+      <li>الرمز يُستلم من المحل خلال مدة الصلاحية.</li>
       <li>صالح لعملية شراء واحدة، ولا يُجمع مع عرض آخر.</li>
       <li>فعّل الرمز عبر واتساب حتى يُحفظ باسمك.</li>
     </ul>
@@ -350,7 +364,7 @@ button{
 ———————————————————————————————— */
 const CONFIG = {
   shopName:    "TREND",
-  address:     "دمشق — دمر البلد، مقابل صالون الرفاعي",
+  address:     "دمشق — دمر البلد",
   whatsapp:    "963934589893",
   sheetUrl:    "https://script.google.com/macros/s/AKfycbx4zwX9C0PqPvE215aF1AwVs5j8pn7mqzbEx961qYShZDct3dYm4nTvetl8VBAtm9sA/exec",
   expiryDays:  14,
