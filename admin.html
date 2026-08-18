@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>إدارة المنتجات — TREND</title>
+<style>
+:root{
+  --ink:#100D0C;--panel:#191413;--panel2:#221B19;
+  --gold:#C6A44E;--gold-lt:#EBD9A8;--gold-dk:#8E7434;
+  --line:rgba(198,164,78,.16);--line2:rgba(198,164,78,.34);
+  --paper:#F3EEE7;--muted:#96897E;--ok:#8FB99A;--err:#D98A82;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--ink);color:var(--paper);
+  font-family:system-ui,"Segoe UI","Noto Sans Arabic",Tahoma,Arial,sans-serif;
+  font-weight:300;line-height:1.8;padding:22px 16px 60px;
+}
+.wrap{max-width:640px;margin:0 auto}
+h1{font-size:15px;font-weight:400;letter-spacing:.2em;color:var(--gold);text-align:center;margin-bottom:22px}
+
+label{display:block;font-size:11px;letter-spacing:.14em;color:var(--gold);margin-bottom:6px}
+input,select,textarea{
+  width:100%;background:transparent;border:0;border-bottom:1px solid var(--line2);
+  color:var(--paper);font-family:inherit;font-size:16px;font-weight:300;padding:8px 2px 10px;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-bottom-color:var(--gold)}
+select option{background:var(--panel)}
+.field{margin-bottom:18px}
+button{
+  font-family:inherit;font-size:12.5px;letter-spacing:.12em;padding:14px;border:0;
+  cursor:pointer;width:100%;
+  background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));color:var(--ink);
+}
+button.ghost{background:transparent;border:1px solid var(--line2);color:var(--muted)}
+button.ghost:hover{color:var(--gold-lt);border-color:var(--gold)}
+button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color:var(--err)}
+
+.card{background:linear-gradient(178deg,var(--panel2),var(--panel));border:1px solid var(--line);padding:20px 18px;margin-bottom:16px}
+.hd{font-size:11px;letter-spacing:.2em;color:var(--gold);margin-bottom:16px}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+
+.item{display:flex;gap:11px;align-items:center;border:1px solid var(--line);background:var(--panel);padding:11px;margin-bottom:9px}
+.item img{width:46px;height:46px;object-fit:cover;flex:0 0 46px;background:#0E0B0A;border:1px solid var(--line)}
+.item .b{flex:1;min-width:0}
+.item .n{font-size:13.5px;line-height:1.5}
+.item .m{font-size:11.5px;color:var(--muted)}
+.tags{display:flex;gap:5px;margin-top:4px}
+.tg{font-size:10px;padding:2px 7px;border:1px solid var(--line2);color:var(--muted);cursor:pointer}
+.tg.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.tg.off{border-color:rgba(217,138,130,.45);color:var(--err)}
+.mini{flex:0 0 auto;width:auto;padding:8px 11px;font-size:11px;background:transparent;border:1px solid var(--line2);color:var(--muted)}
+
+.msg{text-align:center;font-size:12.5px;padding:10px;margin-bottom:14px;display:none}
+.msg.on{display:block}
+.msg.ok{color:var(--ok);border:1px solid rgba(143,185,154,.35)}
+.msg.no{color:var(--err);border:1px solid rgba(217,138,130,.35)}
+.hint{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.7}
+#app{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>إدارة المنتجات</h1>
+  <div class="msg" id="msg"></div>
+
+  <div class="card" id="gate">
+    <div class="hd">الدخول</div>
+    <div class="field">
+      <label>رمز الدخول</label>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="off">
+    </div>
+    <button id="login">دخول</button>
+  </div>
+
+  <div id="app">
+    <div class="card">
+      <div class="hd" id="formTitle">منتج جديد</div>
+      <div class="field"><label>الاسم</label><input id="f_name"></div>
+      <div class="row">
+        <div class="field">
+          <label>القسم</label>
+          <select id="f_cat">
+            <option>عطور</option><option>مكياج</option><option>إكسسوار</option>
+            <option>ألعاب</option><option>هدايا</option><option>سبلاشات</option>
+          </select>
+        </div>
+        <div class="field"><label>السعر</label><input id="f_price" inputmode="numeric"></div>
+      </div>
+      <div class="field"><label>ملاحظة (تظهر كشارة)</label><input id="f_note" placeholder="جديد / آخر قطعة"></div>
+      <div class="field">
+        <label>رابط الصورة</label>
+        <input id="f_img" dir="ltr" placeholder="https://i.ibb.co/...">
+        <p class="hint">ارفع الصورة على imgbb.com واختر Direct link.</p>
+      </div>
+      <button id="save">حفظ</button>
+      <button class="ghost" id="cancel" style="margin-top:9px;display:none">إلغاء التعديل</button>
+    </div>
+
+    <div class="card">
+      <div class="hd">المنتجات (<span id="count">0</span>)</div>
+      <div id="list"></div>
+      <button class="ghost" id="refresh" style="margin-top:12px">تحديث القائمة</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SHEET_URL = "https://script.google.com/macros/s/AKfycbx4zwX9C0PqPvE215aF1AwVs5j8pn7mqzbEx961qYShZDct3dYm4nTvetl8VBAtm9sA/exec";
+
+var $ = function(id){ return document.getElementById(id); };
+var PIN = '', ROWS = [], EDIT = 0;
+
+try { PIN = localStorage.getItem('trend_pin') || ''; } catch(e){}
+
+function say(t, ok){
+  var m = $('msg');
+  m.textContent = t;
+  m.className = 'msg on ' + (ok ? 'ok' : 'no');
+  setTimeout(function(){ m.className = 'msg'; }, 3200);
+}
+
+function jsonp(params, ms){
+  return new Promise(function(res){
+    var cb = 'cb_' + Date.now() + Math.floor(Math.random() * 9999);
+    var s  = document.createElement('script');
+    var done = false;
+    function end(v){ if (done) return; done = true; clearTimeout(t); try{ delete window[cb]; }catch(e){} s.remove(); res(v); }
+    var t = setTimeout(function(){ end(null); }, ms || 15000);
+    window[cb] = end;
+    s.onerror = function(){ end(null); };
+    s.src = SHEET_URL + '?callback=' + cb + '&' + params;
+    document.body.appendChild(s);
+  });
+}
+
+function post(body){
+  return fetch(SHEET_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body)
+  }).catch(function(){});
+}
+
+function load(){
+  return jsonp('action=admin&pin=' + encodeURIComponent(PIN)).then(function(r){
+    if (!r || !r.ok){ return false; }
+    ROWS = r.rows || [];
+    paint();
+    return true;
+  });
+}
+
+function paint(){
+  var box = $('list');
+  box.innerHTML = '';
+  $('count').textContent = ROWS.length;
+
+  ROWS.forEach(function(p){
+    var it = document.createElement('div');
+    it.className = 'item';
+
+    if (p.img){
+      var im = new Image();
+      im.src = p.img; im.onerror = function(){ im.remove(); };
+      it.appendChild(im);
+    }
+
+    var b = document.createElement('div');
+    b.className = 'b';
+    b.innerHTML = '<div class="n"></div><div class="m"></div><div class="tags"></div>';
+    b.querySelector('.n').textContent = p.name;
+    b.querySelector('.m').textContent = (p.cat || '') + (p.price ? ' · ' + p.price : '');
+
+    var tags = b.querySelector('.tags');
+
+    var t1 = document.createElement('span');
+    t1.className = 'tg ' + (p.show ? 'on' : 'off');
+    t1.textContent = p.show ? 'ظاهر' : 'مخفي';
+    t1.onclick = function(){ p.show = !p.show; write('update', p); };
+    tags.appendChild(t1);
+
+    var t2 = document.createElement('span');
+    t2.className = 'tg ' + (p.avail ? 'on' : 'off');
+    t2.textContent = p.avail ? 'متوفر' : 'نفد';
+    t2.onclick = function(){ p.avail = !p.avail; write('update', p); };
+    tags.appendChild(t2);
+
+    it.appendChild(b);
+
+    var e = document.createElement('button');
+    e.className = 'mini';
+    e.textContent = 'تعديل';
+    e.onclick = function(){ fill(p); };
+    it.appendChild(e);
+
+    box.appendChild(it);
+  });
+}
+
+function fill(p){
+  EDIT = p.row;
+  $('f_name').value  = p.name;
+  $('f_cat').value   = p.cat || 'عطور';
+  $('f_price').value = p.price;
+  $('f_note').value  = p.note;
+  $('f_img').value   = p.img;
+  $('formTitle').textContent = 'تعديل: ' + p.name;
+  $('cancel').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearForm(){
+  EDIT = 0;
+  ['f_name','f_price','f_note','f_img'].forEach(function(i){ $(i).value = ''; });
+  $('formTitle').textContent = 'منتج جديد';
+  $('cancel').style.display = 'none';
+}
+
+function write(op, p){
+  post({
+    type: 'product', pin: PIN, op: op, row: p.row,
+    data: { name:p.name, cat:p.cat, price:p.price, note:p.note, img:p.img, show:p.show, avail:p.avail }
+  }).then(function(){
+    say('تم الحفظ', true);
+    setTimeout(load, 1400);
+  });
+}
+
+$('login').onclick = function(){
+  PIN = $('pin').value.trim();
+  if (!PIN) return;
+  $('login').textContent = 'جارٍ التحقق…';
+  load().then(function(ok){
+    $('login').textContent = 'دخول';
+    if (!ok) return say('رمز خاطئ');
+    try { localStorage.setItem('trend_pin', PIN); } catch(e){}
+    $('gate').style.display = 'none';
+    $('app').style.display = 'block';
+  });
+};
+
+$('save').onclick = function(){
+  var name = $('f_name').value.trim();
+  if (!name) return say('اكتب اسم المنتج');
+
+  var p = {
+    row:   EDIT,
+    name:  name,
+    cat:   $('f_cat').value,
+    price: $('f_price').value.replace(/[^\d]/g, ''),
+    note:  $('f_note').value.trim(),
+    img:   $('f_img').value.trim(),
+    show:  true,
+    avail: true
+  };
+
+  if (EDIT){
+    var old = ROWS.filter(function(x){ return x.row === EDIT; })[0];
+    if (old){ p.show = old.show; p.avail = old.avail; }
+  }
+
+  write(EDIT ? 'update' : 'add', p);
+  clearForm();
+};
+
+$('cancel').onclick  = clearForm;
+$('refresh').onclick = function(){ load().then(function(){ say('تم التحديث', true); }); };
+
+/* دخول تلقائي إذا الرمز محفوظ */
+if (PIN){
+  load().then(function(ok){
+    if (ok){ $('gate').style.display = 'none'; $('app').style.display = 'block'; }
+  });
+}
+</script>
+</body>
+</html>
