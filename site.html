@@ -362,6 +362,9 @@ function keep(key, val){
   try { localStorage.setItem('trend_' + key, JSON.stringify(val)); } catch(e){}
 }
 
+/* حالة السلة — لازم تتعرّف قبل رسم المنتجات */
+var CART = memo('cart') || [];
+
 /* ——— العروض ——— */
 function paintOffers(list){
   if (!list || !list.length) return;
@@ -523,8 +526,6 @@ function money(v){
 function fmt(n){
   return n.toLocaleString('en-US') + ' ل.س';
 }
-
-var CART = memo('cart') || [];
 
 function addToCart(p){
   var i = -1;
