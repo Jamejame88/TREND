@@ -54,6 +54,16 @@ button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color
 .tg.off{border-color:rgba(217,138,130,.45);color:var(--err)}
 .mini{flex:0 0 auto;width:auto;padding:8px 11px;font-size:11px;background:transparent;border:1px solid var(--line2);color:var(--muted)}
 
+.up{
+  border:1px dashed var(--line2);padding:18px;text-align:center;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:10px;transition:.2s;
+}
+.up:hover{border-color:var(--gold)}
+.up span{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.up img{max-width:120px;max-height:120px;object-fit:cover;display:none;border:1px solid var(--line)}
+.up img.on{display:block}
+.up.busy{opacity:.6;pointer-events:none}
+
 .msg{text-align:center;font-size:12.5px;padding:10px;margin-bottom:14px;display:none}
 .msg.on{display:block}
 .msg.ok{color:var(--ok);border:1px solid rgba(143,185,154,.35)}
@@ -85,16 +95,22 @@ button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color
           <label>القسم</label>
           <select id="f_cat">
             <option>عطور</option><option>مكياج</option><option>إكسسوار</option>
-            <option>ألعاب</option><option>هدايا</option><option>سبلاشات</option>
+            <option>ساعات</option><option>ألعاب</option><option>هدايا</option>
+            <option>سبلاشات</option>
           </select>
         </div>
         <div class="field"><label>السعر</label><input id="f_price" inputmode="numeric"></div>
       </div>
       <div class="field"><label>ملاحظة (تظهر كشارة)</label><input id="f_note" placeholder="جديد / آخر قطعة"></div>
       <div class="field">
-        <label>رابط الصورة</label>
-        <input id="f_img" dir="ltr" placeholder="https://i.ibb.co/...">
-        <p class="hint">ارفع الصورة على imgbb.com واختر Direct link.</p>
+        <label>الصورة</label>
+        <div class="up" id="dropZone">
+          <input type="file" id="f_file" accept="image/*" hidden>
+          <img id="prev" alt="">
+          <span id="upTxt">اضغط لاختيار صورة من جهازك</span>
+        </div>
+        <input id="f_img" dir="ltr" placeholder="أو الصق رابط صورة" style="margin-top:12px">
+        <p class="hint">الصورة بتنضغط تلقائيًا لـ 800 بكسل قبل الرفع — أسرع للموقع.</p>
       </div>
       <button id="save">حفظ</button>
       <button class="ghost" id="cancel" style="margin-top:9px;display:none">إلغاء التعديل</button>
@@ -110,6 +126,9 @@ button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color
 
 <script>
 var SHEET_URL = "https://script.google.com/macros/s/AKfycbx4zwX9C0PqPvE215aF1AwVs5j8pn7mqzbEx961qYShZDct3dYm4nTvetl8VBAtm9sA/exec";
+var IMGBB_KEY = "67d7adddcaf16136e8bb0e703e1471a1";
+var MAX_SIDE  = 800;   // أطول ضلع بعد الضغط
+var QUALITY   = 0.82;  // جودة الضغط
 
 var $ = function(id){ return document.getElementById(id); };
 var PIN = '', ROWS = [], EDIT = 0;
@@ -144,6 +163,77 @@ function post(body){
     body: JSON.stringify(body)
   }).catch(function(){});
 }
+
+/* ——— ضغط الصورة ورفعها ——— */
+function shrink(file){
+  return new Promise(function(res, rej){
+    var fr = new FileReader();
+    fr.onload = function(){
+      var img = new Image();
+      img.onload = function(){
+        var w = img.width, h = img.height;
+        if (w > h && w > MAX_SIDE){ h = Math.round(h * MAX_SIDE / w); w = MAX_SIDE; }
+        else if (h >= w && h > MAX_SIDE){ w = Math.round(w * MAX_SIDE / h); h = MAX_SIDE; }
+
+        var cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        var cx = cv.getContext('2d');
+        cx.fillStyle = '#ffffff';
+        cx.fillRect(0, 0, w, h);
+        cx.drawImage(img, 0, 0, w, h);
+
+        var url = cv.toDataURL('image/jpeg', QUALITY);
+        res(url.split(',')[1]);
+      };
+      img.onerror = function(){ rej(); };
+      img.src = fr.result;
+    };
+    fr.onerror = function(){ rej(); };
+    fr.readAsDataURL(file);
+  });
+}
+
+function upload(b64){
+  var fd = new FormData();
+  fd.append('key', IMGBB_KEY);
+  fd.append('image', b64);
+  return fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if (!j || !j.success || !j.data) throw new Error('fail');
+      /* النسخة المتوسطة أخف بكتير والعرض عندنا صغير أصلاً */
+      var d = j.data;
+      return (d.medium && d.medium.url) || d.display_url || d.url;
+    });
+}
+
+$('dropZone').onclick = function(){ $('f_file').click(); };
+
+$('f_file').onchange = function(){
+  var file = this.files && this.files[0];
+  if (!file) return;
+
+  var zone = $('dropZone');
+  zone.classList.add('busy');
+  $('upTxt').textContent = 'جارٍ الضغط…';
+
+  shrink(file).then(function(b64){
+    $('prev').src = 'data:image/jpeg;base64,' + b64;
+    $('prev').classList.add('on');
+    var kb = Math.round(b64.length * 0.75 / 1024);
+    $('upTxt').textContent = 'جارٍ الرفع… (' + kb + ' كيلوبايت)';
+    return upload(b64);
+  }).then(function(url){
+    $('f_img').value = url;
+    $('upTxt').textContent = 'تم الرفع ✓ — اضغط لتغيير الصورة';
+    zone.classList.remove('busy');
+    say('انرفعت الصورة', true);
+  }).catch(function(){
+    $('upTxt').textContent = 'فشل الرفع — جرّب صورة تانية';
+    zone.classList.remove('busy');
+    say('ما زبط الرفع');
+  });
+};
 
 function load(){
   return jsonp('action=admin&pin=' + encodeURIComponent(PIN)).then(function(r){
@@ -208,14 +298,27 @@ function fill(p){
   $('f_price').value = p.price;
   $('f_note').value  = p.note;
   $('f_img').value   = p.img;
+  if (p.img){
+    $('prev').src = p.img;
+    $('prev').classList.add('on');
+    $('upTxt').textContent = 'اضغط لتغيير الصورة';
+  } else resetImg();
   $('formTitle').textContent = 'تعديل: ' + p.name;
   $('cancel').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function resetImg(){
+  $('prev').removeAttribute('src');
+  $('prev').classList.remove('on');
+  $('upTxt').textContent = 'اضغط لاختيار صورة من جهازك';
+  $('f_file').value = '';
+}
+
 function clearForm(){
   EDIT = 0;
   ['f_name','f_price','f_note','f_img'].forEach(function(i){ $(i).value = ''; });
+  resetImg();
   $('formTitle').textContent = 'منتج جديد';
   $('cancel').style.display = 'none';
 }
