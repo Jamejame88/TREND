@@ -96,6 +96,13 @@ body{
 .step.on{display:block;animation:rise .55s cubic-bezier(.22,.7,.3,1) both}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
+.won{text-align:center;margin-bottom:30px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.won h2{
+  font-family:"Amiri",serif;font-weight:400;font-size:24px;line-height:1.5;
+  margin:10px 0 12px;color:var(--gold-lt);
+}
+.wonhint{font-size:12.5px;color:var(--muted);letter-spacing:.04em}
+
 /* ——— الحقول ——— */
 .field{margin-bottom:26px}
 label{
@@ -178,6 +185,11 @@ button{
 .ghost:hover{color:var(--gold-lt);border-color:var(--gold)}
 .btn-space{margin-top:32px}
 
+.shopBtn{
+  display:block;text-align:center;text-decoration:none;
+  line-height:1.5;padding:15px 12px;
+}
+
 /* ——— العجلة ——— */
 .wheelwrap{position:relative;padding:4px 0 6px}
 .pointer{
@@ -233,28 +245,35 @@ button{
 .sent{font-size:12px;color:var(--ok);margin-top:14px;display:none;text-align:center;letter-spacing:.05em}
 .sent.on{display:block}
 
-.offers{margin-top:44px}
-.oh{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.offers{margin:0 0 32px;overflow:hidden}
+.oh{display:flex;align-items:center;gap:14px;margin-bottom:16px}
 .oh-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line-strong))}
 .oh-line:last-child{background:linear-gradient(90deg,var(--line-strong),transparent)}
 .oh-txt{font-size:11px;letter-spacing:.26em;color:var(--gold);white-space:nowrap}
 
-.offer{
-  display:flex;align-items:center;gap:14px;
-  border:1px solid var(--line);
+.otrack{
+  display:flex;gap:10px;width:max-content;
+  animation:oslide 38s linear infinite;
+}
+.offers:hover .otrack{animation-play-state:paused}
+@keyframes oslide{from{transform:translateX(0)}to{transform:translateX(50%)}}
+
+.ocard{
+  flex:0 0 auto;width:132px;border:1px solid var(--line);
   background:linear-gradient(178deg,var(--panel-2),var(--panel));
-  padding:14px 16px;margin-bottom:10px;border-radius:2px;
 }
-.offer img{
-  width:58px;height:58px;object-fit:cover;flex:0 0 58px;
-  border:1px solid var(--line);background:#0E0B0A;
+.ocard img{width:100%;height:88px;object-fit:cover;background:#0E0B0A;display:block}
+.ocard .obadge{
+  font-size:9px;letter-spacing:.16em;color:var(--ink);text-align:center;padding:3px 0;
+  background:linear-gradient(120deg,var(--gold-dk),#E0CB92 50%,var(--gold));
 }
-.o-body{flex:1;min-width:0}
-.o-name{font-size:14.5px;color:var(--paper);line-height:1.5}
-.o-note{font-size:11.5px;color:var(--muted);margin-top:2px}
-.o-price{display:flex;align-items:baseline;gap:9px;margin-top:6px;direction:rtl}
-.o-new{font-size:16px;color:var(--gold-lt);font-weight:400;letter-spacing:.02em}
-.o-old{font-size:12.5px;color:var(--muted);text-decoration:line-through;opacity:.75}
+.ocard .on{
+  font-size:11.5px;line-height:1.45;padding:8px 9px 0;color:var(--paper);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:2.9em;
+}
+.ocard .op{display:flex;align-items:baseline;gap:7px;padding:5px 9px 10px}
+.o-new{font-size:13px;color:var(--gold-lt)}
+.o-old{font-size:10.5px;color:var(--muted);text-decoration:line-through;opacity:.75}
 
 .foot{
   text-align:center;font-size:11.5px;color:var(--muted);
@@ -278,7 +297,30 @@ button{
     <p class="occasion">بمناسبة افتتاح فرعنا الجديد<br><span>هدايا وحسومات بانتظارك</span></p>
   </header>
 
-  <section class="card step on" id="stepForm">
+  <section class="offers" id="offers" hidden>
+    <div class="oh">
+      <span class="oh-line"></span>
+      <span class="oh-txt">عروض اليوم</span>
+      <span class="oh-line"></span>
+    </div>
+    <div class="otrack" id="offerList"></div>
+  </section>
+
+  <section class="card step on" id="stepWheel">
+    <div class="wheelwrap">
+      <div class="pointer" aria-hidden="true"></div>
+      <svg id="wheel" viewBox="0 0 320 320" role="img" aria-label="عجلة الجوائز"></svg>
+    </div>
+    <button class="primary btn-space" id="spin">لِف العجلة</button>
+  </section>
+
+  <section class="card step" id="stepForm">
+    <div class="won">
+      <p class="kicker">مبروك</p>
+      <h2 id="wonPrize"></h2>
+      <p class="wonhint">عبّي بياناتك ليوصلك الرمز</p>
+    </div>
+
     <div class="field">
       <label for="name">الاسم</label>
       <input id="name" type="text" autocomplete="name" required>
@@ -312,15 +354,7 @@ button{
       <p class="hint">لإرسال أفكار هدايا قبل موعد المناسبة ضمن الميزانية.</p>
     </div>
 
-    <button class="primary btn-space" id="toWheel">متابعة</button>
-  </section>
-
-  <section class="card step" id="stepWheel">
-    <div class="wheelwrap">
-      <div class="pointer" aria-hidden="true"></div>
-      <svg id="wheel" viewBox="0 0 320 320" role="img" aria-label="عجلة الجوائز"></svg>
-    </div>
-    <button class="primary btn-space" id="spin">لِف العجلة</button>
+    <button class="primary btn-space" id="claim">استلم الرمز</button>
   </section>
 
   <section class="card step" id="stepResult">
@@ -341,15 +375,7 @@ button{
     <button class="primary" id="waBtn">تفعيل الرمز عبر واتساب</button>
     <button class="ghost" id="copyBtn">نسخ الرمز</button>
     <p class="sent" id="copied">تم نسخ الرمز</p>
-  </section>
-
-  <section class="offers" id="offers" hidden>
-    <div class="oh">
-      <span class="oh-line"></span>
-      <span class="oh-txt">عروض اليوم</span>
-      <span class="oh-line"></span>
-    </div>
-    <div id="offerList"></div>
+    <a class="ghost shopBtn" id="shopBtn" target="_blank" rel="noopener">تصفّح منتجاتنا</a>
   </section>
 
   <footer class="foot">
@@ -365,6 +391,7 @@ button{
 const CONFIG = {
   shopName:    "TREND",
   address:     "دمشق — دمر البلد",
+  siteUrl:     "https://jamejame88.github.io/TREND/site.html",
   whatsapp:    "963934589893",
   sheetUrl:    "https://script.google.com/macros/s/AKfycbx4zwX9C0PqPvE215aF1AwVs5j8pn7mqzbEx961qYShZDct3dYm4nTvetl8VBAtm9sA/exec",
   expiryDays:  14,
@@ -386,6 +413,7 @@ let picked = null, spun = false, entry = {};
 
 $('brandName').textContent = CONFIG.shopName;
 $('footAddr').textContent = CONFIG.address;
+$('shopBtn').href = CONFIG.siteUrl;
 
 /* رسم العجلة */
 (function draw(){
@@ -473,103 +501,60 @@ async function checkAllowed(phone){
   return !(res && res.allowed === false);
 }
 
-/* عروض اليوم */
+/* عروض اليوم — شريط متحرك */
 (async function loadOffers(){
   const res = await jsonp('action=offers', 9000);
   if (!res || !res.offers || !res.offers.length) return;
 
+  const list = res.offers.slice(0, 8);
   const wrap = $('offerList');
-  res.offers.slice(0, 12).forEach(o => {
-    const row = document.createElement('div');
-    row.className = 'offer';
 
-    if (o.img){
-      const im = document.createElement('img');
-      im.src = o.img; im.alt = o.name || ''; im.loading = 'lazy';
-      im.onerror = () => im.remove();
-      row.appendChild(im);
-    }
+  /* نكرّرها مرتين ليبدو الدوران متصلاً */
+  [0, 1].forEach(() => {
+    list.forEach(o => {
+      const c = document.createElement('div');
+      c.className = 'ocard';
 
-    const body = document.createElement('div');
-    body.className = 'o-body';
-
-    const nm = document.createElement('div');
-    nm.className = 'o-name'; nm.textContent = o.name || '';
-    body.appendChild(nm);
-
-    if (o.note){
-      const nt = document.createElement('div');
-      nt.className = 'o-note'; nt.textContent = o.note;
-      body.appendChild(nt);
-    }
-
-    if (o.priceNew || o.priceOld){
-      const pr = document.createElement('div');
-      pr.className = 'o-price';
-      if (o.priceNew){
-        const n = document.createElement('span');
-        n.className = 'o-new'; n.textContent = o.priceNew;
-        pr.appendChild(n);
+      if (o.img){
+        const im = new Image();
+        im.src = o.img; im.alt = o.name || ''; im.loading = 'lazy';
+        im.onerror = () => im.remove();
+        c.appendChild(im);
       }
-      if (o.priceOld){
-        const d = document.createElement('span');
-        d.className = 'o-old'; d.textContent = o.priceOld;
-        pr.appendChild(d);
-      }
-      body.appendChild(pr);
-    }
 
-    row.appendChild(body);
-    wrap.appendChild(row);
+      const bd = document.createElement('div');
+      bd.className = 'obadge';
+      bd.textContent = o.note || 'عرض';
+      c.appendChild(bd);
+
+      const nm = document.createElement('div');
+      nm.className = 'on'; nm.textContent = o.name || '';
+      c.appendChild(nm);
+
+      if (o.priceNew || o.priceOld){
+        const pr = document.createElement('div');
+        pr.className = 'op';
+        if (o.priceNew){
+          const n = document.createElement('span');
+          n.className = 'o-new'; n.textContent = o.priceNew;
+          pr.appendChild(n);
+        }
+        if (o.priceOld){
+          const d = document.createElement('span');
+          d.className = 'o-old'; d.textContent = o.priceOld;
+          pr.appendChild(d);
+        }
+        c.appendChild(pr);
+      }
+
+      wrap.appendChild(c);
+    });
   });
 
   $('offers').hidden = false;
 })();
 
-/* التحقق */
-$('toWheel').addEventListener('click', async () => {
-  const btn   = $('toWheel');
-  const name  = $('name').value.trim();
-  const phone = $('phone').value.replace(/\D/g, '');
-  const okName  = name.length >= 2;
-  const okPhone = /^09\d{8}$/.test(phone);
-  $('errName').classList.toggle('on', !okName);
-  $('errPhone').classList.toggle('on', !okPhone);
-  $('errDaily').classList.remove('on');
-  if (!okName || !okPhone) return;
-
-  btn.disabled = true;
-  btn.textContent = 'جارٍ التحقق';
-  const allowed = await checkAllowed(phone);
-  btn.disabled = false;
-  btn.textContent = 'متابعة';
-
-  if (!allowed){ $('errDaily').classList.add('on'); return; }
-
-  entry = { name, phone, occasion: $('occasion').value, occDate: $('occDate').value };
-  $('stepForm').classList.remove('on');
-  $('stepWheel').classList.add('on');
-  $('spin').focus();
-});
-$('name').addEventListener('input', () => $('errName').classList.remove('on'));
-$('phone').addEventListener('input', () => {
-  $('errPhone').classList.remove('on');
-  $('errDaily').classList.remove('on');
-});
-
-function pickPrize(){
-  const total = CONFIG.prizes.reduce((s, p) => s + p.weight, 0);
-  let n = Math.random() * total;
-  for (let i = 0; i < SEG; i++){ n -= CONFIG.prizes[i].weight; if (n <= 0) return i; }
-  return 0;
-}
-function makeCode(tag){
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let s = '';
-  for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return tag + '-' + s;
-}
-
+/* ١ — اللفّة */
 $('spin').addEventListener('click', () => {
   if (spun) return;
   spun = true;
@@ -584,8 +569,64 @@ $('spin').addEventListener('click', () => {
   w.classList.add('spinning');
   requestAnimationFrame(() => { w.style.transform = `rotate(${target}deg)`; });
 
-  setTimeout(finish, matchMedia('(prefers-reduced-motion: reduce)').matches ? 1300 : 5700);
+  try {
+    const t = new Image();
+    t.src = CONFIG.sheetUrl + '?action=track&ev=spin&callback=cb&_=' + Date.now();
+  } catch(e){}
+
+  setTimeout(showForm, matchMedia('(prefers-reduced-motion: reduce)').matches ? 1300 : 5700);
 });
+
+/* ٢ — عرض الجائزة وطلب البيانات */
+function showForm(){
+  $('wonPrize').textContent = picked.label;
+  $('stepWheel').classList.remove('on');
+  $('stepForm').classList.add('on');
+  $('name').focus();
+}
+
+$('name').addEventListener('input', () => $('errName').classList.remove('on'));
+$('phone').addEventListener('input', () => {
+  $('errPhone').classList.remove('on');
+  $('errDaily').classList.remove('on');
+});
+
+/* ٣ — التفعيل والتحقق */
+$('claim').addEventListener('click', async () => {
+  const btn   = $('claim');
+  const name  = $('name').value.trim();
+  const phone = $('phone').value.replace(/\D/g, '');
+  const okName  = name.length >= 2;
+  const okPhone = /^09\d{8}$/.test(phone);
+  $('errName').classList.toggle('on', !okName);
+  $('errPhone').classList.toggle('on', !okPhone);
+  $('errDaily').classList.remove('on');
+  if (!okName || !okPhone) return;
+
+  btn.disabled = true;
+  btn.textContent = 'جارٍ التحقق';
+  const allowed = await checkAllowed(phone);
+  btn.disabled = false;
+  btn.textContent = 'استلم الرمز';
+
+  if (!allowed){ $('errDaily').classList.add('on'); return; }
+
+  entry = { name, phone, occasion: $('occasion').value, occDate: $('occDate').value };
+  finish();
+});
+
+function pickPrize(){
+  const total = CONFIG.prizes.reduce((s, p) => s + p.weight, 0);
+  let n = Math.random() * total;
+  for (let i = 0; i < SEG; i++){ n -= CONFIG.prizes[i].weight; if (n <= 0) return i; }
+  return 0;
+}
+function makeCode(tag){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return tag + '-' + s;
+}
 
 function finish(){
   const code = makeCode(picked.tag);
@@ -611,7 +652,7 @@ function finish(){
   };
 
   save(entry);
-  $('stepWheel').classList.remove('on');
+  $('stepForm').classList.remove('on');
   $('stepResult').classList.add('on');
 }
 
