@@ -509,8 +509,9 @@ $('aiInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') aiS
   b.onclick = function(){ $('aiInput').value = b.textContent; aiSend(); };
 });
 
-/* حالة السلة — لازم تتعرّف قبل رسم المنتجات */
-var CART = memo('cart') || [];
+/* حالة السلة — بالذاكرة فقط، بتنمسح لما يطلع الزبون من الصفحة */
+var CART = [];
+try { localStorage.removeItem('trend_cart'); } catch(e){}
 
 /* ——— العروض ——— */
 function paintOffers(list){
@@ -713,7 +714,6 @@ function qtyOf(name){
   return 0;
 }
 function saveCart(){
-  keep('cart', CART);
   paintCart();
   paintAllActions();
 }
