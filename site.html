@@ -485,7 +485,7 @@ function aiSend(){
   var wait = aiAdd('t', 'عم فكّر…');
   var hist = JSON.stringify(AI_HIST.slice(-4));
 
-  jsonp('action=ask&q=' + encodeURIComponent(q) + '&h=' + encodeURIComponent(hist), 25000)
+  jsonp('action=ask&q=' + encodeURIComponent(q) + '&h=' + encodeURIComponent(hist), 55000)
     .then(function(r){
       wait.remove();
       var reply = (r && r.reply) ? r.reply
