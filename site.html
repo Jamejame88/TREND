@@ -277,6 +277,11 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 }
 .scard:hover{border-color:var(--gold)}
 .scard img{width:100%;height:70px;object-fit:cover;background:#0E0B0A;display:block}
+.scard .sdeal{
+  font-size:9px;letter-spacing:.14em;color:var(--ink);
+  background:linear-gradient(120deg,var(--gold-dk),#E0CB92 50%,var(--gold));
+  padding:2px 0;text-align:center;
+}
 .scard .sn{
   font-size:10.5px;line-height:1.4;padding:6px 7px 0;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:2.8em;
@@ -329,6 +334,11 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 
 <div class="wrap">
 
+  <section id="offersSec" hidden style="margin-top:26px">
+    <div class="h"><span></span><b>عروض اليوم</b><span></span></div>
+    <div id="offerList"></div>
+  </section>
+
   <nav class="quick">
     <a class="qbtn" id="mapBtn" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z"/></svg>
@@ -339,11 +349,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
       اتصال
     </a>
   </nav>
-
-  <section id="offersSec" hidden>
-    <div class="h"><span></span><b>عروض اليوم</b><span></span></div>
-    <div id="offerList"></div>
-  </section>
 
   <section>
     <div class="h"><span></span><b>المنتجات</b><span></span></div>
@@ -515,18 +520,30 @@ function aiOpen(){
   setTimeout(function(){ $('aiInput').focus(); }, 100);
 }
 
-/* شريط المنتجات أثناء الانتظار */
+/* شريط المنتجات أثناء الانتظار — يبدأ بالعروض */
 function buildStrip(){
-  var pool = ALL.filter(function(p){ return p.avail !== false && money(p.price) > 0; });
-  if (pool.length < 3) return false;
+  var pool = [];
 
-  /* ترتيب عشوائي وأخذ 8 */
-  pool = pool.slice().sort(function(){ return Math.random() - 0.5; }).slice(0, 8);
+  /* العروض أولاً */
+  OFFERS.forEach(function(o){
+    var price = money(o.priceNew) || money(o.priceOld);
+    if (price > 0) pool.push({ name:o.name, price:String(price), img:o.img, deal:true });
+  });
+
+  /* ثم منتجات متوفرة، بدون تكرار ما ورد بالعروض */
+  var seen = {};
+  pool.forEach(function(p){ seen[p.name] = 1; });
+
+  var rest = ALL.filter(function(p){
+    return p.avail !== false && money(p.price) > 0 && !seen[p.name];
+  }).sort(function(){ return Math.random() - 0.5; });
+
+  pool = pool.concat(rest).slice(0, 8);
+  if (pool.length < 3) return false;
 
   var t = $('sTrack');
   t.innerHTML = '';
 
-  /* نكرّرها مرتين ليبدو الدوران متصلاً */
   [0, 1].forEach(function(){
     pool.forEach(function(p){
       var c = el('div', 'scard');
@@ -536,6 +553,7 @@ function buildStrip(){
         im.onerror = function(){ im.remove(); };
         c.appendChild(im);
       }
+      if (p.deal) c.appendChild(el('div', 'sdeal', 'عرض'));
       c.appendChild(el('div', 'sn', p.name));
       c.appendChild(el('div', 'sp', fmt(money(p.price))));
       c.onclick = function(){
@@ -586,11 +604,13 @@ $('aiInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') aiS
 
 /* حالة السلة — بالذاكرة فقط، بتنمسح لما يطلع الزبون من الصفحة */
 var CART = [];
+var OFFERS = [];
 try { localStorage.removeItem('trend_cart'); } catch(e){}
 
 /* ——— العروض ——— */
 function paintOffers(list){
   if (!list || !list.length) return;
+  OFFERS = list;
   var box = $('offerList');
   box.innerHTML = '';
   list.slice(0, 8).forEach(function(o){
