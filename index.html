@@ -569,11 +569,6 @@ $('spin').addEventListener('click', () => {
   w.classList.add('spinning');
   requestAnimationFrame(() => { w.style.transform = `rotate(${target}deg)`; });
 
-  try {
-    const t = new Image();
-    t.src = CONFIG.sheetUrl + '?action=track&ev=spin&callback=cb&_=' + Date.now();
-  } catch(e){}
-
   setTimeout(showForm, matchMedia('(prefers-reduced-motion: reduce)').matches ? 1300 : 5700);
 });
 
@@ -652,6 +647,13 @@ function finish(){
   };
 
   save(entry);
+
+  /* تُحتسب اللفّة هنا فقط — بعد تسجيل ناجح */
+  try {
+    const t = new Image();
+    t.src = CONFIG.sheetUrl + '?action=track&ev=spin&callback=cb&_=' + Date.now();
+  } catch(e){}
+
   $('stepForm').classList.remove('on');
   $('stepResult').classList.add('on');
 }
