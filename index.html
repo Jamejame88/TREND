@@ -312,6 +312,7 @@ button{
       <svg id="wheel" viewBox="0 0 320 320" role="img" aria-label="عجلة الجوائز"></svg>
     </div>
     <button class="primary btn-space" id="spin">لِف العجلة</button>
+    <a class="ghost shopBtn" id="shopBtn2" target="_blank" rel="noopener">تصفّح منتجاتنا</a>
   </section>
 
   <section class="card step" id="stepForm">
@@ -355,6 +356,7 @@ button{
     </div>
 
     <button class="primary btn-space" id="claim">استلم الرمز</button>
+    <a class="ghost shopBtn" id="shopBtn3" target="_blank" rel="noopener">تصفّح منتجاتنا</a>
   </section>
 
   <section class="card step" id="stepResult">
@@ -413,7 +415,10 @@ let picked = null, spun = false, entry = {};
 
 $('brandName').textContent = CONFIG.shopName;
 $('footAddr').textContent = CONFIG.address;
-$('shopBtn').href = CONFIG.siteUrl;
+['shopBtn', 'shopBtn2', 'shopBtn3'].forEach(function(id){
+  var b = $(id);
+  if (b) b.href = CONFIG.siteUrl;
+});
 
 /* رسم العجلة */
 (function draw(){
