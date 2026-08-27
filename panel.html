@@ -129,6 +129,12 @@ canvas{max-width:100%;height:auto;display:block;margin:0 auto}
     <div class="pane on" id="p_items">
       <div class="card">
         <div class="hd" id="formTitle">منتج جديد</div>
+        <div class="field" id="pickWrap" style="display:none">
+          <label>اختر من منتجاتك</label>
+          <select id="f_pick"><option value="">— أو اكتب يدويًا —</option></select>
+          <p class="hint">بيعبّي الاسم والصورة والسعر تلقائيًا.</p>
+        </div>
+
         <div class="field"><label>الاسم</label><input id="f_name"></div>
 
         <div class="row" id="prodFields">
@@ -449,6 +455,7 @@ function clearForm(){
   EDIT = 0;
   ['f_name','f_price','f_note','f_img','f_old','f_new'].forEach(function(i){ $(i).value = ''; });
   $('f_cur').value = 'syp';
+  $('f_pick').value = '';
   resetImg();
   $('formTitle').textContent = isOffer() ? 'عرض جديد' : 'منتج جديد';
   $('cancel').style.display = 'none';
@@ -464,6 +471,7 @@ function write(op, p){
     }
   }).then(function(){
     say('تم الحفظ', true);
+    PRODUCTS = [];
     setTimeout(load, 1400);
   });
 }
@@ -506,6 +514,51 @@ $('saveRate').onclick = function(){
     .then(function(){ say('انحفظ سعر الصرف', true); setTimeout(load, 1400); });
 };
 
+/* ═══ اختيار منتج جاهز للعرض ═══ */
+var PRODUCTS = [];
+
+function loadProducts(){
+  if (PRODUCTS.length) return Promise.resolve();
+  return jsonp('action=admin&kind=product&pin=' + encodeURIComponent(PIN)).then(function(r){
+    if (r && r.ok) PRODUCTS = r.rows || [];
+    fillPicker();
+  });
+}
+
+function fillPicker(){
+  var sel = $('f_pick');
+  sel.innerHTML = '<option value="">— أو اكتب يدويًا —</option>';
+  PRODUCTS.forEach(function(p, i){
+    var o = document.createElement('option');
+    o.value = i;
+    o.textContent = p.name + (p.price ? ' · ' + p.price + (p.cur === 'usd' ? '$' : ' ل.س') : '');
+    sel.appendChild(o);
+  });
+}
+
+$('f_pick').onchange = function(){
+  var i = this.value;
+  if (i === '') return;
+  var p = PRODUCTS[i];
+  if (!p) return;
+
+  $('f_name').value = p.name;
+  $('f_img').value  = p.img || '';
+  $('f_cur').value  = p.cur || 'syp';
+  $('f_old').value  = p.price || '';
+  $('f_new').value  = '';
+  $('f_note').value = p.note || '';
+
+  if (p.img){
+    $('prev').src = p.img;
+    $('prev').classList.add('on');
+    $('upTxt').textContent = 'اضغط للتغيير';
+  } else resetImg();
+
+  say('انعبّى من المنتج — ضلّك السعر بعد الحسم', true);
+  $('f_new').focus();
+};
+
 /* ═══ الأرقام ═══ */
 function loadStats(){
   jsonp('action=stats&pin=' + encodeURIComponent(PIN)).then(function(r){
@@ -545,10 +598,12 @@ function loadStats(){
       var off = isOffer();
       $('prodFields').style.display  = off ? 'none' : 'flex';
       $('offerFields').style.display = off ? 'flex' : 'none';
+      $('pickWrap').style.display    = off ? 'block' : 'none';
       $('listTitle').textContent = off ? 'العروض' : 'المنتجات';
       clearForm();
       $('list').innerHTML = '';
       load();
+      if (off) loadProducts();
     }
     if (t.dataset.pane === 'p_stats') loadStats();
     if (t.dataset.pane === 'p_qr')    drawQR();
