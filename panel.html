@@ -185,6 +185,34 @@ canvas{max-width:100%;height:auto;display:block;margin:0 auto}
         <button class="ghost" id="cancel" style="margin-top:9px;display:none">إلغاء التعديل</button>
       </div>
 
+      <div class="card" id="bulkCard">
+        <div class="hd">رفع دفعة صور</div>
+        <div class="up" id="bulkZone">
+          <input type="file" id="b_files" accept="image/*" multiple hidden>
+          <span id="bulkTxt">اضغط لاختيار عدة صور دفعة وحدة</span>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <div class="field" style="margin-bottom:0">
+            <label>القسم لكل الدفعة</label>
+            <select id="b_cat">
+              <option>عطور</option><option>مكياج</option><option>إكسسوار</option>
+              <option>ساعات</option><option>ألعاب</option><option>هدايا</option>
+              <option>سبلاشات</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>العملة</label>
+            <select id="b_cur">
+              <option value="syp">ليرة</option>
+              <option value="usd">دولار</option>
+            </select>
+          </div>
+        </div>
+        <div id="bulkList" style="margin-top:14px"></div>
+        <button class="ghost" id="bulkGo" style="margin-top:12px;display:none">ابدأ الرفع</button>
+        <p class="hint">بتنضاف كمنتجات <b>مخفية</b> باسم الملف — بعدين بتكمّل الاسم والسعر وبتظهّرها.</p>
+      </div>
+
       <div class="card">
         <div class="hd"><span id="listTitle">المنتجات</span> (<span id="count">0</span>)</div>
         <div id="list"></div>
@@ -521,6 +549,121 @@ $('saveRate').onclick = function(){
     .then(function(){ say('انحفظ سعر الصرف', true); setTimeout(load, 1400); });
 };
 
+/* ═══ رفع دفعة صور ═══ */
+var BULK = [];
+
+function cleanName(f){
+  return f.name.replace(/\.[^.]+$/, '')
+              .replace(/[_-]+/g, ' ')
+              .replace(/\s+/g, ' ')
+              .trim() || 'منتج جديد';
+}
+
+/* WEBP أخف من JPEG بحوالي الثلث — مع تراجع تلقائي لو مو مدعوم */
+function shrinkWebp(file){
+  return new Promise(function(res, rej){
+    var fr = new FileReader();
+    fr.onload = function(){
+      var img = new Image();
+      img.onload = function(){
+        var w = img.width, h = img.height;
+        if (w > h && w > MAX_SIDE){ h = Math.round(h * MAX_SIDE / w); w = MAX_SIDE; }
+        else if (h >= w && h > MAX_SIDE){ w = Math.round(w * MAX_SIDE / h); h = MAX_SIDE; }
+        var cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        var cx = cv.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h);
+        cx.drawImage(img, 0, 0, w, h);
+        var out = cv.toDataURL('image/webp', QUALITY);
+        if (out.indexOf('image/webp') === -1) out = cv.toDataURL('image/jpeg', QUALITY);
+        res(out.split(',')[1]);
+      };
+      img.onerror = rej; img.src = fr.result;
+    };
+    fr.onerror = rej; fr.readAsDataURL(file);
+  });
+}
+
+$('bulkZone').onclick = function(){ $('b_files').click(); };
+
+$('b_files').onchange = function(){
+  BULK = [].slice.call(this.files || []);
+  var box = $('bulkList');
+  box.innerHTML = '';
+  if (!BULK.length){ $('bulkGo').style.display = 'none'; return; }
+
+  BULK.forEach(function(f, i){
+    var d = document.createElement('div');
+    d.className = 'item';
+    d.id = 'bulk_' + i;
+    d.innerHTML = '<div class="b"><div class="n"></div><div class="m">بالانتظار</div></div>';
+    d.querySelector('.n').textContent = cleanName(f);
+    box.appendChild(d);
+  });
+
+  $('bulkTxt').textContent = 'اخترت ' + BULK.length + ' صورة';
+  $('bulkGo').style.display = 'block';
+  $('bulkGo').textContent = 'ابدأ رفع ' + BULK.length + ' صورة';
+};
+
+$('bulkGo').onclick = function(){
+  if (!BULK.length) return;
+  var btn = $('bulkGo');
+  btn.disabled = true;
+  btn.textContent = 'جارٍ الرفع…';
+
+  var cat = $('b_cat').value, cur = $('b_cur').value;
+  var done = 0, failed = 0;
+
+  function step(i){
+    if (i >= BULK.length){
+      btn.disabled = false;
+      btn.textContent = 'ابدأ الرفع';
+      btn.style.display = 'none';
+      $('b_files').value = '';
+      $('bulkTxt').textContent = 'اضغط لاختيار عدة صور دفعة وحدة';
+      BULK = [];
+      say('انرفع ' + done + ' منتج' + (failed ? ' · فشل ' + failed : ''), failed === 0);
+      PRODUCTS = [];
+      setTimeout(load, 1600);
+      return;
+    }
+
+    var f    = BULK[i];
+    var node = $('bulk_' + i);
+    var meta = node.querySelector('.m');
+    meta.textContent = 'جارٍ الضغط…';
+
+    shrinkWebp(f).then(function(b64){
+      meta.textContent = 'جارٍ الرفع… (' + Math.round(b64.length * .75 / 1024) + ' ك.ب)';
+      return upload(b64);
+    }).then(function(url){
+      var im = new Image();
+      im.src = url;
+      node.insertBefore(im, node.firstChild);
+      meta.textContent = 'تم ✓';
+      meta.style.color = 'var(--ok)';
+      done++;
+      return post({
+        type: 'product', kind: 'product', pin: PIN, op: 'add',
+        data: {
+          name: cleanName(f), cat: cat, price: '',
+          note: '', img: url, cur: cur,
+          show: false, avail: true
+        }
+      });
+    }).catch(function(){
+      meta.textContent = 'فشل';
+      meta.style.color = 'var(--err)';
+      failed++;
+    }).then(function(){
+      setTimeout(function(){ step(i + 1); }, 400);
+    });
+  }
+
+  step(0);
+};
+
 /* ═══ اختيار منتج جاهز للعرض ═══ */
 var PRODUCTS = [];
 
@@ -606,6 +749,7 @@ function loadStats(){
       $('prodFields').style.display  = off ? 'none' : 'flex';
       $('offerFields').style.display = off ? 'flex' : 'none';
       $('pickWrap').style.display    = off ? 'block' : 'none';
+      $('bulkCard').style.display    = off ? 'none' : 'block';
       $('listTitle').textContent = off ? 'العروض' : 'المنتجات';
       clearForm();
       $('list').innerHTML = '';
