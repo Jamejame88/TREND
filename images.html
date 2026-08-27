@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TREND — معالجة صور المنتجات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0A0A0A;
+  --ink-2:#141414;
+  --ink-3:#1E1E1E;
+  --gold:#C9A227;
+  --gold-soft:#8C7220;
+  --paper:#EDE7DA;
+  --muted:#8A8577;
+  --line:rgba(201,162,39,.22);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:'Amiri',serif;
+  font-size:17px;
+  line-height:1.7;
+  min-height:100vh;
+  padding:0 0 80px;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+/* ---------- header ---------- */
+header{
+  border-bottom:1px solid var(--line);
+  padding:42px 0 26px;
+  margin-bottom:34px;
+}
+.brand{
+  font-family:'Cormorant Garamond',serif;
+  font-size:44px;
+  font-weight:300;
+  letter-spacing:.42em;
+  color:var(--gold);
+  direction:ltr;
+  text-align:center;
+}
+.tag{
+  text-align:center;
+  color:var(--muted);
+  font-size:15px;
+  margin-top:10px;
+}
+
+/* ---------- drop zone ---------- */
+.drop{
+  border:1px dashed var(--line);
+  padding:52px 24px;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color .2s, background .2s;
+  background:var(--ink-2);
+}
+.drop:hover,.drop.hot{border-color:var(--gold);background:var(--ink-3)}
+.drop .big{font-size:20px;color:var(--paper)}
+.drop .small{font-size:14px;color:var(--muted);margin-top:8px}
+
+/* ---------- controls ---------- */
+.panel{
+  margin-top:34px;
+  border:1px solid var(--line);
+  background:var(--ink-2);
+  padding:26px 24px;
+}
+.panel h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:400;
+  font-size:15px;
+  letter-spacing:.24em;
+  color:var(--gold);
+  direction:ltr;
+  text-align:right;
+  margin-bottom:20px;
+  text-transform:uppercase;
+}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px}
+label.f{display:block;font-size:14px;color:var(--muted);margin-bottom:7px}
+select,input[type=text]{
+  width:100%;background:var(--ink);color:var(--paper);
+  border:1px solid var(--line);padding:9px 11px;font-family:'Amiri',serif;font-size:15px;
+}
+select:focus,input:focus{outline:2px solid var(--gold);outline-offset:1px}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.val{color:var(--gold);font-size:13px;float:left}
+.seg{display:flex;border:1px solid var(--line)}
+.seg button{
+  flex:1;background:var(--ink);color:var(--muted);border:0;padding:9px 4px;
+  font-family:'Amiri',serif;font-size:14px;cursor:pointer;transition:.15s;
+}
+.seg button+button{border-right:1px solid var(--line)}
+.seg button.on{background:var(--gold);color:var(--ink)}
+.seg button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ---------- actions ---------- */
+.actions{margin-top:26px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+button.act{
+  background:transparent;border:1px solid var(--gold);color:var(--gold);
+  font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.2em;
+  padding:12px 30px;cursor:pointer;transition:.18s;
+}
+button.act:hover{background:var(--gold);color:var(--ink)}
+button.act:disabled{opacity:.32;cursor:not-allowed}
+button.act.solid{background:var(--gold);color:var(--ink)}
+button.act.solid:hover{background:#E0B62E}
+
+/* ---------- savings signature ---------- */
+.saving{
+  margin-top:34px;border:1px solid var(--line);background:var(--ink-2);
+  padding:28px 24px;display:none;
+}
+.saving.show{display:block}
+.saving .row{display:flex;align-items:baseline;justify-content:center;gap:18px;flex-wrap:wrap}
+.saving .n{
+  font-family:'Cormorant Garamond',serif;font-size:64px;font-weight:300;
+  color:var(--gold);line-height:1;direction:ltr;
+}
+.saving .lbl{color:var(--muted);font-size:15px}
+.saving .detail{text-align:center;color:var(--muted);font-size:14px;margin-top:14px;direction:ltr}
+
+/* ---------- results ---------- */
+.results{margin-top:34px;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:20px}
+.card{border:1px solid var(--line);background:var(--ink-2);padding:12px}
+.card .thumb{width:100%;aspect-ratio:1;background:#000;display:block;object-fit:contain}
+.card .nm{font-size:12px;color:var(--paper);margin-top:10px;direction:ltr;text-align:left;word-break:break-all}
+.card .sz{font-size:12px;color:var(--muted);direction:ltr;text-align:left;margin-top:3px}
+.card .sz b{color:var(--gold);font-weight:400}
+.card a{
+  display:block;text-align:center;margin-top:10px;color:var(--gold);
+  text-decoration:none;font-size:13px;border:1px solid var(--line);padding:6px;
+}
+.card a:hover{background:var(--gold);color:var(--ink)}
+
+textarea{
+  width:100%;margin-top:18px;min-height:150px;background:var(--ink);color:var(--paper);
+  border:1px solid var(--line);padding:12px;direction:ltr;text-align:left;
+  font-family:ui-monospace,monospace;font-size:12px;line-height:1.6;white-space:pre;
+}
+textarea:focus{outline:2px solid var(--gold);outline-offset:1px}
+.note{color:var(--muted);font-size:14px;margin-top:12px}
+.err{color:#D97757;font-size:14px;margin-top:12px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(max-width:600px){.brand{font-size:32px}.saving .n{font-size:46px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">TREND</div>
+    <div class="tag">معالجة صور المنتجات — تقاس بالحجم قبل الشكل</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="اختر الصور">
+    <div class="big">اسحب الصور إلى هنا أو اضغط للاختيار</div>
+    <div class="small">JPG · PNG · WEBP — تعمل الصور داخل جهازك ولا تُرفع إلى أي مكان</div>
+    <input type="file" id="file" accept="image/*" multiple hidden>
+  </div>
+
+  <div class="panel">
+    <h2>الإعدادات</h2>
+    <div class="grid">
+
+      <div>
+        <label class="f">مقاس الصورة</label>
+        <select id="size">
+          <option value="600">600 × 600 — خفيفة جداً</option>
+          <option value="800" selected>800 × 800 — الموصى به</option>
+          <option value="1000">1000 × 1000 — تفاصيل أدق</option>
+          <option value="1200">1200 × 1200 — ثقيلة</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="f">صيغة الحفظ</label>
+        <select id="fmt">
+          <option value="image/webp" selected>WEBP — أخف بنحو 30%</option>
+          <option value="image/jpeg">JPEG — توافق أوسع</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="f">طريقة الاقتصاص</label>
+        <div class="seg" id="mode">
+          <button data-v="cover" class="on">ملء الإطار</button>
+          <button data-v="contain">المنتج كاملاً</button>
+        </div>
+      </div>
+
+      <div>
+        <label class="f">لون الخلفية</label>
+        <select id="bg">
+          <option value="#FFFFFF">أبيض</option>
+          <option value="#0A0A0A" selected>أسود TREND</option>
+          <option value="#EDE7DA">عاجي</option>
+          <option value="transparent">شفافة (WEBP فقط)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="f">جودة الضغط <span class="val" id="qv">80%</span></label>
+        <input type="range" id="q" min="40" max="95" value="80">
+      </div>
+
+      <div>
+        <label class="f">الإضاءة <span class="val" id="bv">100%</span></label>
+        <input type="range" id="b" min="60" max="160" value="100">
+      </div>
+
+      <div>
+        <label class="f">التباين <span class="val" id="cv">100%</span></label>
+        <input type="range" id="c" min="60" max="160" value="100">
+      </div>
+
+      <div>
+        <label class="f">تشبّع الألوان <span class="val" id="sv">100%</span></label>
+        <input type="range" id="s" min="0" max="200" value="100">
+      </div>
+
+      <div>
+        <label class="f">اسم الملفات</label>
+        <input type="text" id="prefix" value="trend" dir="ltr">
+      </div>
+
+    </div>
+
+    <div class="actions">
+      <button class="act solid" id="run" disabled>عالج الصور</button>
+      <button class="act" id="zip" disabled>نزّل الكل (ZIP)</button>
+      <button class="act" id="clear" disabled>ابدأ من جديد</button>
+    </div>
+    <div class="note" id="count">لم تُختر أي صورة بعد.</div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="saving" id="saving">
+    <div class="row">
+      <span class="n" id="pct">—</span>
+      <span class="lbl">من حجم الصور تم توفيره</span>
+    </div>
+    <div class="detail" id="detail"></div>
+  </div>
+
+  <div class="panel" id="sheetPanel" style="display:none">
+    <h2>الإرسال إلى ورقة المنتجات</h2>
+    <div class="grid">
+      <div>
+        <label class="f">مفتاح imgbb</label>
+        <input type="text" id="key" dir="ltr" placeholder="الصق المفتاح هنا">
+      </div>
+      <div>
+        <label class="f">القسم (يُطبّق على الدفعة)</label>
+        <select id="cat">
+          <option>عطور</option>
+          <option>إكسسوار</option>
+          <option>ألعاب</option>
+          <option>مكياج</option>
+          <option>هدايا</option>
+          <option>ساعات</option>
+        </select>
+      </div>
+      <div>
+        <label class="f">رابط Apps Script</label>
+        <input type="text" id="api" dir="ltr" placeholder="https://script.google.com/…/exec">
+      </div>
+      <div>
+        <label class="f">الرمز السري للإدارة</label>
+        <input type="password" id="pin" dir="ltr" placeholder="ADMIN_PIN">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="act solid" id="send">ارفع وأرسل للجدول</button>
+      <button class="act" id="copy" disabled>انسخ الصفوف بدلاً من ذلك</button>
+    </div>
+    <div class="note" id="upNote">الصور تُرفع إلى حسابك على imgbb، ثم تُضاف كمنتجات مخفية في ورقة المنتجات.</div>
+
+    <textarea id="tsv" spellcheck="false" placeholder="نسخة احتياطية للّصق اليدوي — تظهر بعد الرفع"></textarea>
+  </div>
+
+  <div class="results" id="results"></div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+/* ══════════════════════════════════════════════════
+   الإعدادات — اكتبها مرة واحدة بين علامتَي التنصيص
+   ══════════════════════════════════════════════════ */
+var CONFIG = {
+  /* مفتاح imgbb */
+  imgbb: '67d7adddcaf16136e8bb0e703e1471a1',
+
+  /* رابط Apps Script — نفسه المستخدم في site.html و index.html */
+  api:   'https://script.google.com/macros/s/AKfycbx4zwX9C0PqPvE215aF1AwVs5j8pn7mqzbEx961qYShZDct3dYm4nTvetl8VBAtm9sA/exec',
+
+  /* الرمز السري ADMIN_PIN — اتركه فارغاً إذا رفعت الملف على GitHub */
+  pin:   ''
+};
+/* ══════════════════════════════════════════════════ */
+
+(function(){
+  var files = [], out = [], mode = 'cover';
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* تعبئة الحقول من الإعدادات الثابتة */
+  if (CONFIG.imgbb) $('key').value = CONFIG.imgbb;
+  if (CONFIG.api)   $('api').value = CONFIG.api;
+  if (CONFIG.pin)   $('pin').value = CONFIG.pin;
+  var drop=$('drop'), input=$('file'), results=$('results'),
+      runBtn=$('run'), zipBtn=$('zip'), clearBtn=$('clear'),
+      countEl=$('count'), errEl=$('err'), savingEl=$('saving');
+
+  /* ---- sliders ---- */
+  [['q','qv'],['b','bv'],['c','cv'],['s','sv']].forEach(function(p){
+    $(p[0]).addEventListener('input', function(){ $(p[1]).textContent = this.value + '%'; });
+  });
+
+  /* ---- crop mode ---- */
+  Array.prototype.forEach.call($('mode').children, function(btn){
+    btn.addEventListener('click', function(){
+      Array.prototype.forEach.call($('mode').children, function(b){ b.classList.remove('on'); });
+      btn.classList.add('on');
+      mode = btn.dataset.v;
+    });
+  });
+
+  /* ---- file intake ---- */
+  drop.addEventListener('click', function(){ input.click(); });
+  drop.addEventListener('keydown', function(e){
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); input.click(); }
+  });
+  ['dragenter','dragover'].forEach(function(ev){
+    drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('hot'); });
+  });
+  ['dragleave','drop'].forEach(function(ev){
+    drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('hot'); });
+  });
+  drop.addEventListener('drop', function(e){ take(e.dataTransfer.files); });
+  input.addEventListener('change', function(){ take(input.files); });
+
+  function take(list){
+    var added = Array.prototype.filter.call(list, function(f){ return f.type.indexOf('image/')===0; });
+    if(!added.length){ errEl.textContent = 'لم يُعثر على صور صالحة في ما اخترته.'; return; }
+    errEl.textContent = '';
+    files = files.concat(added);
+    countEl.textContent = 'جاهزة للمعالجة: ' + files.length + ' صورة.';
+    runBtn.disabled = false;
+    clearBtn.disabled = false;
+  }
+
+  /* ---- helpers ---- */
+  function kb(bytes){
+    if(bytes < 1024) return bytes + ' B';
+    if(bytes < 1048576) return Math.round(bytes/1024) + ' KB';
+    return (bytes/1048576).toFixed(2) + ' MB';
+  }
+
+  function loadImage(file){
+    return new Promise(function(res, rej){
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){ URL.revokeObjectURL(url); res(img); };
+      img.onerror = function(){ URL.revokeObjectURL(url); rej(new Error('تعذّرت قراءة ' + file.name)); };
+      img.src = url;
+    });
+  }
+
+  function render(img){
+    var size = parseInt($('size').value, 10);
+    var bg   = $('bg').value;
+    var fmt  = $('fmt').value;
+
+    var cv = document.createElement('canvas');
+    cv.width = size; cv.height = size;
+    var ctx = cv.getContext('2d');
+
+    if(bg !== 'transparent' || fmt === 'image/jpeg'){
+      ctx.fillStyle = (bg === 'transparent') ? '#FFFFFF' : bg;
+      ctx.fillRect(0, 0, size, size);
+    }
+
+    ctx.imageSmoothingQuality = 'high';
+    ctx.filter = 'brightness(' + $('b').value + '%) contrast(' + $('c').value +
+                 '%) saturate(' + $('s').value + '%)';
+
+    var scale, pad;
+    if(mode === 'cover'){
+      scale = Math.max(size / img.width, size / img.height);
+    }else{
+      pad = size * 0.06;
+      scale = Math.min((size - pad*2) / img.width, (size - pad*2) / img.height);
+    }
+    var w = img.width * scale, h = img.height * scale;
+    ctx.drawImage(img, (size - w)/2, (size - h)/2, w, h);
+
+    return new Promise(function(res){
+      cv.toBlob(function(blob){ res({ blob: blob, url: cv.toDataURL(fmt, 0.7) }); },
+                fmt, parseInt($('q').value, 10) / 100);
+    });
+  }
+
+  /* ---- run ---- */
+  runBtn.addEventListener('click', async function(){
+    runBtn.disabled = true;
+    runBtn.textContent = 'جارٍ المعالجة…';
+    errEl.textContent = '';
+    results.innerHTML = '';
+    out = [];
+
+    var ext = $('fmt').value === 'image/webp' ? 'webp' : 'jpg';
+    var prefix = ($('prefix').value || 'trend').trim().replace(/[^\w-]/g, '');
+    var before = 0, after = 0;
+
+    for(var i = 0; i < files.length; i++){
+      try{
+        var img = await loadImage(files[i]);
+        var r = await render(img);
+        var name = prefix + '-' + String(i+1).padStart(3, '0') + '.' + ext;
+
+        before += files[i].size;
+        after  += r.blob.size;
+        out.push({ name: name, blob: r.blob });
+
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML =
+          '<img class="thumb" alt="' + name + '">' +
+          '<div class="nm"></div>' +
+          '<div class="sz"></div>' +
+          '<a download></a>';
+        card.querySelector('.thumb').src = r.url;
+        card.querySelector('.nm').textContent = name;
+        card.querySelector('.sz').innerHTML = kb(files[i].size) + ' → <b>' + kb(r.blob.size) + '</b>';
+        var a = card.querySelector('a');
+        a.href = URL.createObjectURL(r.blob);
+        a.download = name;
+        a.textContent = 'تنزيل';
+        results.appendChild(card);
+      }catch(e){
+        errEl.textContent = e.message;
+      }
+    }
+
+    if(out.length){
+      var saved = before - after;
+      $('pct').textContent = before ? Math.round(saved / before * 100) + '%' : '—';
+      $('detail').textContent = kb(before) + '  →  ' + kb(after);
+      savingEl.classList.add('show');
+      $('sheetPanel').style.display = 'block';
+      zipBtn.disabled = (typeof JSZip === 'undefined');
+      if(typeof JSZip === 'undefined'){
+        errEl.textContent = 'تنزيل ZIP غير متاح بلا إنترنت — نزّل الصور فرادى من الأزرار أدناه.';
+      }
+    }
+
+    countEl.textContent = 'اكتملت معالجة ' + out.length + ' صورة.';
+    runBtn.textContent = 'عالج الصور';
+    runBtn.disabled = false;
+  });
+
+  /* ---- zip ---- */
+  zipBtn.addEventListener('click', async function(){
+    if(typeof JSZip === 'undefined') return;
+    zipBtn.disabled = true;
+    zipBtn.textContent = 'جارٍ التجهيز…';
+    var z = new JSZip();
+    out.forEach(function(o){ z.file(o.name, o.blob); });
+    var blob = await z.generateAsync({ type: 'blob' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'trend-images.zip';
+    a.click();
+    zipBtn.textContent = 'نزّل الكل (ZIP)';
+    zipBtn.disabled = false;
+  });
+
+  /* ---- upload to imgbb + build sheet rows ---- */
+  function toImgbb(blob, key, name){
+    var fd = new FormData();
+    fd.append('image', blob, name);
+    fd.append('name', name.replace(/\.\w+$/, ''));
+    return fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(key), {
+      method: 'POST', body: fd
+    }).then(function(r){ return r.json(); }).then(function(j){
+      if(!j || !j.success) throw new Error('تعذّر رفع ' + name + ' — تحقّق من المفتاح.');
+      return j.data.url;
+    });
+  }
+
+  function jsonp(url){
+    return new Promise(function(res, rej){
+      var name = 'cb_' + Date.now() + Math.floor(Math.random()*999);
+      var s = document.createElement('script');
+      var done = false;
+      window[name] = function(d){ done = true; res(d); cleanup(); };
+      function cleanup(){ try{ delete window[name]; }catch(e){ window[name]=undefined; }
+                          if(s.parentNode) s.parentNode.removeChild(s); }
+      s.onerror = function(){ cleanup(); rej(new Error('تعذّر الاتصال بالسكربت')); };
+      setTimeout(function(){ if(!done){ cleanup(); rej(new Error('انتهت مهلة الاتصال')); } }, 15000);
+      s.src = url + (url.indexOf('?') < 0 ? '?' : '&') + 'callback=' + name;
+      document.body.appendChild(s);
+    });
+  }
+
+  function sendRow(base, pin, cat, name, url){
+    var payload = {
+      type: 'product', kind: 'product', op: 'add', pin: pin,
+      data: { name: name, cat: cat, price: '', note: '', img: url,
+              show: false, avail: true }
+    };
+    /* بلا ترويسة Content-Type حتى يبقى الطلب بسيطاً ولا يطلب preflight */
+    return fetch(base, { method: 'POST', body: JSON.stringify(payload) })
+      .catch(function(){
+        return fetch(base, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+      });
+  }
+
+  $('send').addEventListener('click', async function(){
+    var key  = $('key').value.trim();
+    var base = $('api').value.trim();
+    var pin  = $('pin').value.trim();
+
+    if(!key){  $('upNote').textContent = 'اكتب مفتاح imgbb أولاً.'; $('key').focus(); return; }
+    if(!base){ $('upNote').textContent = 'الصق رابط Apps Script المنتهي بـ /exec.'; $('api').focus(); return; }
+    if(!pin){  $('upNote').textContent = 'اكتب الرمز السري للإدارة.'; $('pin').focus(); return; }
+    if(!out.length) return;
+
+    var btn = this;
+    btn.disabled = true;
+
+    /* تحقّق من الرمز قبل رفع أي صورة */
+    try{
+      $('upNote').textContent = 'جارٍ التحقّق من الرمز…';
+      var chk = await jsonp(base + '?action=admin&kind=product&pin=' + encodeURIComponent(pin));
+      if(!chk || !chk.ok){
+        $('upNote').textContent = 'الرمز السري غير صحيح — لم تُرفع أي صورة.';
+        btn.disabled = false; return;
+      }
+    }catch(err){
+      $('upNote').textContent = err.message + ' — تأكد من الرابط ومن أن النشر متاح للجميع.';
+      btn.disabled = false; return;
+    }
+
+    var cat = $('cat').value, lines = [], ok = 0;
+
+    for(var i = 0; i < out.length; i++){
+      $('upNote').textContent = 'جارٍ المعالجة… ' + (i+1) + ' من ' + out.length;
+      try{
+        var url   = await toImgbb(out[i].blob, key, out[i].name);
+        var label = (files[i] ? files[i].name : out[i].name).replace(/\.\w+$/, '');
+        await sendRow(base, pin, cat, label, url);
+        lines.push([label, cat, '', '', url, 'لأ', 'نعم'].join('\t'));
+        ok++;
+      }catch(e){
+        $('upNote').textContent = e.message + ' — أُضيف ' + ok + ' منتج قبل التوقف.';
+        break;
+      }
+    }
+
+    if(ok){
+      $('tsv').value = lines.join('\n');
+      $('copy').disabled = false;
+      $('upNote').textContent = 'أُضيف ' + ok + ' منتج إلى ورقة المنتجات، مخفياً بانتظار الاسم والسعر.';
+    }
+    btn.disabled = false;
+  });
+
+  $('copy').addEventListener('click', function(){
+    var t = $('tsv');
+    t.select();
+    try{
+      document.execCommand('copy');
+      this.textContent = 'تم النسخ';
+      var b = this;
+      setTimeout(function(){ b.textContent = 'انسخ الصفوف'; }, 1800);
+    }catch(e){
+      $('upNote').textContent = 'انسخ يدوياً من المربع (Ctrl+C).';
+    }
+  });
+
+  /* ---- reset ---- */
+  clearBtn.addEventListener('click', function(){
+    files = []; out = [];
+    results.innerHTML = '';
+    savingEl.classList.remove('show');
+    input.value = '';
+    errEl.textContent = '';
+    countEl.textContent = 'لم تُختر أي صورة بعد.';
+    runBtn.disabled = true; zipBtn.disabled = true; clearBtn.disabled = true;
+  });
+
+})();
+</script>
+</body>
+</html>
