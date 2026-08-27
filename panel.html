@@ -719,7 +719,29 @@ $('dl').onclick = function(){
 /* ═══ تشغيل كتطبيق ═══ */
 if ('serviceWorker' in navigator){
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js').catch(function(){});
+    navigator.serviceWorker.register('./sw.js').then(function(reg){
+      /* افحص وجود نسخة أحدث عند كل فتح، وكل نصف ساعة */
+      reg.update();
+      setInterval(function(){ reg.update(); }, 30 * 60 * 1000);
+
+      reg.addEventListener('updatefound', function(){
+        var sw = reg.installing;
+        if (!sw) return;
+        sw.addEventListener('statechange', function(){
+          if (sw.state === 'installed' && navigator.serviceWorker.controller){
+            say('في تحديث جديد — عم نحمّلو', true);
+          }
+        });
+      });
+    }).catch(function(){});
+
+    /* لما تنشط نسخة جديدة، أعد التحميل مرة وحدة */
+    var reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if (reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
   });
 }
 
