@@ -83,6 +83,28 @@ body{
   font-size:15px;letter-spacing:.06em;
 }
 
+/* ——— شريط الفائزين ——— */
+.ticker{
+  position:relative;overflow:hidden;margin:0 0 26px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:linear-gradient(90deg,rgba(198,164,78,.05),rgba(198,164,78,.11),rgba(198,164,78,.05));
+  padding:10px 0;display:none;
+}
+.ticker.on{display:block}
+.ticker::before,.ticker::after{content:"";position:absolute;top:0;bottom:0;width:48px;z-index:2;pointer-events:none}
+.ticker::before{right:0;background:linear-gradient(270deg,var(--ink),transparent)}
+.ticker::after{left:0;background:linear-gradient(90deg,var(--ink),transparent)}
+.trail{display:flex;width:max-content;animation:slide 42s linear infinite}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(50%)}}
+@media(prefers-reduced-motion:reduce){.trail{animation:none}}
+.tk{display:flex;align-items:center;gap:8px;padding:0 18px;white-space:nowrap;font-size:12px;color:var(--muted)}
+.tk i{width:5px;height:5px;transform:rotate(45deg);background:var(--gold);flex:0 0 5px;font-style:normal}
+.tk b{color:var(--gold-lt);font-weight:400}
+.tk s{
+  color:var(--paper);text-decoration:none;
+  font-variant-numeric:tabular-nums;letter-spacing:.03em;
+}
+
 /* ——— البطاقة ——— */
 .card{
   background:linear-gradient(178deg,var(--panel-2),var(--panel));
@@ -297,6 +319,8 @@ button{
     <p class="occasion">بمناسبة افتتاح فرعنا الجديد<br><span>هدايا وحسومات بانتظارك</span></p>
   </header>
 
+  <div class="ticker" id="ticker"><div class="trail" id="trail"></div></div>
+
   <section class="offers" id="offers" hidden>
     <div class="oh">
       <span class="oh-line"></span>
@@ -368,6 +392,7 @@ button{
         <div class="code" id="codeText"></div>
       </div>
       <p class="expiry" id="expiryText"></p>
+      <p class="expiry" id="pidText" style="margin-top:6px;color:var(--gold)"></p>
     </div>
     <ul class="terms">
       <li>الرمز يُستلم من المحل خلال مدة الصلاحية.</li>
@@ -419,6 +444,37 @@ $('footAddr').textContent = CONFIG.address;
   var b = $(id);
   if (b) b.href = CONFIG.siteUrl;
 });
+
+/* ═══ شريط الفائزين ═══ */
+(function loadWins(){
+  if (!CONFIG.sheetUrl) return;
+  const cb = 'wcb_' + Date.now();
+  const s = document.createElement('script');
+  let done = false;
+  const end = () => { if (done) return; done = true; try{ delete window[cb]; }catch(e){} s.remove(); };
+  const timer = setTimeout(end, 9000);
+
+  window[cb] = res => {
+    clearTimeout(timer); end();
+    const w = (res && res.wins) ? res.wins : [];
+    if (w.length < 2) return;
+    const trail = $('trail');
+    const add = x => {
+      const d = document.createElement('div');
+      d.className = 'tk';
+      d.innerHTML = '<i></i><s></s> ربح <b></b>';
+      d.querySelector('s').textContent = 'الزبون ' + x.n;
+      d.querySelector('b').textContent = x.p;
+      if (x.t){ const sp = document.createElement('span'); sp.textContent = '· ' + x.t; d.appendChild(sp); }
+      trail.appendChild(d);
+    };
+    w.forEach(add); w.forEach(add);
+    $('ticker').classList.add('on');
+  };
+  s.onerror = () => { clearTimeout(timer); end(); };
+  s.src = CONFIG.sheetUrl + '?callback=' + cb + '&action=wins';
+  document.body.appendChild(s);
+})();
 
 /* رسم العجلة */
 (function draw(){
@@ -628,8 +684,18 @@ function makeCode(tag){
   return tag + '-' + s;
 }
 
+/* نفس الحساب الموجود بـ Apps Script — لازم يبقوا متطابقين */
+function idFromCode(code){
+  const s = String(code || '');
+  if (!s) return '#0000';
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 100000;
+  return '#' + (1000 + (h % 9000));
+}
+
 function finish(){
   const code = makeCode(picked.tag);
+  const pid  = idFromCode(code);
   const exp  = new Date(Date.now() + CONFIG.expiryDays * 864e5);
   const expStr = exp.toLocaleDateString('ar-SY', { day:'numeric', month:'long' });
 
@@ -641,11 +707,14 @@ function finish(){
   $('prizeText').textContent  = picked.label;
   $('codeText').textContent   = code;
   $('expiryText').textContent = 'صالح لغاية ' + expStr;
+  const pidEl = $('pidText');
+  if (pidEl) pidEl.textContent = 'رقمك على الشريط: ' + pid;
 
   const msg = `مرحبا، بدي فعّل رمز عجلة الحظ.
 الاسم: ${entry.name}
 الجائزة: ${entry.prize}
-الرمز: ${entry.code}`;
+الرمز: ${entry.code}
+رقم التعريف: ${pid}`;
   $('waBtn').onclick = () => window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
   $('copyBtn').onclick = async () => {
     try { await navigator.clipboard.writeText(code); $('copied').classList.add('on'); } catch(e){}
