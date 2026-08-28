@@ -59,6 +59,37 @@ header{
 .qbtn:hover{background:var(--panel2);border-color:var(--gold)}
 .qbtn svg{width:17px;height:17px;fill:currentColor;flex:0 0 17px}
 
+/* ——— شريط الفائزين ——— */
+.ticker{
+  position:relative;overflow:hidden;margin:0 0 4px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:linear-gradient(90deg,rgba(198,164,78,.05),rgba(198,164,78,.11),rgba(198,164,78,.05));
+  padding:11px 0;display:none;
+}
+.ticker.on{display:block}
+.ticker::before,.ticker::after{
+  content:"";position:absolute;top:0;bottom:0;width:56px;z-index:2;pointer-events:none;
+}
+.ticker::before{right:0;background:linear-gradient(270deg,var(--ink),transparent)}
+.ticker::after{left:0;background:linear-gradient(90deg,var(--ink),transparent)}
+.trail{display:flex;width:max-content;animation:slide 42s linear infinite}
+.ticker:hover .trail{animation-play-state:paused}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(50%)}}
+@media(prefers-reduced-motion:reduce){.trail{animation:none}}
+.tk{
+  display:flex;align-items:center;gap:8px;padding:0 20px;white-space:nowrap;
+  font-size:12.5px;color:var(--muted);
+}
+.tk i{
+  width:5px;height:5px;transform:rotate(45deg);background:var(--gold);
+  flex:0 0 5px;font-style:normal;
+}
+.tk b{color:var(--gold-lt);font-weight:400}
+.tk s{
+  color:var(--paper);text-decoration:none;
+  font-variant-numeric:tabular-nums;letter-spacing:.03em;
+}
+
 /* ——— الأقسام ——— */
 section{margin-top:46px}
 .h{display:flex;align-items:center;gap:14px;margin-bottom:20px}
@@ -113,6 +144,7 @@ section{margin-top:46px}
   overflow:hidden;min-height:2.9em;
 }
 .p-price{font-size:15.5px;color:var(--gold-lt);margin-top:7px;letter-spacing:.01em}
+.p-old-cur{font-size:10.5px;color:var(--muted);margin-top:1px;opacity:.85}
 .p-act{margin-top:11px}
 
 .p-add{
@@ -426,6 +458,7 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
       </div>
       <div id="cartItems"></div>
       <div class="tot"><span>المجموع</span><b id="cartTotal">0</b></div>
+      <div class="p-old-cur" id="cartOldCur" style="text-align:left;margin-bottom:12px"></div>
       <a class="cta" id="sendOrder2">إرسال الطلب عبر واتساب</a>
     </div>
   </div>
@@ -555,7 +588,7 @@ function buildStrip(){
       }
       if (p.deal) c.appendChild(el('div', 'sdeal', 'عرض'));
       c.appendChild(el('div', 'sn', p.name));
-      c.appendChild(el('div', 'sp', fmt(money(p.price))));
+      c.appendChild(el('div', 'sp', fmt(money(p.price), p.cur)));
       c.onclick = function(){
         addToCart(p);
         var tt = $('sToast');
@@ -607,6 +640,32 @@ var CART = [];
 var OFFERS = [];
 try { localStorage.removeItem('trend_cart'); } catch(e){}
 
+/* ═══ شريط الفائزين ═══ */
+(function loadWins(){
+  jsonp('action=wins', 9000).then(function(r){
+    var w = (r && r.wins) ? r.wins : [];
+    if (w.length < 2) return;
+
+    var trail = document.getElementById('trail');
+    function add(x){
+      var d = document.createElement('div');
+      d.className = 'tk';
+      d.innerHTML = '<i></i><s></s> ربح <b></b>';
+      d.querySelector('s').textContent = 'الزبون ' + x.n;
+      d.querySelector('b').textContent = x.p;
+      if (x.t){
+        var sp = document.createElement('span');
+        sp.textContent = '· ' + x.t;
+        d.appendChild(sp);
+      }
+      trail.appendChild(d);
+    }
+    /* مرتين حتى يكون الدوران سلس بلا فراغ */
+    w.forEach(add); w.forEach(add);
+    document.getElementById('ticker').classList.add('on');
+  });
+})();
+
 /* ——— العروض ——— */
 function paintOffers(list){
   if (!list || !list.length) return;
@@ -627,9 +686,10 @@ function paintOffers(list){
     if (o.note) b.appendChild(el('div', 'o-note', o.note));
     if (o.priceNew || o.priceOld){
       var p = el('div', 'o-price');
-      if (o.priceNew) p.appendChild(el('span', 'o-new', o.priceNew));
-      if (o.priceOld) p.appendChild(el('span', 'o-old', o.priceOld));
+      if (o.priceNew) p.appendChild(el('span', 'o-new', fmt(money(o.priceNew), o.cur)));
+      if (o.priceOld) p.appendChild(el('span', 'o-old', fmt(money(o.priceOld), o.cur)));
       b.appendChild(p);
+      if (SHOW_OLD && o.priceNew) b.appendChild(el('div', 'p-old-cur', oldStr(syp(money(o.priceNew), o.cur))));
     }
     row.appendChild(b);
     box.appendChild(row);
@@ -646,6 +706,7 @@ if (cachedP && cachedP.length){ ALL = cachedP; buildFilters(); render(); }
 
 /* نداء واحد يجيب العروض والمنتجات معًا */
 jsonp('action=all', 12000).then(function(r){
+  if (r && r.set){ SET = r.set; keep('set', r.set); }
   if (r && r.offers){ keep('offers', r.offers); paintOffers(r.offers); }
   if (r && r.products){
     keep('products', r.products);
@@ -656,6 +717,7 @@ jsonp('action=all', 12000).then(function(r){
     buildFilters();
     render();
   }
+  paintCart();
 });
 
 function buildFilters(){
@@ -754,7 +816,10 @@ function render(){
 
     var b = el('div', 'pbody');
     b.appendChild(el('div', 'p-name', p.name || ''));
-    if (money(p.price) > 0) b.appendChild(el('div', 'p-price', fmt(money(p.price))));
+    if (money(p.price) > 0){
+      b.appendChild(el('div', 'p-price', fmt(money(p.price), p.cur)));
+      if (SHOW_OLD) b.appendChild(el('div', 'p-old-cur', oldStr(syp(money(p.price), p.cur))));
+    }
 
     var act = el('div', 'p-act');
     act.style.marginTop = 'auto';
@@ -773,16 +838,38 @@ function money(v){
   var d = String(v == null ? '' : v).replace(/[^\d]/g, '');
   return d ? parseInt(d, 10) : 0;
 }
-function fmt(n){
-  return n.toLocaleString('en-US') + ' ل.س';
+
+/* كل منتج إلو عملتو: 'usd' بينحوّل لليرة حسب سعر اليوم، 'syp' بينعرض متل ما هو */
+var SET = memo('set') || { rate: 0, mode: 'syp' };
+
+/* التقريب: لفوق لأقرب 10 ل.س — يحمي الهامش ويعطي أرقام نظيفة */
+var ROUND_TO  = 10;
+var SHOW_OLD  = true;   /* عرض السعر بالعملة القديمة — أطفئها بعد ما يعتاد الناس */
+var OLD_FACTOR = 100;   /* كم صفر انحذف: 100 = صفرين */
+
+function syp(n, cur){
+  var v = (cur === 'usd' && SET.rate > 0) ? n * SET.rate : n;
+  return Math.ceil(v / ROUND_TO) * ROUND_TO;
+}
+function oldStr(v){
+  return SHOW_OLD ? (v * OLD_FACTOR).toLocaleString('en-US') + ' قديمة' : '';
+}
+function fmt(n, cur){
+  return syp(n, cur).toLocaleString('en-US') + ' ل.س';
 }
 
 function addToCart(p){
   var i = -1;
   for (var k = 0; k < CART.length; k++) if (CART[k].name === p.name) i = k;
   if (i >= 0) CART[i].qty++;
-  else { CART.push({ name: p.name, price: money(p.price), img: p.img || '', qty: 1 }); track('cart'); }
+  else { CART.push({ name: p.name, price: money(p.price), cur: p.cur, img: p.img || '', qty: 1 }); track('cart'); }
   saveCart();
+}
+function priceNote(){
+  var hasUsd = CART.some(function(c){ return c.cur === 'usd'; });
+  return (hasUsd && SET.rate > 0)
+    ? '\nسعر الصرف المعتمد اليوم: ' + SET.rate.toLocaleString('en-US') + ' ل.س للدولار'
+    : '';
 }
 function setQty(name, d){
   for (var k = 0; k < CART.length; k++){
@@ -796,7 +883,7 @@ function setQty(name, d){
 }
 function cartTotal(){
   var t = 0;
-  CART.forEach(function(c){ t += c.price * c.qty; });
+  CART.forEach(function(c){ t += syp(c.price, c.cur) * c.qty; });
   return t;
 }
 function cartCount(){
@@ -818,8 +905,9 @@ function paintCart(){
   $('cartBar').classList.toggle('on', n > 0);
   $('waBtn').style.display = n > 0 ? 'none' : 'flex';
   $('cbCount').textContent = String(n);
-  $('cbTotal').textContent = fmt(cartTotal());
-  $('cartTotal').textContent = fmt(cartTotal());
+  $('cbTotal').textContent = cartTotal().toLocaleString('en-US') + ' ل.س';
+  $('cartTotal').textContent = cartTotal().toLocaleString('en-US') + ' ل.س';
+  $('cartOldCur').textContent = SHOW_OLD ? oldStr(cartTotal()) : '';
   if (!n) $('sheet').classList.remove('on');
 
   var box = $('cartItems');
@@ -838,7 +926,7 @@ function paintCart(){
     }
     var b = el('div', 'ci-b');
     b.appendChild(el('div', 'ci-n', c.name));
-    b.appendChild(el('div', 'ci-p', fmt(c.price * c.qty)));
+    b.appendChild(el('div', 'ci-p', fmt(c.price * c.qty, c.cur)));
     row.appendChild(b);
 
     var q = el('div', 'qty');
@@ -858,10 +946,11 @@ function paintCart(){
 function orderLink(){
   var lines = ['مرحبا، بدي أطلب من TREND:', ''];
   CART.forEach(function(c){
-    lines.push('• ' + c.name + ' ×' + c.qty + ' — ' + fmt(c.price * c.qty));
+    lines.push('• ' + c.name + ' ×' + c.qty + ' — ' + fmt(c.price * c.qty, c.cur));
   });
   lines.push('');
-  lines.push('المجموع: ' + fmt(cartTotal()));
+  lines.push('المجموع: ' + cartTotal().toLocaleString('en-US') + ' ل.س'
+    + (SHOW_OLD ? ' (' + oldStr(cartTotal()) + ')' : '') + priceNote());
   lines.push('');
   lines.push('الاسم:');
   lines.push('العنوان للتوصيل:');
