@@ -94,7 +94,7 @@ body{
 .ticker::before,.ticker::after{content:"";position:absolute;top:0;bottom:0;width:48px;z-index:2;pointer-events:none}
 .ticker::before{right:0;background:linear-gradient(270deg,var(--ink),transparent)}
 .ticker::after{left:0;background:linear-gradient(90deg,var(--ink),transparent)}
-.trail{display:flex;width:max-content;animation:slide 42s linear infinite}
+.trail{display:flex;width:max-content;animation:slide 85s linear infinite}
 @keyframes slide{from{transform:translateX(0)}to{transform:translateX(50%)}}
 @media(prefers-reduced-motion:reduce){.trail{animation:none}}
 .tk{display:flex;align-items:center;gap:8px;padding:0 18px;white-space:nowrap;font-size:12px;color:var(--muted)}
@@ -220,7 +220,7 @@ button{
   box-shadow:0 2px 8px rgba(0,0,0,.6);
 }
 #wheel{display:block;width:100%;height:auto;transform:rotate(0deg)}
-.spinning{transition:transform 5.6s cubic-bezier(.1,.58,.12,1)}
+.spinning{transition:transform 8.5s cubic-bezier(.08,.52,.08,1)}
 @media (prefers-reduced-motion:reduce){.spinning{transition-duration:1.2s}}
 
 /* ——— النتيجة ——— */
@@ -630,7 +630,7 @@ $('spin').addEventListener('click', () => {
   w.classList.add('spinning');
   requestAnimationFrame(() => { w.style.transform = `rotate(${target}deg)`; });
 
-  setTimeout(showForm, matchMedia('(prefers-reduced-motion: reduce)').matches ? 1300 : 5700);
+  setTimeout(showForm, matchMedia('(prefers-reduced-motion: reduce)').matches ? 1300 : 8600);
 });
 
 /* ٢ — عرض الجائزة وطلب البيانات */
