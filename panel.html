@@ -4,13 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#100D0C">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="TREND">
-<link rel="apple-touch-icon" href="./icon-192.png">
 <title>لوحة TREND</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
@@ -136,12 +129,6 @@ canvas{max-width:100%;height:auto;display:block;margin:0 auto}
     <div class="pane on" id="p_items">
       <div class="card">
         <div class="hd" id="formTitle">منتج جديد</div>
-        <div class="field" id="pickWrap" style="display:none">
-          <label>اختر من منتجاتك</label>
-          <select id="f_pick"><option value="">— أو اكتب يدويًا —</option></select>
-          <p class="hint">بيعبّي الاسم والصورة والسعر تلقائيًا.</p>
-        </div>
-
         <div class="field"><label>الاسم</label><input id="f_name"></div>
 
         <div class="row" id="prodFields">
@@ -183,34 +170,6 @@ canvas{max-width:100%;height:auto;display:block;margin:0 auto}
 
         <button id="save">حفظ</button>
         <button class="ghost" id="cancel" style="margin-top:9px;display:none">إلغاء التعديل</button>
-      </div>
-
-      <div class="card" id="bulkCard">
-        <div class="hd">رفع دفعة صور</div>
-        <div class="up" id="bulkZone">
-          <input type="file" id="b_files" accept="image/*" multiple hidden>
-          <span id="bulkTxt">اضغط لاختيار عدة صور دفعة وحدة</span>
-        </div>
-        <div class="row" style="margin-top:14px">
-          <div class="field" style="margin-bottom:0">
-            <label>القسم لكل الدفعة</label>
-            <select id="b_cat">
-              <option>عطور</option><option>مكياج</option><option>إكسسوار</option>
-              <option>ساعات</option><option>ألعاب</option><option>هدايا</option>
-              <option>سبلاشات</option>
-            </select>
-          </div>
-          <div class="field" style="margin-bottom:0">
-            <label>العملة</label>
-            <select id="b_cur">
-              <option value="syp">ليرة</option>
-              <option value="usd">دولار</option>
-            </select>
-          </div>
-        </div>
-        <div id="bulkList" style="margin-top:14px"></div>
-        <button class="ghost" id="bulkGo" style="margin-top:12px;display:none">ابدأ الرفع</button>
-        <p class="hint">بتنضاف كمنتجات <b>مخفية</b> باسم الملف — بعدين بتكمّل الاسم والسعر وبتظهّرها.</p>
       </div>
 
       <div class="card">
@@ -490,7 +449,6 @@ function clearForm(){
   EDIT = 0;
   ['f_name','f_price','f_note','f_img','f_old','f_new'].forEach(function(i){ $(i).value = ''; });
   $('f_cur').value = 'syp';
-  $('f_pick').value = '';
   resetImg();
   $('formTitle').textContent = isOffer() ? 'عرض جديد' : 'منتج جديد';
   $('cancel').style.display = 'none';
@@ -506,7 +464,6 @@ function write(op, p){
     }
   }).then(function(){
     say('تم الحفظ', true);
-    PRODUCTS = [];
     setTimeout(load, 1400);
   });
 }
@@ -549,166 +506,6 @@ $('saveRate').onclick = function(){
     .then(function(){ say('انحفظ سعر الصرف', true); setTimeout(load, 1400); });
 };
 
-/* ═══ رفع دفعة صور ═══ */
-var BULK = [];
-
-function cleanName(f){
-  return f.name.replace(/\.[^.]+$/, '')
-              .replace(/[_-]+/g, ' ')
-              .replace(/\s+/g, ' ')
-              .trim() || 'منتج جديد';
-}
-
-/* WEBP أخف من JPEG بحوالي الثلث — مع تراجع تلقائي لو مو مدعوم */
-function shrinkWebp(file){
-  return new Promise(function(res, rej){
-    var fr = new FileReader();
-    fr.onload = function(){
-      var img = new Image();
-      img.onload = function(){
-        var w = img.width, h = img.height;
-        if (w > h && w > MAX_SIDE){ h = Math.round(h * MAX_SIDE / w); w = MAX_SIDE; }
-        else if (h >= w && h > MAX_SIDE){ w = Math.round(w * MAX_SIDE / h); h = MAX_SIDE; }
-        var cv = document.createElement('canvas');
-        cv.width = w; cv.height = h;
-        var cx = cv.getContext('2d');
-        cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h);
-        cx.drawImage(img, 0, 0, w, h);
-        var out = cv.toDataURL('image/webp', QUALITY);
-        if (out.indexOf('image/webp') === -1) out = cv.toDataURL('image/jpeg', QUALITY);
-        res(out.split(',')[1]);
-      };
-      img.onerror = rej; img.src = fr.result;
-    };
-    fr.onerror = rej; fr.readAsDataURL(file);
-  });
-}
-
-$('bulkZone').onclick = function(){ $('b_files').click(); };
-
-$('b_files').onchange = function(){
-  BULK = [].slice.call(this.files || []);
-  var box = $('bulkList');
-  box.innerHTML = '';
-  if (!BULK.length){ $('bulkGo').style.display = 'none'; return; }
-
-  BULK.forEach(function(f, i){
-    var d = document.createElement('div');
-    d.className = 'item';
-    d.id = 'bulk_' + i;
-    d.innerHTML = '<div class="b"><div class="n"></div><div class="m">بالانتظار</div></div>';
-    d.querySelector('.n').textContent = cleanName(f);
-    box.appendChild(d);
-  });
-
-  $('bulkTxt').textContent = 'اخترت ' + BULK.length + ' صورة';
-  $('bulkGo').style.display = 'block';
-  $('bulkGo').textContent = 'ابدأ رفع ' + BULK.length + ' صورة';
-};
-
-$('bulkGo').onclick = function(){
-  if (!BULK.length) return;
-  var btn = $('bulkGo');
-  btn.disabled = true;
-  btn.textContent = 'جارٍ الرفع…';
-
-  var cat = $('b_cat').value, cur = $('b_cur').value;
-  var done = 0, failed = 0;
-
-  function step(i){
-    if (i >= BULK.length){
-      btn.disabled = false;
-      btn.textContent = 'ابدأ الرفع';
-      btn.style.display = 'none';
-      $('b_files').value = '';
-      $('bulkTxt').textContent = 'اضغط لاختيار عدة صور دفعة وحدة';
-      BULK = [];
-      say('انرفع ' + done + ' منتج' + (failed ? ' · فشل ' + failed : ''), failed === 0);
-      PRODUCTS = [];
-      setTimeout(load, 1600);
-      return;
-    }
-
-    var f    = BULK[i];
-    var node = $('bulk_' + i);
-    var meta = node.querySelector('.m');
-    meta.textContent = 'جارٍ الضغط…';
-
-    shrinkWebp(f).then(function(b64){
-      meta.textContent = 'جارٍ الرفع… (' + Math.round(b64.length * .75 / 1024) + ' ك.ب)';
-      return upload(b64);
-    }).then(function(url){
-      var im = new Image();
-      im.src = url;
-      node.insertBefore(im, node.firstChild);
-      meta.textContent = 'تم ✓';
-      meta.style.color = 'var(--ok)';
-      done++;
-      return post({
-        type: 'product', kind: 'product', pin: PIN, op: 'add',
-        data: {
-          name: cleanName(f), cat: cat, price: '',
-          note: '', img: url, cur: cur,
-          show: false, avail: true
-        }
-      });
-    }).catch(function(){
-      meta.textContent = 'فشل';
-      meta.style.color = 'var(--err)';
-      failed++;
-    }).then(function(){
-      setTimeout(function(){ step(i + 1); }, 400);
-    });
-  }
-
-  step(0);
-};
-
-/* ═══ اختيار منتج جاهز للعرض ═══ */
-var PRODUCTS = [];
-
-function loadProducts(){
-  if (PRODUCTS.length) return Promise.resolve();
-  return jsonp('action=admin&kind=product&pin=' + encodeURIComponent(PIN)).then(function(r){
-    if (r && r.ok) PRODUCTS = r.rows || [];
-    fillPicker();
-  });
-}
-
-function fillPicker(){
-  var sel = $('f_pick');
-  sel.innerHTML = '<option value="">— أو اكتب يدويًا —</option>';
-  PRODUCTS.forEach(function(p, i){
-    var o = document.createElement('option');
-    o.value = i;
-    o.textContent = p.name + (p.price ? ' · ' + p.price + (p.cur === 'usd' ? '$' : ' ل.س') : '');
-    sel.appendChild(o);
-  });
-}
-
-$('f_pick').onchange = function(){
-  var i = this.value;
-  if (i === '') return;
-  var p = PRODUCTS[i];
-  if (!p) return;
-
-  $('f_name').value = p.name;
-  $('f_img').value  = p.img || '';
-  $('f_cur').value  = p.cur || 'syp';
-  $('f_old').value  = p.price || '';
-  $('f_new').value  = '';
-  $('f_note').value = p.note || '';
-
-  if (p.img){
-    $('prev').src = p.img;
-    $('prev').classList.add('on');
-    $('upTxt').textContent = 'اضغط للتغيير';
-  } else resetImg();
-
-  say('انعبّى من المنتج — ضلّك السعر بعد الحسم', true);
-  $('f_new').focus();
-};
-
 /* ═══ الأرقام ═══ */
 function loadStats(){
   jsonp('action=stats&pin=' + encodeURIComponent(PIN)).then(function(r){
@@ -748,13 +545,10 @@ function loadStats(){
       var off = isOffer();
       $('prodFields').style.display  = off ? 'none' : 'flex';
       $('offerFields').style.display = off ? 'flex' : 'none';
-      $('pickWrap').style.display    = off ? 'block' : 'none';
-      $('bulkCard').style.display    = off ? 'none' : 'block';
       $('listTitle').textContent = off ? 'العروض' : 'المنتجات';
       clearForm();
       $('list').innerHTML = '';
       load();
-      if (off) loadProducts();
     }
     if (t.dataset.pane === 'p_stats') loadStats();
     if (t.dataset.pane === 'p_qr')    drawQR();
@@ -859,35 +653,6 @@ $('dl').onclick = function(){
     box.appendChild(d);
   });
 })();
-
-/* ═══ تشغيل كتطبيق ═══ */
-if ('serviceWorker' in navigator){
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js').then(function(reg){
-      /* افحص وجود نسخة أحدث عند كل فتح، وكل نصف ساعة */
-      reg.update();
-      setInterval(function(){ reg.update(); }, 30 * 60 * 1000);
-
-      reg.addEventListener('updatefound', function(){
-        var sw = reg.installing;
-        if (!sw) return;
-        sw.addEventListener('statechange', function(){
-          if (sw.state === 'installed' && navigator.serviceWorker.controller){
-            say('في تحديث جديد — عم نحمّلو', true);
-          }
-        });
-      });
-    }).catch(function(){});
-
-    /* لما تنشط نسخة جديدة، أعد التحميل مرة وحدة */
-    var reloaded = false;
-    navigator.serviceWorker.addEventListener('controllerchange', function(){
-      if (reloaded) return;
-      reloaded = true;
-      location.reload();
-    });
-  });
-}
 
 /* ═══ الدخول ═══ */
 $('login').onclick = function(){
