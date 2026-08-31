@@ -20,12 +20,12 @@ body{
 }
 .wrap{max-width:640px;margin:0 auto}
 h1{font-size:15px;font-weight:400;letter-spacing:.2em;color:var(--gold);text-align:center;margin-bottom:22px}
-
 label{display:block;font-size:11px;letter-spacing:.14em;color:var(--gold);margin-bottom:6px}
 input,select,textarea{
   width:100%;background:transparent;border:0;border-bottom:1px solid var(--line2);
   color:var(--paper);font-family:inherit;font-size:16px;font-weight:300;padding:8px 2px 10px;
 }
+textarea{resize:vertical;line-height:1.6;direction:ltr;text-align:left;font-size:13px}
 input:focus,select:focus,textarea:focus{outline:none;border-bottom-color:var(--gold)}
 select option{background:var(--panel)}
 .field{margin-bottom:18px}
@@ -37,12 +37,10 @@ button{
 button.ghost{background:transparent;border:1px solid var(--line2);color:var(--muted)}
 button.ghost:hover{color:var(--gold-lt);border-color:var(--gold)}
 button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color:var(--err)}
-
 .card{background:linear-gradient(178deg,var(--panel2),var(--panel));border:1px solid var(--line);padding:20px 18px;margin-bottom:16px}
 .hd{font-size:11px;letter-spacing:.2em;color:var(--gold);margin-bottom:16px}
 .row{display:flex;gap:10px}
 .row>*{flex:1}
-
 .item{display:flex;gap:11px;align-items:center;border:1px solid var(--line);background:var(--panel);padding:11px;margin-bottom:9px}
 .item img{width:46px;height:46px;object-fit:cover;flex:0 0 46px;background:#0E0B0A;border:1px solid var(--line)}
 .item .b{flex:1;min-width:0}
@@ -53,24 +51,32 @@ button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color
 .tg.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
 .tg.off{border-color:rgba(217,138,130,.45);color:var(--err)}
 .mini{flex:0 0 auto;width:auto;padding:8px 11px;font-size:11px;background:transparent;border:1px solid var(--line2);color:var(--muted)}
-
 .up{
   border:1px dashed var(--line2);padding:18px;text-align:center;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;gap:10px;transition:.2s;
 }
 .up:hover{border-color:var(--gold)}
 .up span{font-size:12px;color:var(--muted);letter-spacing:.04em}
-.up img{max-width:120px;max-height:120px;object-fit:cover;display:none;border:1px solid var(--line)}
-.up img.on{display:block}
 .up.busy{opacity:.6;pointer-events:none}
-
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.thumb{position:relative;width:64px;height:64px;flex:0 0 64px;border:1px solid var(--line2);background:#0E0B0A}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .x{
+  position:absolute;top:-7px;left:-7px;width:20px;height:20px;border-radius:50%;
+  background:var(--err);color:var(--ink);font-size:13px;line-height:20px;text-align:center;
+  cursor:pointer;font-weight:600;
+}
+.thumb .n{
+  position:absolute;bottom:0;right:0;left:0;background:rgba(16,13,12,.72);
+  color:var(--gold-lt);font-size:9px;text-align:center;padding:1px 0;
+}
+.count-note{font-size:11px;color:var(--muted);margin-top:8px}
 .tabs{display:flex;gap:9px;margin-bottom:16px}
 .tab{
   flex:1;text-align:center;padding:12px;font-size:12.5px;letter-spacing:.1em;
   border:1px solid var(--line2);color:var(--muted);cursor:pointer;transition:.2s;
 }
 .tab.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
-
 .msg{text-align:center;font-size:12.5px;padding:10px;margin-bottom:14px;display:none}
 .msg.on{display:block}
 .msg.ok{color:var(--ok);border:1px solid rgba(143,185,154,.35)}
@@ -83,7 +89,6 @@ button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color
 <div class="wrap">
   <h1>إدارة المنتجات</h1>
   <div class="msg" id="msg"></div>
-
   <div class="card" id="gate">
     <div class="hd">الدخول</div>
     <div class="field">
@@ -92,17 +97,14 @@ button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color
     </div>
     <button id="login">دخول</button>
   </div>
-
   <div id="app">
     <div class="tabs">
       <div class="tab on" data-kind="product">المنتجات</div>
       <div class="tab" data-kind="offer">العروض</div>
     </div>
-
     <div class="card">
       <div class="hd" id="formTitle">منتج جديد</div>
       <div class="field"><label>الاسم</label><input id="f_name"></div>
-
       <div class="row" id="prodFields">
         <div class="field">
           <label>القسم</label>
@@ -114,27 +116,25 @@ button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color
         </div>
         <div class="field"><label>السعر</label><input id="f_price" inputmode="numeric"></div>
       </div>
-
       <div class="row" id="offerFields" style="display:none">
         <div class="field"><label>السعر قبل</label><input id="f_old" inputmode="numeric"></div>
         <div class="field"><label>السعر بعد</label><input id="f_new" inputmode="numeric"></div>
       </div>
-
       <div class="field"><label>ملاحظة (تظهر كشارة)</label><input id="f_note" placeholder="جديد / آخر قطعة"></div>
       <div class="field">
-        <label>الصورة</label>
+        <label>الصور (فيك تضيف أكتر من صورة — متلاً كل الألوان/المظيلات)</label>
         <div class="up" id="dropZone">
-          <input type="file" id="f_file" accept="image/*" hidden>
-          <img id="prev" alt="">
-          <span id="upTxt">اضغط لاختيار صورة من جهازك</span>
+          <input type="file" id="f_file" accept="image/*" multiple hidden>
+          <span id="upTxt">اضغط لإضافة صورة (أو أكتر من صورة مرة وحدة) من جهازك</span>
         </div>
-        <input id="f_img" dir="ltr" placeholder="أو الصق رابط صورة" style="margin-top:12px">
-        <p class="hint">الصورة بتنضغط تلقائيًا لـ 800 بكسل قبل الرفع — أسرع للموقع.</p>
+        <div class="thumbs" id="thumbs"></div>
+        <textarea id="f_img" dir="ltr" rows="2" placeholder="أو الصق روابط الصور هون — رابط بكل سطر"></textarea>
+        <p class="count-note" id="imgCount"></p>
+        <p class="hint">أول صورة بالقائمة هي يلي بتظهر بشبكة المنتجات؛ الباقي (لحد 25) بيظهروا كمعرض بالضغط على الصورة. كل صورة بتنضغط تلقائيًا قبل الرفع — أسرع للموقع.</p>
       </div>
       <button id="save">حفظ</button>
       <button class="ghost" id="cancel" style="margin-top:9px;display:none">إلغاء التعديل</button>
     </div>
-
     <div class="card">
       <div class="hd"><span id="listTitle">المنتجات</span> (<span id="count">0</span>)</div>
       <div id="list"></div>
@@ -142,26 +142,21 @@ button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color
     </div>
   </div>
 </div>
-
 <script>
 var SHEET_URL = "https://script.google.com/macros/s/AKfycbx4zwX9C0PqPvE215aF1AwVs5j8pn7mqzbEx961qYShZDct3dYm4nTvetl8VBAtm9sA/exec";
 var IMGBB_KEY = "67d7adddcaf16136e8bb0e703e1471a1";
 var MAX_SIDE  = 800;   // أطول ضلع بعد الضغط
 var QUALITY   = 0.82;  // جودة الضغط
-
 var $ = function(id){ return document.getElementById(id); };
 var PIN = '', ROWS = [], EDIT = 0, KIND = 'product';
 var isOffer = function(){ return KIND === 'offer'; };
-
 try { PIN = localStorage.getItem('trend_pin') || ''; } catch(e){}
-
 function say(t, ok){
   var m = $('msg');
   m.textContent = t;
   m.className = 'msg on ' + (ok ? 'ok' : 'no');
   setTimeout(function(){ m.className = 'msg'; }, 3200);
 }
-
 function jsonp(params, ms){
   return new Promise(function(res){
     var cb = 'cb_' + Date.now() + Math.floor(Math.random() * 9999);
@@ -175,7 +170,6 @@ function jsonp(params, ms){
     document.body.appendChild(s);
   });
 }
-
 function post(body){
   return fetch(SHEET_URL, {
     method: 'POST', mode: 'no-cors',
@@ -183,7 +177,47 @@ function post(body){
     body: JSON.stringify(body)
   }).catch(function(){});
 }
-
+/* ——— عدة صور: تخزين كخانة واحدة، رابط بكل سطر ——— */
+function currentImgs(){
+  return $('f_img').value.split(/[\n,]+/).map(function(x){ return x.trim(); }).filter(function(x){ return x; });
+}
+function setImgs(list){
+  $('f_img').value = list.join('\n');
+  paintThumbs();
+}
+function addImgs(urls){
+  setImgs(currentImgs().concat(urls));
+}
+function removeImgAt(idx){
+  var list = currentImgs();
+  list.splice(idx, 1);
+  setImgs(list);
+}
+function paintThumbs(){
+  var list = currentImgs();
+  var box = $('thumbs');
+  box.innerHTML = '';
+  list.forEach(function(url, i){
+    var t = document.createElement('div');
+    t.className = 'thumb';
+    var im = new Image();
+    im.src = url;
+    im.onerror = function(){ im.remove(); };
+    t.appendChild(im);
+    var x = document.createElement('div');
+    x.className = 'x';
+    x.textContent = '×';
+    x.onclick = function(){ removeImgAt(i); };
+    t.appendChild(x);
+    var n = document.createElement('div');
+    n.className = 'n';
+    n.textContent = (i + 1) === 1 ? 'رئيسية' : String(i + 1);
+    t.appendChild(n);
+    box.appendChild(t);
+  });
+  $('imgCount').textContent = list.length ? ('عدد الصور: ' + list.length) : '';
+}
+$('f_img').addEventListener('input', paintThumbs);
 /* ——— ضغط الصورة ورفعها ——— */
 function shrink(file){
   return new Promise(function(res, rej){
@@ -194,14 +228,12 @@ function shrink(file){
         var w = img.width, h = img.height;
         if (w > h && w > MAX_SIDE){ h = Math.round(h * MAX_SIDE / w); w = MAX_SIDE; }
         else if (h >= w && h > MAX_SIDE){ w = Math.round(w * MAX_SIDE / h); h = MAX_SIDE; }
-
         var cv = document.createElement('canvas');
         cv.width = w; cv.height = h;
         var cx = cv.getContext('2d');
         cx.fillStyle = '#ffffff';
         cx.fillRect(0, 0, w, h);
         cx.drawImage(img, 0, 0, w, h);
-
         var url = cv.toDataURL('image/jpeg', QUALITY);
         res(url.split(',')[1]);
       };
@@ -212,7 +244,6 @@ function shrink(file){
     fr.readAsDataURL(file);
   });
 }
-
 function upload(b64){
   var fd = new FormData();
   fd.append('key', IMGBB_KEY);
@@ -226,35 +257,35 @@ function upload(b64){
       return (d.medium && d.medium.url) || d.display_url || d.url;
     });
 }
-
 $('dropZone').onclick = function(){ $('f_file').click(); };
-
 $('f_file').onchange = function(){
-  var file = this.files && this.files[0];
-  if (!file) return;
-
+  var files = this.files ? Array.prototype.slice.call(this.files) : [];
+  if (!files.length) return;
   var zone = $('dropZone');
   zone.classList.add('busy');
-  $('upTxt').textContent = 'جارٍ الضغط…';
-
-  shrink(file).then(function(b64){
-    $('prev').src = 'data:image/jpeg;base64,' + b64;
-    $('prev').classList.add('on');
-    var kb = Math.round(b64.length * 0.75 / 1024);
-    $('upTxt').textContent = 'جارٍ الرفع… (' + kb + ' كيلوبايت)';
-    return upload(b64);
-  }).then(function(url){
-    $('f_img').value = url;
-    $('upTxt').textContent = 'تم الرفع ✓ — اضغط لتغيير الصورة';
-    zone.classList.remove('busy');
-    say('انرفعت الصورة', true);
-  }).catch(function(){
-    $('upTxt').textContent = 'فشل الرفع — جرّب صورة تانية';
-    zone.classList.remove('busy');
-    say('ما زبط الرفع');
-  });
+  var done = 0, total = files.length, uploaded = [];
+  function next(){
+    if (!files.length){
+      zone.classList.remove('busy');
+      $('upTxt').textContent = 'اضغط لإضافة صورة (أو أكتر من صورة مرة وحدة) من جهازك';
+      $('f_file').value = '';
+      if (uploaded.length) say('انرفعت ' + uploaded.length + ' صورة', true);
+      return;
+    }
+    var file = files.shift();
+    $('upTxt').textContent = 'جارٍ رفع الصورة ' + (done + 1) + ' من ' + total + '…';
+    shrink(file).then(upload).then(function(url){
+      uploaded.push(url);
+      addImgs([url]);
+      done++;
+      next();
+    }).catch(function(){
+      done++;
+      next();
+    });
+  }
+  next();
 };
-
 function load(){
   return jsonp('action=admin&kind=' + KIND + '&pin=' + encodeURIComponent(PIN)).then(function(r){
     if (!r || !r.ok){ return false; }
@@ -263,38 +294,31 @@ function load(){
     return true;
   });
 }
-
 function paint(){
   var box = $('list');
   box.innerHTML = '';
   $('count').textContent = ROWS.length;
-
   ROWS.forEach(function(p){
     var it = document.createElement('div');
     it.className = 'item';
-
     if (p.img){
       var im = new Image();
       im.src = p.img; im.onerror = function(){ im.remove(); };
       it.appendChild(im);
     }
-
     var b = document.createElement('div');
     b.className = 'b';
     b.innerHTML = '<div class="n"></div><div class="m"></div><div class="tags"></div>';
-    b.querySelector('.n').textContent = p.name;
+    b.querySelector('.n').textContent = p.name + ((p.imgs && p.imgs.length > 1) ? (' 🖼×' + p.imgs.length) : '');
     b.querySelector('.m').textContent = isOffer()
       ? (p.priceNew ? p.priceNew + (p.priceOld ? ' (بدل ' + p.priceOld + ')' : '') : '')
       : ((p.cat || '') + (p.price ? ' · ' + p.price : ''));
-
     var tags = b.querySelector('.tags');
-
     var t1 = document.createElement('span');
     t1.className = 'tg ' + (p.show ? 'on' : 'off');
     t1.textContent = p.show ? 'ظاهر' : 'مخفي';
     t1.onclick = function(){ p.show = !p.show; write('update', p); };
     tags.appendChild(t1);
-
     if (!isOffer()){
       var t2 = document.createElement('span');
       t2.className = 'tg ' + (p.avail ? 'on' : 'off');
@@ -302,25 +326,20 @@ function paint(){
       t2.onclick = function(){ p.avail = !p.avail; write('update', p); };
       tags.appendChild(t2);
     }
-
     it.appendChild(b);
-
     var e = document.createElement('button');
     e.className = 'mini';
     e.textContent = 'تعديل';
     e.onclick = function(){ fill(p); };
     it.appendChild(e);
-
     box.appendChild(it);
   });
 }
-
 function fill(p){
   EDIT = p.row;
   $('f_name').value = p.name;
   $('f_note').value = p.note;
-  $('f_img').value  = p.img;
-
+  setImgs((p.imgs && p.imgs.length) ? p.imgs : (p.img ? [p.img] : []));
   if (isOffer()){
     $('f_old').value = p.priceOld || '';
     $('f_new').value = p.priceNew || '';
@@ -328,33 +347,18 @@ function fill(p){
     $('f_cat').value   = p.cat || 'عطور';
     $('f_price').value = p.price;
   }
-
-  if (p.img){
-    $('prev').src = p.img;
-    $('prev').classList.add('on');
-    $('upTxt').textContent = 'اضغط لتغيير الصورة';
-  } else resetImg();
-
   $('formTitle').textContent = 'تعديل: ' + p.name;
   $('cancel').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
-function resetImg(){
-  $('prev').removeAttribute('src');
-  $('prev').classList.remove('on');
-  $('upTxt').textContent = 'اضغط لاختيار صورة من جهازك';
-  $('f_file').value = '';
-}
-
 function clearForm(){
   EDIT = 0;
-  ['f_name','f_price','f_note','f_img','f_old','f_new'].forEach(function(i){ $(i).value = ''; });
-  resetImg();
+  ['f_name','f_price','f_note','f_old','f_new'].forEach(function(i){ $(i).value = ''; });
+  setImgs([]);
+  $('f_file').value = '';
   $('formTitle').textContent = isOffer() ? 'عرض جديد' : 'منتج جديد';
   $('cancel').style.display = 'none';
 }
-
 function write(op, p){
   post({
     type: 'product', kind: KIND, pin: PIN, op: op, row: p.row,
@@ -368,7 +372,6 @@ function write(op, p){
     setTimeout(load, 1400);
   });
 }
-
 /* التبديل بين المنتجات والعروض */
 [].forEach.call(document.querySelectorAll('.tab'), function(t){
   t.onclick = function(){
@@ -376,18 +379,15 @@ function write(op, p){
     document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('on'); });
     t.classList.add('on');
     KIND = t.dataset.kind;
-
     var off = isOffer();
     $('prodFields').style.display  = off ? 'none' : 'flex';
     $('offerFields').style.display = off ? 'flex' : 'none';
     $('listTitle').textContent = off ? 'العروض' : 'المنتجات';
-
     clearForm();
     $('list').innerHTML = '';
     load();
   };
 });
-
 $('login').onclick = function(){
   PIN = $('pin').value.trim();
   if (!PIN) return;
@@ -400,20 +400,17 @@ $('login').onclick = function(){
     $('app').style.display = 'block';
   });
 };
-
 $('save').onclick = function(){
   var name = $('f_name').value.trim();
   if (!name) return say('اكتب الاسم');
-
   var p = {
     row:   EDIT,
     name:  name,
     note:  $('f_note').value.trim(),
-    img:   $('f_img').value.trim(),
+    img:   currentImgs().join(','),
     show:  true,
     avail: true
   };
-
   if (isOffer()){
     p.priceOld = $('f_old').value.replace(/[^\d]/g, '');
     p.priceNew = $('f_new').value.replace(/[^\d]/g, '');
@@ -421,19 +418,15 @@ $('save').onclick = function(){
     p.cat   = $('f_cat').value;
     p.price = $('f_price').value.replace(/[^\d]/g, '');
   }
-
   if (EDIT){
     var old = ROWS.filter(function(x){ return x.row === EDIT; })[0];
     if (old){ p.show = old.show; if (old.avail !== undefined) p.avail = old.avail; }
   }
-
   write(EDIT ? 'update' : 'add', p);
   clearForm();
 };
-
 $('cancel').onclick  = clearForm;
 $('refresh').onclick = function(){ load().then(function(){ say('تم التحديث', true); }); };
-
 /* دخول تلقائي إذا الرمز محفوظ */
 if (PIN){
   load().then(function(ok){
