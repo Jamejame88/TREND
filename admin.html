@@ -142,9 +142,15 @@ button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color
     </div>
   </div>
 </div>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
 var SHEET_URL = "https://script.google.com/macros/s/AKfycbx4zwX9C0PqPvE215aF1AwVs5j8pn7mqzbEx961qYShZDct3dYm4nTvetl8VBAtm9sA/exec";
-var IMGBB_KEY = "67d7adddcaf16136e8bb0e703e1471a1";
+// رفع الصور صار يمرّ عبر Edge Function "upload-image" بمشروع Supabase (مو مباشرة
+// لـ imgbb) عشان مفتاح imgbb يضل محفوظ سيرفر-فقط. المفتاحين تحت "عامّان" بتصميم
+// Supabase (anon/publishable key) - محميين بصلاحيات RLS، مو أسرار.
+var SB_URL = "https://incloqbhtksnxqiohvaw.supabase.co";
+var SB_ANON_KEY = "sb_publishable_jfAFLXWXJpIrRfkd_CcWlw_xjGgEUEX";
+var sbClient = supabase.createClient(SB_URL, SB_ANON_KEY);
 var MAX_SIDE  = 800;   // أطول ضلع بعد الضغط
 var QUALITY   = 0.82;  // جودة الضغط
 var $ = function(id){ return document.getElementById(id); };
@@ -248,16 +254,12 @@ function shrink(file){
   });
 }
 function upload(b64){
-  var fd = new FormData();
-  fd.append('key', IMGBB_KEY);
-  fd.append('image', b64);
-  return fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd })
-    .then(function(r){ return r.json(); })
-    .then(function(j){
-      if (!j || !j.success || !j.data) throw new Error('fail');
-      /* النسخة المتوسطة أخف بكتير والعرض عندنا صغير أصلاً */
-      var d = j.data;
-      return (d.medium && d.medium.url) || d.display_url || d.url;
+  return sbClient.functions.invoke('upload-image', { body: { image: b64 } })
+    .then(function(res){
+      if (res.error) throw new Error(res.error.message || 'fail');
+      var d = res.data;
+      if (!d || d.error || !d.url) throw new Error((d && d.error) || 'fail');
+      return d.url;
     });
 }
 $('dropZone').onclick = function(){ $('f_file').click(); };
