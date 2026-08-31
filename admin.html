@@ -130,7 +130,7 @@ button.danger{background:transparent;border:1px solid rgba(217,138,130,.5);color
         <div class="thumbs" id="thumbs"></div>
         <textarea id="f_img" dir="ltr" rows="2" placeholder="أو الصق روابط الصور هون — رابط بكل سطر"></textarea>
         <p class="count-note" id="imgCount"></p>
-        <p class="hint">أول صورة بالقائمة هي يلي بتظهر بشبكة المنتجات؛ الباقي (لحد 25) بيظهروا كمعرض بالضغط على الصورة. كل صورة بتنضغط تلقائيًا قبل الرفع — أسرع للموقع.</p>
+        <p class="hint">أول صورة بالقائمة هي يلي بتظهر بشبكة المنتجات؛ الباقي (لحد 25) بيظهروا كمعرض بالضغط على الصورة. كل صورة بتنقص تلقائيًا لمربّع (من النص) وتنضغط قبل الرفع - عشان كل الصور تطلع بنفس الشكل والحجم بالضبط.</p>
       </div>
       <button id="save">حفظ</button>
       <button class="ghost" id="cancel" style="margin-top:9px;display:none">إلغاء التعديل</button>
@@ -225,15 +225,18 @@ function shrink(file){
     fr.onload = function(){
       var img = new Image();
       img.onload = function(){
-        var w = img.width, h = img.height;
-        if (w > h && w > MAX_SIDE){ h = Math.round(h * MAX_SIDE / w); w = MAX_SIDE; }
-        else if (h >= w && h > MAX_SIDE){ w = Math.round(w * MAX_SIDE / h); h = MAX_SIDE; }
+        /* قص مربّع من نص الصورة (أطول ضلع بيتقص) + تصغير - عشان كل الصور
+           تطلع بنفس النسبة (1:1) متل ما بتتعرض بالضبط بشبكة الموقع. */
+        var side = Math.min(img.width, img.height);
+        var sx = (img.width - side) / 2;
+        var sy = (img.height - side) / 2;
+        var target = Math.min(side, MAX_SIDE);
         var cv = document.createElement('canvas');
-        cv.width = w; cv.height = h;
+        cv.width = target; cv.height = target;
         var cx = cv.getContext('2d');
         cx.fillStyle = '#ffffff';
-        cx.fillRect(0, 0, w, h);
-        cx.drawImage(img, 0, 0, w, h);
+        cx.fillRect(0, 0, target, target);
+        cx.drawImage(img, sx, sy, side, side, 0, 0, target, target);
         var url = cv.toDataURL('image/jpeg', QUALITY);
         res(url.split(',')[1]);
       };
