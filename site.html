@@ -7,8 +7,21 @@
 <meta name="description" content="TREND (بيوتي غاليري سابقًا) — هدايا، إكسسوار، ألعاب، مكياج وعطور. دمشق، دمر البلد. توصيل داخل دمشق.">
 <meta name="theme-color" content="#100D0C">
 <meta property="og:title" content="TREND — هدايا وإكسسوار وعطور">
-<meta property="og:description" content="دمشق، دمر البلد. توصيل داخل دمشق.">
+<meta property="og:description" content="هدايا، إكسسوار، ألعاب، مكياج، ساعات وعطور. دمشق — دمر البلد. توصيل داخل دمشق.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://jamejame88.github.io/TREND/site.html">
+<meta property="og:image" content="https://jamejame88.github.io/TREND/og-image.png">
+<meta property="og:image:secure_url" content="https://jamejame88.github.io/TREND/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TREND — دمر البلد، دمشق">
+<meta property="og:site_name" content="TREND">
+<meta property="og:locale" content="ar_SY">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TREND — هدايا وإكسسوار وعطور">
+<meta name="twitter:description" content="دمشق — دمر البلد. توصيل داخل دمشق.">
+<meta name="twitter:image" content="https://jamejame88.github.io/TREND/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://script.google.com">
@@ -33,7 +46,6 @@ body{
 .wrap{max-width:760px;margin:0 auto;padding:0 18px}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
-
 /* ——— الترويسة ——— */
 header{
   text-align:center;padding:52px 18px 38px;
@@ -48,7 +60,6 @@ header{
 .tag{font-size:13px;color:var(--muted);margin-top:16px;letter-spacing:.03em}
 .rule{width:120px;height:1px;margin:22px auto 0;
   background:linear-gradient(90deg,transparent,var(--line2),var(--gold),var(--line2),transparent)}
-
 /* ——— أزرار سريعة ——— */
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:28px 0 8px}
 .qbtn{
@@ -58,7 +69,6 @@ header{
 }
 .qbtn:hover{background:var(--panel2);border-color:var(--gold)}
 .qbtn svg{width:17px;height:17px;fill:currentColor;flex:0 0 17px}
-
 /* ——— شريط الفائزين ——— */
 .ticker{
   position:relative;overflow:hidden;margin:0 0 4px;
@@ -89,14 +99,12 @@ header{
   color:var(--paper);text-decoration:none;
   font-variant-numeric:tabular-nums;letter-spacing:.03em;
 }
-
 /* ——— الأقسام ——— */
 section{margin-top:46px}
 .h{display:flex;align-items:center;gap:14px;margin-bottom:20px}
 .h span:first-child,.h span:last-child{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line2))}
 .h span:last-child{background:linear-gradient(90deg,var(--line2),transparent)}
 .h b{font-size:11.5px;font-weight:400;letter-spacing:.26em;color:var(--gold);white-space:nowrap}
-
 /* ——— العروض ——— */
 .offer{
   display:flex;align-items:center;gap:14px;border:1px solid var(--line);
@@ -109,7 +117,6 @@ section{margin-top:46px}
 .o-price{display:flex;gap:9px;align-items:baseline;margin-top:5px}
 .o-new{font-size:16px;color:var(--gold-lt)}
 .o-old{font-size:12.5px;color:var(--muted);text-decoration:line-through;opacity:.75}
-
 /* ——— الفلاتر ——— */
 .filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:18px;scrollbar-width:none}
 .filters::-webkit-scrollbar{display:none}
@@ -119,7 +126,6 @@ section{margin-top:46px}
 }
 .chip.on{border-color:var(--gold);color:var(--ink);
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold))}
-
 /* ——— المنتجات ——— */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 @media(min-width:560px){.grid{grid-template-columns:repeat(3,1fr)}}
@@ -137,6 +143,21 @@ section{margin-top:46px}
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 50%,var(--gold));
   color:var(--ink);font-size:9.5px;font-weight:500;letter-spacing:.1em;padding:4px 9px;
 }
+.tdots{
+  position:absolute;bottom:7px;left:0;right:0;z-index:2;
+  display:flex;justify-content:center;gap:4px;pointer-events:none;
+}
+.tdots i{
+  width:5px;height:5px;border-radius:50%;background:rgba(243,238,231,.4);
+  flex:0 0 5px;box-shadow:0 0 0 1px rgba(16,13,12,.4);
+}
+.tdots i.on{background:var(--gold)}
+.tcount{
+  position:absolute;top:9px;left:9px;z-index:2;
+  background:rgba(16,13,12,.72);color:var(--gold-lt);
+  font-size:9.5px;letter-spacing:.04em;padding:3px 7px;
+  display:flex;align-items:center;gap:3px;
+}
 .pbody{padding:12px 12px 12px;flex:1;display:flex;flex-direction:column}
 .p-name{
   font-size:13px;line-height:1.55;
@@ -146,7 +167,6 @@ section{margin-top:46px}
 .p-price{font-size:15.5px;color:var(--gold-lt);margin-top:7px;letter-spacing:.01em}
 .p-old-cur{font-size:10.5px;color:var(--muted);margin-top:1px;opacity:.85}
 .p-act{margin-top:11px}
-
 .p-add{
   width:100%;height:38px;border:1px solid var(--line2);background:transparent;
   color:var(--gold-lt);font-family:inherit;font-size:11.5px;letter-spacing:.1em;
@@ -158,7 +178,6 @@ section{margin-top:46px}
   text-align:center;font-size:11.5px;color:var(--muted);letter-spacing:.08em;transition:.22s;
 }
 .p-ask:hover{color:var(--gold-lt);border-color:var(--gold)}
-
 .prod.out .thumb img{filter:grayscale(1);opacity:.42}
 .prod.out .p-name,.prod.out .p-price{opacity:.55}
 .badge.out{background:rgba(16,13,12,.82);color:var(--muted);border:1px solid var(--line2)}
@@ -166,7 +185,6 @@ section{margin-top:46px}
   width:100%;height:38px;line-height:36px;border:1px dashed var(--line2);
   text-align:center;font-size:11.5px;color:var(--muted);letter-spacing:.08em;
 }
-
 .stepper{display:flex;height:38px;border:1px solid var(--gold);animation:pop .22s ease-out}
 @keyframes pop{from{transform:scale(.94);opacity:.6}to{transform:none;opacity:1}}
 .stepper button{
@@ -181,7 +199,6 @@ section{margin-top:46px}
 .skel{height:210px;border:1px solid var(--line);background:var(--panel);animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.5}50%{opacity:.85}}
 .empty{text-align:center;color:var(--muted);font-size:13px;padding:26px 0}
-
 /* ——— المعلومات ——— */
 .info{border:1px solid var(--line);background:linear-gradient(178deg,var(--panel2),var(--panel));padding:22px 20px}
 .irow{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
@@ -190,17 +207,14 @@ section{margin-top:46px}
 .ik{flex:0 0 88px;font-size:11px;letter-spacing:.14em;color:var(--gold);padding-top:4px}
 .iv{flex:1;font-size:13.5px;line-height:1.8}
 .iv small{color:var(--muted);font-size:12px}
-
 /* ——— دعوة ——— */
 .cta{
   display:block;text-align:center;margin-top:14px;
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 42%,var(--gold) 62%,var(--gold-dk));
   color:var(--ink);padding:17px;font-size:12.5px;font-weight:500;letter-spacing:.18em;
 }
-
 footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--muted);letter-spacing:.05em}
 .fr{width:40px;height:1px;margin:0 auto 16px;background:linear-gradient(90deg,transparent,var(--line2),transparent)}
-
 /* ——— السلة ——— */
 .p-add{
   margin-top:auto;border:1px solid var(--line2);text-align:center;cursor:pointer;
@@ -209,7 +223,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 }
 .p-add:hover{background:var(--gold);color:var(--ink);border-color:var(--gold)}
 .p-add.added{background:var(--gold);color:var(--ink);border-color:var(--gold)}
-
 .cartbar{
   position:fixed;bottom:0;left:0;right:0;z-index:22;display:none;
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));
@@ -229,7 +242,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   min-width:21px;height:21px;padding:0 6px;border-radius:11px;
   background:rgba(16,13,12,.86);color:var(--gold-lt);font-size:11.5px;font-weight:500;
 }
-
 .sheet{
   position:fixed;inset:0;z-index:40;display:none;
   background:rgba(8,6,6,.72);align-items:flex-end;
@@ -257,7 +269,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 .tot{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0 6px;font-size:14px}
 .tot b{font-size:19px;color:var(--gold-lt);font-weight:400}
 .cart-empty{text-align:center;color:var(--muted);font-size:13px;padding:26px 0}
-
 /* ——— المساعد ——— */
 .aifab{
   position:fixed;left:16px;bottom:92px;z-index:24;
@@ -268,7 +279,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 }
 .aifab:hover{transform:translateY(-2px)}
 .aifab svg{width:27px;height:27px;fill:var(--gold-lt);overflow:visible}
-
 .aiwrap{
   position:fixed;inset:0;z-index:45;display:none;
   background:rgba(8,6,6,.74);align-items:flex-end;
@@ -309,7 +319,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 @media(prefers-reduced-motion:reduce){
   .aistat .dots i,.aistat .bar{animation:none}
 }
-
 .ailog{flex:1;overflow-y:auto;padding:18px}
 .msg{max-width:82%;padding:11px 14px;margin-bottom:12px;font-size:13.5px;line-height:1.75;white-space:pre-wrap}
 .msg.u{margin-right:auto;background:rgba(198,164,78,.13);border:1px solid var(--line2);color:var(--paper)}
@@ -351,7 +360,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   display:none;letter-spacing:.04em;
 }
 .stoast.on{display:block}
-
 .aiform{display:flex;gap:8px;padding:14px 16px;border-top:1px solid var(--line)}
 .aiform input{
   flex:1;background:transparent;border:0;border-bottom:1px solid var(--line2);
@@ -370,7 +378,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   background:transparent;border:1px solid var(--line2);color:var(--muted);cursor:pointer;
 }
 .qs button:hover{color:var(--gold-lt);border-color:var(--gold)}
-
 /* ——— واتساب ثابت ——— */
 .wafab{
   position:fixed;bottom:0;left:0;right:0;z-index:20;
@@ -383,23 +390,18 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 </style>
 </head>
 <body>
-
 <header>
   <div class="wordmark">TREND</div>
   <div class="former">بيوتي غاليري</div>
   <p class="tag">هدايا · إكسسوار · ألعاب · مكياج · عطور</p>
   <div class="rule"></div>
 </header>
-
 <div class="ticker" id="ticker"><div class="trail" id="trail"></div></div>
-
 <div class="wrap">
-
   <section id="offersSec" hidden style="margin-top:26px">
     <div class="h"><span></span><b>عروض اليوم</b><span></span></div>
     <div id="offerList"></div>
   </section>
-
   <nav class="quick">
     <a class="qbtn" id="mapBtn" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z"/></svg>
@@ -410,7 +412,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
       اتصال
     </a>
   </nav>
-
   <section>
     <div class="h"><span></span><b>المنتجات</b><span></span></div>
     <div class="filters" id="filters"></div>
@@ -419,7 +420,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
       <div class="skel"></div><div class="skel"></div><div class="skel"></div>
     </div>
   </section>
-
   <section>
     <div class="h"><span></span><b>المحل</b><span></span></div>
     <div class="info">
@@ -429,14 +429,11 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
     </div>
     <a class="cta" id="wheelBtn">جرّب حظك واربح حسم</a>
   </section>
-
 </div>
-
 <footer>
   <div class="fr"></div>
   TREND — دمشق، دمر البلد
 </footer>
-
 <button class="aifab" id="aiFab" aria-label="مساعد الهدايا">
   <svg viewBox="0 0 24 24">
     <path d="M10.6 10.2H5.4A1.4 1.4 0 004 11.6V13c0 .4.3.7.7.7h5.9v-3.5zm1.8 0v3.5h5.9c.4 0 .7-.3.7-.7v-1.4a1.4 1.4 0 00-1.4-1.4h-5.2zM10.6 15.5H5.9v4.7c0 .6.4 1 1 1h3.7v-5.7zm1.8 0v5.7h3.7c.6 0 1-.4 1-1v-4.7h-4.7z"/>
@@ -444,7 +441,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
     <path d="M21 -2.4c0 3.6 2.9 6.5 6.5 6.5-3.6 0-6.5 2.9-6.5 6.5 0-3.6-2.9-6.5-6.5-6.5 3.6 0 6.5-2.9 6.5-6.5z"/>
   </svg>
 </button>
-
 <div class="aiwrap" id="aiWrap">
   <div class="aibox">
     <div class="aihead">
@@ -474,7 +470,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
     <p class="aihint">الاقتراحات من بضاعة المحل. للطلب أو التأكد من التوفّر، تواصل معنا على واتساب.</p>
   </div>
 </div>
-
 <div class="cartbar" id="cartBar">
   <button class="cb-side" id="openCart">
     <span class="pill" id="cbCount">0</span>
@@ -482,7 +477,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   </button>
   <button class="cb-side" id="sendOrder">إتمام الطلب</button>
 </div>
-
 <div class="sheet" id="sheet">
   <div class="sheet-in">
     <div class="wrapin">
@@ -497,12 +491,10 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
     </div>
   </div>
 </div>
-
 <a class="wafab" id="waBtn" target="_blank" rel="noopener">
   <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.3A10 10 0 1012 2zm5.1 14.1c-.2.6-1.2 1.2-1.7 1.2-.4 0-1 .1-3.2-.8-2.7-1.1-4.4-3.9-4.6-4.1-.1-.2-1-1.4-1-2.6s.6-1.8.9-2.1c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.3.3c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2 1.3 2.3 1.4.2.1.4.1.6-.1l.8-1c.2-.2.3-.2.5-.1l2 .9c.2.1.4.2.4.3.1.2.1.7-.1 1.3z"/></svg>
   تواصل على واتساب
 </a>
-
 <script>
 /* ————— الإعدادات ————— */
 var CONFIG = {
@@ -516,9 +508,7 @@ var CONFIG = {
   sheetUrl: "https://script.google.com/macros/s/AKfycbx4zwX9C0PqPvE215aF1AwVs5j8pn7mqzbEx961qYShZDct3dYm4nTvetl8VBAtm9sA/exec"
 };
 /* ———————————————————— */
-
 var $ = function(id){ return document.getElementById(id); };
-
 $('vAddr').textContent  = CONFIG.address;
 $('vHours').textContent = CONFIG.hours;
 $('vDeliv').textContent = CONFIG.delivery;
@@ -527,7 +517,6 @@ $('callBtn').href  = 'tel:' + CONFIG.phone;
 $('wheelBtn').href = CONFIG.wheelUrl;
 $('waBtn').href    = 'https://wa.me/' + CONFIG.whatsapp +
   '?text=' + encodeURIComponent('مرحبا، بدي استفسر عن منتجاتكم');
-
 function jsonp(params, ms){
   return new Promise(function(res){
     if (!CONFIG.sheetUrl) return res(null);
@@ -542,14 +531,12 @@ function jsonp(params, ms){
     document.body.appendChild(s);
   });
 }
-
 function el(tag, cls, txt){
   var n = document.createElement(tag);
   if (cls) n.className = cls;
   if (txt != null) n.textContent = txt;
   return n;
 }
-
 /* حفظ محلي: يعرض آخر نسخة فورًا ثم يحدّث بالخلفية */
 function memo(key){
   try { var v = localStorage.getItem('trend_' + key); return v ? JSON.parse(v) : null; }
@@ -558,7 +545,6 @@ function memo(key){
 function keep(key, val){
   try { localStorage.setItem('trend_' + key, JSON.stringify(val)); } catch(e){}
 }
-
 /* ————— التتبّع ————— */
 function track(ev){
   try {
@@ -567,10 +553,8 @@ function track(ev){
   } catch(e){}
 }
 track('view');
-
 /* ————— المساعد الذكي ————— */
 var AI_HIST = [];
-
 function aiAdd(cls, text){
   var log = $('aiLog');
   var m = el('div', 'msg ' + cls, text);
@@ -578,7 +562,6 @@ function aiAdd(cls, text){
   log.scrollTop = log.scrollHeight;
   return m;
 }
-
 function aiOpen(){
   $('aiWrap').classList.add('on');
   if (!AI_HIST.length && !$('aiLog').children.length){
@@ -586,31 +569,24 @@ function aiOpen(){
   }
   setTimeout(function(){ $('aiInput').focus(); }, 100);
 }
-
 /* شريط المنتجات أثناء الانتظار — يبدأ بالعروض */
 function buildStrip(){
   var pool = [];
-
   /* العروض أولاً */
   OFFERS.forEach(function(o){
     var price = money(o.priceNew) || money(o.priceOld);
     if (price > 0) pool.push({ name:o.name, price:String(price), img:o.img, deal:true });
   });
-
   /* ثم منتجات متوفرة، بدون تكرار ما ورد بالعروض */
   var seen = {};
   pool.forEach(function(p){ seen[p.name] = 1; });
-
   var rest = ALL.filter(function(p){
     return p.avail !== false && money(p.price) > 0 && !seen[p.name];
   }).sort(function(){ return Math.random() - 0.5; });
-
   pool = pool.concat(rest).slice(0, 8);
   if (pool.length < 3) return false;
-
   var t = $('sTrack');
   t.innerHTML = '';
-
   [0, 1].forEach(function(){
     pool.forEach(function(p){
       var c = el('div', 'scard');
@@ -634,7 +610,6 @@ function buildStrip(){
   });
   return true;
 }
-
 function aiSend(){
   var inp = $('aiInput');
   var q = inp.value.trim();
@@ -642,16 +617,13 @@ function aiSend(){
   inp.value = '';
   $('aiQs').style.display = 'none';
   aiAdd('u', q);
-
   $('aiStat').classList.add('on');
   $('aiStatTxt').textContent = 'عم فكّر…';
   var slow = setTimeout(function(){
     $('aiStatTxt').textContent = 'لسا عم فكّر… شوي كمان';
   }, 6000);
   if (buildStrip()) $('aiStrip').classList.add('on');
-
   var hist = JSON.stringify(AI_HIST.slice(-4));
-
   jsonp('action=ask&q=' + encodeURIComponent(q) + '&h=' + encodeURIComponent(hist), 55000)
     .then(function(r){
       clearTimeout(slow);
@@ -664,7 +636,6 @@ function aiSend(){
       if (AI_HIST.length > 6) AI_HIST = AI_HIST.slice(-6);
     });
 }
-
 $('aiFab').onclick   = aiOpen;
 $('aiClose').onclick = function(){ $('aiWrap').classList.remove('on'); };
 $('aiWrap').onclick  = function(e){ if (e.target === this) this.classList.remove('on'); };
@@ -673,24 +644,20 @@ $('aiInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') aiS
 [].forEach.call($('aiQs').children, function(b){
   b.onclick = function(){ $('aiInput').value = b.textContent; aiSend(); };
 });
-
 /* ——— الأسعار وسعر الصرف — لازم تتعرّف قبل أي رسم ——— */
 var SET = memo('set') || { rate: 0, mode: 'syp' };
 var ROUND_TO   = 10;    /* التقريب لفوق لأقرب 10 ل.س */
 var SHOW_OLD   = true;  /* عرض السعر بالعملة القديمة */
 var OLD_FACTOR = 100;   /* كم صفر انحذف: 100 = صفرين */
-
 /* حالة السلة — بالذاكرة فقط، بتنمسح لما يطلع الزبون من الصفحة */
 var CART = [];
 var OFFERS = [];
 try { localStorage.removeItem('trend_cart'); } catch(e){}
-
 /* ═══ شريط الفائزين ═══ */
 (function loadWins(){
   jsonp('action=wins', 9000).then(function(r){
     var w = (r && r.wins) ? r.wins : [];
     if (w.length < 2) return;
-
     var trail = document.getElementById('trail');
     function add(x){
       var d = document.createElement('div');
@@ -710,7 +677,6 @@ try { localStorage.removeItem('trend_cart'); } catch(e){}
     document.getElementById('ticker').classList.add('on');
   });
 })();
-
 /* ——— العروض ——— */
 function paintOffers(list){
   if (!list || !list.length) return;
@@ -741,14 +707,10 @@ function paintOffers(list){
   });
   $('offersSec').hidden = false;
 }
-
 paintOffers(memo('offers'));
-
 var ALL = [], CAT = 'الكل';
-
 var cachedP = memo('products');
 if (cachedP && cachedP.length){ ALL = cachedP; buildFilters(); render(); }
-
 /* نداء واحد يجيب العروض والمنتجات معًا */
 jsonp('action=all', 12000).then(function(r){
   if (r && r.set){ SET = r.set; keep('set', r.set); }
@@ -764,7 +726,6 @@ jsonp('action=all', 12000).then(function(r){
   }
   paintCart();
 });
-
 function buildFilters(){
   var seen = {}, cats = ['الكل'];
   ALL.forEach(function(p){
@@ -785,18 +746,14 @@ function buildFilters(){
     f.appendChild(ch);
   });
 }
-
 var ACTIONS = [];
-
 function paintAction(slot){
   var p = slot.p, q = qtyOf(p.name);
   slot.node.innerHTML = '';
-
   if (p.avail === false){
     slot.node.appendChild(el('div', 'p-out', 'غير متوفر حاليًا'));
     return;
   }
-
   if (money(p.price) <= 0){
     var ask = el('a', 'p-ask', 'اسأل عنه');
     ask.href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' +
@@ -805,14 +762,12 @@ function paintAction(slot){
     slot.node.appendChild(ask);
     return;
   }
-
   if (q === 0){
     var add = el('button', 'p-add', 'أضف للسلة');
     add.onclick = function(){ addToCart(p); };
     slot.node.appendChild(add);
     return;
   }
-
   var st = el('div', 'stepper');
   var minus = el('button', null, q === 1 ? '×' : '−');
   minus.setAttribute('aria-label', 'إنقاص');
@@ -825,74 +780,78 @@ function paintAction(slot){
   st.appendChild(plus);
   slot.node.appendChild(st);
 }
-
 function paintAllActions(){
   ACTIONS.forEach(paintAction);
 }
-
 function render(){
   var g = $('grid');
   g.innerHTML = '';
   ACTIONS = [];
   var list = ALL.filter(function(p){ return CAT === 'الكل' || (p.cat || '').trim() === CAT; });
-
   if (!list.length){
     var e = el('div', 'empty', 'لسا ما في منتجات معروضة — تواصل معنا على واتساب.');
     e.style.gridColumn = '1 / -1';
     g.appendChild(e);
     return;
   }
-
   list.forEach(function(p){
     var out  = (p.avail === false);
     var card = el('div', 'prod' + (out ? ' out' : ''));
-
     var th = el('div', 'thumb');
-    if (p.img){
+    /* عدة صور لنفس المنتج (p.imgs) - نقاط + عدّاد + ضغطة عالصورة تنقّل للتالية */
+    var imgs = (p.imgs && p.imgs.length) ? p.imgs : (p.img ? [p.img] : []);
+    if (imgs.length){
+      var idx = 0;
       var im = new Image();
-      im.src = p.img; im.alt = p.name || ''; im.loading = 'lazy'; im.decoding = 'async';
+      im.src = imgs[0]; im.alt = p.name || ''; im.loading = 'lazy'; im.decoding = 'async';
       im.onerror = function(){ th.innerHTML = '<div class="noimg">◆</div>'; };
       th.appendChild(im);
+      if (imgs.length > 1){
+        var dots = el('div', 'tdots');
+        imgs.forEach(function(_, di){ dots.appendChild(el('i', di === 0 ? 'on' : null)); });
+        th.appendChild(dots);
+        th.appendChild(el('div', 'tcount', '1/' + imgs.length));
+        th.style.cursor = 'pointer';
+        th.onclick = function(){
+          idx = (idx + 1) % imgs.length;
+          im.src = imgs[idx];
+          [].forEach.call(dots.children, function(d, di){ d.classList.toggle('on', di === idx); });
+          th.querySelector('.tcount').textContent = (idx + 1) + '/' + imgs.length;
+        };
+      }
     } else th.innerHTML = '<div class="noimg">◆</div>';
-
     if (out) th.appendChild(el('span', 'badge out', 'نفد'));
     else if (p.note) th.appendChild(el('span', 'badge', p.note));
     card.appendChild(th);
-
     var b = el('div', 'pbody');
     b.appendChild(el('div', 'p-name', p.name || ''));
     if (money(p.price) > 0){
       b.appendChild(el('div', 'p-price', fmt(money(p.price), p.cur)));
       if (SHOW_OLD) b.appendChild(el('div', 'p-old-cur', oldStr(syp(money(p.price), p.cur))));
     }
-
     var act = el('div', 'p-act');
     act.style.marginTop = 'auto';
     b.appendChild(act);
     ACTIONS.push({ p: p, node: act });
-
     card.appendChild(b);
     g.appendChild(card);
   });
-
   paintAllActions();
 }
-
 /* ————— السلة ————— */
 function money(v){
   var s = String(v == null ? '' : v).trim();
   /* أرقام عربية/فارسية → إنكليزية */
-  s = s.replace(/[\u0660-\u0669]/g, function(d){ return d.charCodeAt(0) - 0x0660; })
-       .replace(/[\u06F0-\u06F9]/g, function(d){ return d.charCodeAt(0) - 0x06F0; });
+  s = s.replace(/[٠-٩]/g, function(d){ return d.charCodeAt(0) - 0x0660; })
+       .replace(/[۰-۹]/g, function(d){ return d.charCodeAt(0) - 0x06F0; });
   /* افصل فاصلة الآلاف عن الفاصلة العشرية */
-  s = s.replace(/[\u066B]/g, '.').replace(/[,\u066C\s]/g, '');
+  s = s.replace(/[٫]/g, '.').replace(/[,٬\s]/g, '');
   s = s.replace(/[^\d.]/g, '');
   var parts = s.split('.');
   if (parts.length > 2) s = parts[0] + '.' + parts.slice(1).join('');
   var n = parseFloat(s);
   return isFinite(n) ? n : 0;
 }
-
 function syp(n, cur){
   var step = Number(ROUND_TO) || 1;
   var rate = Number(SET && SET.rate) || 0;
@@ -907,7 +866,6 @@ function oldStr(v){
 function fmt(n, cur){
   return syp(n, cur).toLocaleString('en-US') + ' ل.س';
 }
-
 function addToCart(p){
   var i = -1;
   for (var k = 0; k < CART.length; k++) if (CART[k].name === p.name) i = k;
@@ -949,7 +907,6 @@ function saveCart(){
   paintCart();
   paintAllActions();
 }
-
 function paintCart(){
   var n = cartCount();
   $('cartBar').classList.toggle('on', n > 0);
@@ -959,7 +916,6 @@ function paintCart(){
   $('cartTotal').textContent = cartTotal().toLocaleString('en-US') + ' ل.س';
   $('cartOldCur').textContent = SHOW_OLD ? oldStr(cartTotal()) : '';
   if (!n) $('sheet').classList.remove('on');
-
   var box = $('cartItems');
   box.innerHTML = '';
   if (!CART.length){
@@ -978,7 +934,6 @@ function paintCart(){
     b.appendChild(el('div', 'ci-n', c.name));
     b.appendChild(el('div', 'ci-p', fmt(c.price * c.qty, c.cur)));
     row.appendChild(b);
-
     var q = el('div', 'qty');
     var minus = el('button', null, '−');
     minus.onclick = function(){ setQty(c.name, -1); };
@@ -988,11 +943,9 @@ function paintCart(){
     q.appendChild(el('span', null, String(c.qty)));
     q.appendChild(plus);
     row.appendChild(q);
-
     box.appendChild(row);
   });
 }
-
 function orderLink(){
   var lines = ['مرحبا، بدي أطلب من TREND:', ''];
   CART.forEach(function(c){
@@ -1006,7 +959,6 @@ function orderLink(){
   lines.push('العنوان للتوصيل:');
   return 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(lines.join('\n'));
 }
-
 $('openCart').onclick   = function(){ $('sheet').classList.add('on'); };
 $('closeSheet').onclick = function(){ $('sheet').classList.remove('on'); };
 $('sheet').onclick      = function(e){ if (e.target === this) this.classList.remove('on'); };
@@ -1015,7 +967,6 @@ $('sendOrder2').onclick = function(e){
   e.preventDefault();
   if (CART.length){ track('order'); window.open(orderLink(), '_blank'); }
 };
-
 paintCart();
 </script>
 </body>
