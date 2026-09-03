@@ -6,6 +6,22 @@
 <title>TREND</title>
 <meta name="description" content="جرّب حظك واربح حسمًا يُستلم من المحل الجديد.">
 <meta name="theme-color" content="#100D0C">
+<meta property="og:title" content="TREND — جرّب حظك واربح حسم">
+<meta property="og:description" content="لفّة وحدة وكل الخانات رابحة. حسومات وهدايا تُستلم من المحل.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jamejame88.github.io/TREND/">
+<meta property="og:image" content="https://jamejame88.github.io/TREND/og-image.png">
+<meta property="og:image:secure_url" content="https://jamejame88.github.io/TREND/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TREND — دمر البلد، دمشق">
+<meta property="og:site_name" content="TREND">
+<meta property="og:locale" content="ar_SY">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TREND — جرّب حظك واربح حسم">
+<meta name="twitter:description" content="لفّة وحدة وكل الخانات رابحة.">
+<meta name="twitter:image" content="https://jamejame88.github.io/TREND/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@200;300;400;500&display=swap" rel="stylesheet">
@@ -217,7 +233,7 @@ button{
 .sndBtn{
   position:absolute;top:16px;left:0;z-index:4;
   width:30px;height:30px;padding:0;line-height:1;
-  background:transparent;border:1px solid var(--line2);border-radius:50%;
+  background:transparent;border:1px solid var(--line-strong);border-radius:50%;
   color:var(--muted);font-size:13px;cursor:pointer;transition:.2s;
 }
 .sndBtn:hover{color:var(--gold-lt);border-color:var(--gold)}
@@ -685,9 +701,30 @@ async function checkAllowed(phone){
   return !(res && res.allowed === false);
 }
 
+/* تحويل السعر لليرة تمامًا كما يعرضه الموقع */
+let RATE = 0;
+function money(v){
+  let t = String(v == null ? '' : v).trim()
+    .replace(/[٠-٩]/g, d => d.charCodeAt(0) - 0x0660)
+    .replace(/[۰-۹]/g, d => d.charCodeAt(0) - 0x06F0)
+    .replace(/[٫]/g, '.').replace(/[,٬\s]/g, '')
+    .replace(/[^\d.]/g, '');
+  const parts = t.split('.');
+  if (parts.length > 2) t = parts[0] + '.' + parts.slice(1).join('');
+  const n = parseFloat(t);
+  return isFinite(n) ? n : 0;
+}
+function fmtPrice(v, cur){
+  let n = money(v);
+  if (!n) return '';
+  if (cur === 'usd' && RATE > 0) n = n * RATE;
+  return (Math.ceil(n / 10) * 10).toLocaleString('en-US') + ' ل.س';
+}
+
 /* عروض اليوم — شريط متحرك */
 (async function loadOffers(){
-  const res = await jsonp('action=offers', 9000);
+  const res = await jsonp('action=all', 9000);
+  if (res && res.set) RATE = Number(res.set.rate) || 0;
   if (!res || !res.offers || !res.offers.length) return;
 
   const list = res.offers.slice(0, 8);
@@ -720,12 +757,12 @@ async function checkAllowed(phone){
         pr.className = 'op';
         if (o.priceNew){
           const n = document.createElement('span');
-          n.className = 'o-new'; n.textContent = o.priceNew;
+          n.className = 'o-new'; n.textContent = fmtPrice(o.priceNew, o.cur);
           pr.appendChild(n);
         }
         if (o.priceOld){
           const d = document.createElement('span');
-          d.className = 'o-old'; d.textContent = o.priceOld;
+          d.className = 'o-old'; d.textContent = fmtPrice(o.priceOld, o.cur);
           pr.appendChild(d);
         }
         c.appendChild(pr);
