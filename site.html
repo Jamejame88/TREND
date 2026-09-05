@@ -791,6 +791,7 @@ function paintOffers(list){
 }
 paintOffers(memo('offers'));
 var ALL = [], CAT = 'الكل';
+var DEFAULT_CAT_SET = false; /* أول ما توصل التصنيفات، بنحاول نفتح على "هدايا" تلقائيًا - مرة وحدة بس */
 var cachedP = memo('products');
 if (cachedP && cachedP.length){ ALL = cachedP; buildFilters(); render(); }
 /* نداء واحد يجيب العروض والمنتجات معًا */
@@ -814,6 +815,13 @@ function buildFilters(){
     var c = (p.cat || '').trim();
     if (c && !seen[c]){ seen[c] = 1; cats.push(c); }
   });
+  /* فتح الموقع افتراضيًا على تصنيف "هدايا" (مرة وحدة بس، أول ما توصل التصنيفات الحقيقية) */
+  if (!DEFAULT_CAT_SET){
+    DEFAULT_CAT_SET = true;
+    for (var gi = 0; gi < cats.length; gi++){
+      if (cats[gi].indexOf('هدايا') !== -1){ CAT = cats[gi]; break; }
+    }
+  }
   var f = $('filters');
   f.innerHTML = '';
   if (cats.length < 3) return;
