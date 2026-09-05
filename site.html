@@ -2,16 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
+<script>(function(){try{if(localStorage.getItem('trend_theme')==='light'){document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TREND — هدايا وإكسسوار وعطور | دمر، دمشق</title>
 <meta name="description" content="TREND (بيوتي غاليري سابقًا) — هدايا، إكسسوار، ألعاب، مكياج وعطور. دمشق، دمر البلد. توصيل داخل دمشق.">
 <meta name="theme-color" content="#100D0C">
-<link rel="manifest" href="./shop-manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="TREND">
-<link rel="apple-touch-icon" href="./icon-192.png">
 <meta property="og:title" content="TREND — هدايا وإكسسوار وعطور">
 <meta property="og:description" content="هدايا، إكسسوار، ألعاب، مكياج، ساعات وعطور. دمشق — دمر البلد. توصيل داخل دمشق.">
 <meta property="og:type" content="website">
@@ -39,7 +34,16 @@
   --ink:#100D0C;--panel:#191413;--panel2:#221B19;
   --gold:#C6A44E;--gold-lt:#EBD9A8;--gold-dk:#8E7434;
   --line:rgba(198,164,78,.16);--line2:rgba(198,164,78,.34);
-  --paper:#F3EEE7;--muted:#96897E;--wa:#25D366;--ok:#8FB99A;
+  --paper:#F3EEE7;--muted:#96897E;--wa:#25D366;
+  --ok:#8FD37D;--on-gold:#100D0C;--img-bg:#0E0B0A;
+}
+/* ——— النمط النهاري (يتفعّل بزر تبديل النمط - راجع #themeToggle) ——— */
+:root[data-theme="light"]{
+  --ink:#FAF6EF;--panel:#FFFFFF;--panel2:#FBF3E1;
+  --gold-lt:#7A5F26;
+  --line:rgba(142,116,52,.22);--line2:rgba(142,116,52,.42);
+  --paper:#1E1712;--muted:#6E5F4F;
+  --ok:#3E8E52;--img-bg:#EDE4D2;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
@@ -66,6 +70,16 @@ header{
 .tag{font-size:13px;color:var(--muted);margin-top:16px;letter-spacing:.03em}
 .rule{width:120px;height:1px;margin:22px auto 0;
   background:linear-gradient(90deg,transparent,var(--line2),var(--gold),var(--line2),transparent)}
+/* ——— زر تبديل النمط (ليلي/نهاري) ——— */
+.themetoggle{
+  position:fixed;top:14px;left:14px;z-index:30;
+  width:38px;height:38px;border-radius:50%;padding:0;
+  border:1px solid var(--line2);background:var(--panel2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:.25s;
+}
+.themetoggle:hover{border-color:var(--gold)}
+.themetoggle svg{width:17px;height:17px;fill:var(--gold-lt)}
 /* ——— أزرار سريعة ——— */
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:28px 0 8px}
 .qbtn{
@@ -117,7 +131,7 @@ section{margin-top:46px}
   background:linear-gradient(178deg,var(--panel2),var(--panel));
   padding:13px 15px;margin-bottom:10px;
 }
-.offer img{width:60px;height:60px;object-fit:cover;flex:0 0 60px;border:1px solid var(--line);background:#0E0B0A}
+.offer img{width:60px;height:60px;object-fit:cover;flex:0 0 60px;border:1px solid var(--line);background:var(--img-bg)}
 .o-name{font-size:14.5px;line-height:1.5}
 .o-note{font-size:11.5px;color:var(--muted)}
 .o-price{display:flex;gap:9px;align-items:baseline;margin-top:5px}
@@ -130,7 +144,7 @@ section{margin-top:46px}
   flex:0 0 auto;border:1px solid var(--line2);color:var(--muted);
   padding:8px 16px;font-size:12.5px;letter-spacing:.04em;cursor:pointer;transition:.2s;
 }
-.chip.on{border-color:var(--gold);color:var(--ink);
+.chip.on{border-color:var(--gold);color:var(--on-gold);
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold))}
 /* ——— المنتجات ——— */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
@@ -140,14 +154,14 @@ section{margin-top:46px}
   display:flex;flex-direction:column;overflow:hidden;transition:border-color .25s;
 }
 .prod:hover{border-color:var(--line2)}
-.thumb{aspect-ratio:1/1;background:#0E0B0A;overflow:hidden;position:relative}
+.thumb{aspect-ratio:1/1;background:var(--img-bg);overflow:hidden;position:relative}
 .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .55s cubic-bezier(.2,.7,.3,1)}
 .prod:hover .thumb img{transform:scale(1.045)}
 .noimg{display:flex;align-items:center;justify-content:center;height:100%;color:var(--line2);font-size:26px}
 .badge{
   position:absolute;top:9px;right:9px;
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 50%,var(--gold));
-  color:var(--ink);font-size:9.5px;font-weight:500;letter-spacing:.1em;padding:4px 9px;
+  color:var(--on-gold);font-size:9.5px;font-weight:500;letter-spacing:.1em;padding:4px 9px;
 }
 .tdots{
   position:absolute;bottom:7px;left:0;right:0;z-index:2;
@@ -178,7 +192,7 @@ section{margin-top:46px}
   color:var(--gold-lt);font-family:inherit;font-size:11.5px;letter-spacing:.1em;
   cursor:pointer;transition:.22s;
 }
-.p-add:hover{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.p-add:hover{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
 .p-ask{
   display:block;width:100%;height:38px;line-height:36px;border:1px solid var(--line2);
   text-align:center;font-size:11.5px;color:var(--muted);letter-spacing:.08em;transition:.22s;
@@ -217,7 +231,7 @@ section{margin-top:46px}
 .cta{
   display:block;text-align:center;margin-top:14px;
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 42%,var(--gold) 62%,var(--gold-dk));
-  color:var(--ink);padding:17px;font-size:12.5px;font-weight:500;letter-spacing:.18em;
+  color:var(--on-gold);padding:17px;font-size:12.5px;font-weight:500;letter-spacing:.18em;
 }
 footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--muted);letter-spacing:.05em}
 .fr{width:40px;height:1px;margin:0 auto 16px;background:linear-gradient(90deg,transparent,var(--line2),transparent)}
@@ -227,12 +241,12 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   padding:9px;font-size:11.5px;color:var(--gold-lt);letter-spacing:.06em;transition:.2s;
   background:transparent;font-family:inherit;width:100%;
 }
-.p-add:hover{background:var(--gold);color:var(--ink);border-color:var(--gold)}
-.p-add.added{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.p-add:hover{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
+.p-add.added{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
 .cartbar{
   position:fixed;bottom:0;left:0;right:0;z-index:22;display:none;
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));
-  color:var(--ink);box-shadow:0 -12px 34px -20px rgba(0,0,0,.95);
+  color:var(--on-gold);box-shadow:0 -12px 34px -20px rgba(0,0,0,.95);
   animation:slideup .3s cubic-bezier(.2,.8,.3,1);
 }
 @keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
@@ -262,7 +276,7 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 .sh-head b{font-size:12px;font-weight:400;letter-spacing:.22em;color:var(--gold)}
 .sh-x{background:transparent;border:0;color:var(--muted);font-size:26px;cursor:pointer;line-height:1;padding:0 6px;width:auto}
 .ci{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
-.ci img{width:52px;height:52px;object-fit:cover;flex:0 0 52px;border:1px solid var(--line);background:#0E0B0A}
+.ci img{width:52px;height:52px;object-fit:cover;flex:0 0 52px;border:1px solid var(--line);background:var(--img-bg)}
 .ci-b{flex:1;min-width:0}
 .ci-n{font-size:13.5px;line-height:1.5}
 .ci-p{font-size:12.5px;color:var(--gold-lt);margin-top:2px}
@@ -278,40 +292,13 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 /* ——— المساعد ——— */
 .aifab{
   position:fixed;left:16px;bottom:92px;z-index:24;
-  width:68px;height:68px;border-radius:50%;border:1px solid var(--gold);
+  width:52px;height:52px;border-radius:50%;border:1px solid var(--gold);
   background:linear-gradient(135deg,#2A211D,#14100F);
   display:flex;align-items:center;justify-content:center;cursor:pointer;
   box-shadow:0 14px 30px -14px rgba(0,0,0,.95);transition:.25s;
-  animation:aifabFloat 2.6s ease-in-out infinite;
-}
-.aifab::before{
-  content:"";position:absolute;inset:-6px;border-radius:50%;
-  border:1px solid var(--gold);opacity:0;pointer-events:none;
-  animation:aifabRing 2.6s ease-out infinite;
 }
 .aifab:hover{transform:translateY(-2px)}
-.aifab svg{
-  width:38px;height:38px;fill:var(--gold-lt);overflow:visible;
-  animation:aifabWiggle 2.6s ease-in-out infinite;
-}
-@keyframes aifabFloat{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-5px)}
-}
-@keyframes aifabRing{
-  0%{transform:scale(.85);opacity:.55}
-  80%,100%{transform:scale(1.35);opacity:0}
-}
-@keyframes aifabWiggle{
-  0%,74%,100%{transform:rotate(0)}
-  78%{transform:rotate(-9deg)}
-  82%{transform:rotate(8deg)}
-  86%{transform:rotate(-5deg)}
-  90%{transform:rotate(0)}
-}
-@media(prefers-reduced-motion:reduce){
-  .aifab,.aifab::before,.aifab svg{animation:none}
-}
+.aifab svg{width:27px;height:27px;fill:var(--gold-lt);overflow:visible}
 .aiwrap{
   position:fixed;inset:0;z-index:45;display:none;
   background:rgba(8,6,6,.74);align-items:flex-end;
@@ -377,9 +364,9 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   background:var(--panel2);cursor:pointer;transition:.2s;
 }
 .scard:hover{border-color:var(--gold)}
-.scard img{width:100%;height:70px;object-fit:cover;background:#0E0B0A;display:block}
+.scard img{width:100%;height:70px;object-fit:cover;background:var(--img-bg);display:block}
 .scard .sdeal{
-  font-size:9px;letter-spacing:.14em;color:var(--ink);
+  font-size:9px;letter-spacing:.14em;color:var(--on-gold);
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 50%,var(--gold));
   padding:2px 0;text-align:center;
 }
@@ -402,7 +389,7 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 .aiform button{
   flex:0 0 auto;width:auto;padding:0 18px;height:40px;border:0;cursor:pointer;
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));
-  color:var(--ink);font-family:inherit;font-size:12px;letter-spacing:.1em;
+  color:var(--on-gold);font-family:inherit;font-size:12px;letter-spacing:.1em;
 }
 .aihint{padding:0 18px 14px;font-size:11px;color:var(--muted);line-height:1.7}
 .qs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 14px}
@@ -411,45 +398,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   background:transparent;border:1px solid var(--line2);color:var(--muted);cursor:pointer;
 }
 .qs button:hover{color:var(--gold-lt);border-color:var(--gold)}
-/* ——— دعوة التثبيت ——— */
-.inst{
-  display:none;align-items:center;gap:12px;
-  border:1px solid var(--line2);
-  background:linear-gradient(178deg,var(--panel2),var(--panel));
-  padding:14px 16px;margin-top:26px;
-}
-.inst.on{display:flex}
-.inst .ico{
-  flex:0 0 38px;width:38px;height:38px;border:1px solid var(--gold);
-  display:flex;align-items:center;justify-content:center;
-  color:var(--gold-lt);font-family:"Cormorant Garamond",Georgia,serif;
-  font-size:20px;line-height:1;
-}
-.inst .tx{flex:1;min-width:0}
-.inst .t1{font-size:13.5px;color:var(--paper);line-height:1.5}
-.inst .t2{font-size:11.5px;color:var(--muted);margin-top:1px}
-.inst button{
-  flex:0 0 auto;width:auto;padding:9px 16px;font-size:11.5px;letter-spacing:.1em;
-  border:0;cursor:pointer;font-family:inherit;
-  background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));color:var(--ink);
-}
-.instSteps{
-  display:none;font-size:12px;color:var(--muted);line-height:1.9;
-  border:1px dashed var(--line2);padding:14px 16px;margin-top:10px;
-}
-.instSteps.on{display:block}
-.inst.hl{
-  border-color:var(--gold);
-  box-shadow:0 0 0 3px rgba(198,164,78,.16);
-  animation:instPulse 1.6s ease-in-out 3;
-}
-@keyframes instPulse{
-  0%,100%{box-shadow:0 0 0 3px rgba(198,164,78,.16)}
-  50%{box-shadow:0 0 0 8px rgba(198,164,78,.05)}
-}
-@media(prefers-reduced-motion:reduce){.inst.hl{animation:none}}
-.instSteps b{color:var(--gold-lt);font-weight:400}
-
 /* ——— واتساب ثابت ——— */
 .wafab{
   position:fixed;bottom:0;left:0;right:0;z-index:20;
@@ -462,6 +410,10 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 </style>
 </head>
 <body>
+<button class="themetoggle" id="themeToggle" aria-label="تبديل نمط العرض (ليلي/نهاري)" title="تبديل نمط العرض">
+  <svg id="iconSun" viewBox="0 0 24 24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/></svg>
+  <svg id="iconMoon" viewBox="0 0 24 24" style="display:none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+</button>
 <header>
   <div class="wordmark">TREND</div>
   <div class="former">بيوتي غاليري</div>
@@ -500,16 +452,6 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
       <div class="irow"><div class="ik">التوصيل</div><div class="iv" id="vDeliv"></div></div>
     </div>
     <a class="cta" id="wheelBtn">جرّب حظك واربح حسم</a>
-
-    <div class="inst" id="instBar">
-      <div class="ico">T</div>
-      <div class="tx">
-        <div class="t1">نزّل المتجر على شاشتك</div>
-        <div class="t2">بيفتح أسرع وبدون متصفح</div>
-      </div>
-      <button id="instBtn">تثبيت</button>
-    </div>
-    <div class="instSteps" id="instSteps"></div>
   </section>
 </div>
 <footer>
@@ -520,7 +462,7 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   <svg viewBox="0 0 24 24">
     <path d="M10.6 10.2H5.4A1.4 1.4 0 004 11.6V13c0 .4.3.7.7.7h5.9v-3.5zm1.8 0v3.5h5.9c.4 0 .7-.3.7-.7v-1.4a1.4 1.4 0 00-1.4-1.4h-5.2zM10.6 15.5H5.9v4.7c0 .6.4 1 1 1h3.7v-5.7zm1.8 0v5.7h3.7c.6 0 1-.4 1-1v-4.7h-4.7z"/>
     <path d="M8.2 4.8c-1.4 0-2.5 1.1-2.5 2.4 0 .5.1.9.4 1.3h2.1c-.4 0-.8-.4-.8-.8s.4-.8.8-.8c.8 0 1.5.9 2 1.6h1.7C11.3 7.2 10.1 4.8 8.2 4.8zm6.3 0c-1.9 0-3.1 2.4-3.7 3.7h1.7c.5-.7 1.2-1.6 2-1.6.4 0 .8.4.8.8s-.4.8-.8.8h2.1c.3-.4.4-.8.4-1.3 0-1.3-1.1-2.4-2.5-2.4z"/>
-    <path d="M19.5 1.2c0 1.7 1.4 3.1 3.1 3.1-1.7 0-3.1 1.4-3.1 3.1 0-1.7-1.4-3.1-3.1-3.1 1.7 0 3.1-1.4 3.1-3.1z"/>
+    <path d="M21 -2.4c0 3.6 2.9 6.5 6.5 6.5-3.6 0-6.5 2.9-6.5 6.5 0-3.6-2.9-6.5-6.5-6.5 3.6 0 6.5-2.9 6.5-6.5z"/>
   </svg>
 </button>
 <div class="aiwrap" id="aiWrap">
@@ -591,6 +533,33 @@ var CONFIG = {
 };
 /* ———————————————————— */
 var $ = function(id){ return document.getElementById(id); };
+/* ————— نمط العرض (ليلي/نهاري) ————— */
+(function(){
+  var root = document.documentElement;
+  var btn = $('themeToggle');
+  var sun = $('iconSun'), moon = $('iconMoon');
+  var metaTheme = document.querySelector('meta[name="theme-color"]');
+  function paint(theme){
+    if (theme === 'light'){
+      if (sun) sun.style.display = 'none';
+      if (moon) moon.style.display = 'block';
+      if (metaTheme) metaTheme.setAttribute('content', '#FAF6EF');
+    } else {
+      if (sun) sun.style.display = 'block';
+      if (moon) moon.style.display = 'none';
+      if (metaTheme) metaTheme.setAttribute('content', '#100D0C');
+    }
+  }
+  paint(root.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+  if (btn) btn.onclick = function(){
+    var cur  = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    var next = cur === 'light' ? 'dark' : 'light';
+    if (next === 'light') root.setAttribute('data-theme', 'light');
+    else root.removeAttribute('data-theme');
+    try { localStorage.setItem('trend_theme', next); } catch(e){}
+    paint(next);
+  };
+})();
 $('vAddr').textContent  = CONFIG.address;
 $('vHours').textContent = CONFIG.hours;
 $('vDeliv').textContent = CONFIG.delivery;
@@ -657,7 +626,7 @@ function buildStrip(){
   /* العروض أولاً */
   OFFERS.forEach(function(o){
     var price = money(o.priceNew) || money(o.priceOld);
-    if (price > 0) pool.push({ name:o.name, price:String(price), cur:o.cur, img:o.img, deal:true });
+    if (price > 0) pool.push({ name:o.name, price:String(price), img:o.img, deal:true });
   });
   /* ثم منتجات متوفرة، بدون تكرار ما ورد بالعروض */
   var seen = {};
@@ -790,8 +759,7 @@ function paintOffers(list){
   $('offersSec').hidden = false;
 }
 paintOffers(memo('offers'));
-var DEFAULT_CAT = 'هدايا';
-var ALL = [], CAT = DEFAULT_CAT, CAT_LOCKED = false;
+var ALL = [], CAT = 'الكل';
 var cachedP = memo('products');
 if (cachedP && cachedP.length){ ALL = cachedP; buildFilters(); render(); }
 /* نداء واحد يجيب العروض والمنتجات معًا */
@@ -815,9 +783,6 @@ function buildFilters(){
     var c = (p.cat || '').trim();
     if (c && !seen[c]){ seen[c] = 1; cats.push(c); }
   });
-  if (!CAT_LOCKED){
-    CAT = (cats.indexOf(DEFAULT_CAT) !== -1) ? DEFAULT_CAT : 'الكل';
-  }
   var f = $('filters');
   f.innerHTML = '';
   if (cats.length < 3) return;
@@ -825,7 +790,6 @@ function buildFilters(){
     var ch = el('div', 'chip' + (c === CAT ? ' on' : ''), c);
     ch.onclick = function(){
       CAT = c;
-      CAT_LOCKED = true;
       [].forEach.call(f.children, function(x){ x.classList.remove('on'); });
       ch.classList.add('on');
       render();
@@ -1055,116 +1019,6 @@ $('sendOrder2').onclick = function(e){
   if (CART.length){ track('order'); window.open(orderLink(), '_blank'); }
 };
 paintCart();
-
-/* ————— تثبيت المتجر كتطبيق ————— */
-(function install(){
-  var bar   = $('instBar');
-  var btn   = $('instBtn');
-  var steps = $('instSteps');
-  if (!bar) return;
-
-  /* مثبّت أصلًا أو مفتوح كتطبيق — لا تعرض شيئًا */
-  var standalone = window.matchMedia('(display-mode: standalone)').matches ||
-                   window.navigator.standalone === true;
-  if (standalone) return;
-
-  try { if (localStorage.getItem('trend_inst') === '0') return; } catch(e){}
-
-  var deferred = null;
-
-  window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault();
-    deferred = e;
-    bar.classList.add('on');
-  });
-
-  window.addEventListener('appinstalled', function(){
-    bar.classList.remove('on');
-    steps.classList.remove('on');
-    try { localStorage.setItem('trend_inst', '0'); } catch(e){}
-  });
-
-  btn.onclick = function(){
-    if (deferred){
-      deferred.prompt();
-      deferred.userChoice.then(function(r){
-        if (r.outcome === 'accepted') bar.classList.remove('on');
-        deferred = null;
-      });
-      return;
-    }
-    steps.classList.toggle('on');
-  };
-
-  /* رابط التثبيت المباشر:  site.html#install  */
-  var direct = (location.hash === '#install');
-
-  function focusBar(){
-    bar.classList.add('on', 'hl');
-    try { bar.scrollIntoView({ behavior:'smooth', block:'center' }); } catch(e){ bar.scrollIntoView(); }
-  }
-
-  if (direct){
-    /* افتح الشريط فورًا ولا تنتظر */
-    setTimeout(focusBar, 300);
-
-    /* لو المتصفح جهّز نافذة التثبيت، اعرضها من أول لمسة */
-    var fired = false;
-    var openOnce = function(){
-      if (fired) return;
-      fired = true;
-      if (deferred){
-        deferred.prompt();
-        deferred.userChoice.then(function(r){
-          if (r.outcome === 'accepted') bar.classList.remove('on');
-          deferred = null;
-        });
-      } else {
-        steps.classList.add('on');
-      }
-      document.removeEventListener('click', openOnce);
-      document.removeEventListener('touchstart', openOnce);
-    };
-    setTimeout(function(){
-      document.addEventListener('click', openOnce, { once:true });
-      document.addEventListener('touchstart', openOnce, { once:true });
-    }, 900);
-  }
-
-  /* آيفون لا يدعم التثبيت التلقائي — نعرض الخطوات */
-  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  if (ios){
-    steps.innerHTML =
-      'من متصفح <b>Safari</b>:<br>' +
-      '١ — اضغط زر المشاركة <b>⬆</b> تحت الشاشة<br>' +
-      '٢ — اختر <b>إضافة إلى الشاشة الرئيسية</b>';
-    if (direct) steps.classList.add('on');
-    bar.classList.add('on');
-  } else {
-    steps.innerHTML =
-      'من متصفح <b>Chrome</b>:<br>' +
-      '١ — اضغط النقاط الثلاث <b>⋮</b> فوق<br>' +
-      '٢ — اختر <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>';
-    /* لو المتصفح ما أطلق الحدث خلال ثانيتين، اعرض الشريط بالخطوات اليدوية */
-    setTimeout(function(){ if (!deferred) bar.classList.add('on'); }, direct ? 0 : 2500);
-  }
-})();
-
-/* تسجيل عامل الخدمة */
-if ('serviceWorker' in navigator){
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./shop-sw.js', { scope: './site.html' }).then(function(reg){
-      reg.update();
-      setInterval(function(){ reg.update(); }, 30 * 60 * 1000);
-    }).catch(function(){});
-    var reloaded = false;
-    navigator.serviceWorker.addEventListener('controllerchange', function(){
-      if (reloaded) return;
-      reloaded = true;
-      location.reload();
-    });
-  });
-}
 </script>
 </body>
 </html>
