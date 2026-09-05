@@ -407,6 +407,37 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   box-shadow:0 -10px 30px -18px rgba(0,0,0,.9);
 }
 .wafab svg{width:19px;height:19px;fill:currentColor}
+/* ——— كروت وأزرار المنتجات بالنمط النهاري (مستوحاة من مرجع صورة أرسله المستخدم) ———
+   شكل مختلف عن النمط الليلي عمدًا: كروت بيضا بزوايا مدوّرة وظل خفيف،
+   وأزرار "أضف للسلة" بيضاوية ملوّنة (لون مختلف لكل كرت بالتناوب) بدل الإطار الذهبي الرفيع. */
+:root[data-theme="light"] .grid .prod:nth-child(6n+1){--cardcolor:#8B5CF6}
+:root[data-theme="light"] .grid .prod:nth-child(6n+2){--cardcolor:#14B8A6}
+:root[data-theme="light"] .grid .prod:nth-child(6n+3){--cardcolor:#F0A93E}
+:root[data-theme="light"] .grid .prod:nth-child(6n+4){--cardcolor:#3B9FE0}
+:root[data-theme="light"] .grid .prod:nth-child(6n+5){--cardcolor:#EC6FA0}
+:root[data-theme="light"] .grid .prod:nth-child(6n){--cardcolor:#6C63FF}
+:root[data-theme="light"] .prod{
+  border:none;border-radius:18px;overflow:hidden;background:var(--panel);
+  box-shadow:0 6px 18px rgba(120,90,40,.12);
+}
+:root[data-theme="light"] .badge,:root[data-theme="light"] .tcount{border-radius:20px}
+:root[data-theme="light"] .p-name{color:#2B2118}
+:root[data-theme="light"] .p-price{color:#1E1712;font-weight:600}
+:root[data-theme="light"] .p-add{
+  border:none;border-radius:999px;height:40px;
+  background:var(--cardcolor,#8B5CF6);color:#fff;font-weight:500;letter-spacing:.03em;
+  box-shadow:0 4px 10px rgba(0,0,0,.14);
+}
+:root[data-theme="light"] .p-add:hover,:root[data-theme="light"] .p-add.added{
+  background:var(--cardcolor,#8B5CF6);opacity:.9;color:#fff;border-color:transparent;
+}
+:root[data-theme="light"] .stepper{
+  border:none;border-radius:999px;overflow:hidden;background:var(--cardcolor,#8B5CF6);
+  box-shadow:0 4px 10px rgba(0,0,0,.14);
+}
+:root[data-theme="light"] .stepper button{color:#fff}
+:root[data-theme="light"] .stepper button:hover{background:rgba(255,255,255,.18)}
+:root[data-theme="light"] .stepper span{background:transparent;color:#fff}
 </style>
 </head>
 <body>
