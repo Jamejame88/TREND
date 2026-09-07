@@ -57,19 +57,37 @@ body{
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 /* ——— الترويسة ——— */
+/* شريط ذهبي رفيع ثابت أعلى الصفحة تمامًا - لمسة فخامة (متل واجهات المحلات الفاخرة) */
+body::before{
+  content:"";position:fixed;top:0;left:0;right:0;height:3px;z-index:31;pointer-events:none;
+  background:linear-gradient(90deg,var(--gold-dk),var(--gold-lt) 50%,var(--gold-dk));
+}
 header{
-  text-align:center;padding:52px 18px 38px;
-  background:radial-gradient(120% 80% at 50% 0%,#241C19,transparent 62%);
+  text-align:center;padding:58px 18px 42px;
+  background:radial-gradient(120% 80% at 50% 0%,var(--panel2),transparent 62%);
 }
 .wordmark{
   font-family:"Cormorant Garamond",Georgia,serif;font-weight:300;
   font-size:clamp(40px,13vw,56px);line-height:1;letter-spacing:.32em;
-  direction:ltr;margin-right:-.32em;color:var(--gold-lt);
+  direction:ltr;margin-right:-.32em;
+  background:linear-gradient(115deg,var(--gold-dk) 12%,var(--gold-lt) 38%,var(--gold) 52%,var(--gold-lt) 66%,var(--gold-dk) 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.22));
 }
-.former{font-size:14px;color:var(--muted);margin-top:8px;letter-spacing:.05em}
-.tag{font-size:13px;color:var(--muted);margin-top:16px;letter-spacing:.03em}
-.rule{width:120px;height:1px;margin:22px auto 0;
-  background:linear-gradient(90deg,transparent,var(--line2),var(--gold),var(--line2),transparent)}
+.former{
+  display:flex;align-items:center;justify-content:center;gap:11px;
+  font-size:12px;color:var(--muted);margin-top:12px;letter-spacing:.24em;
+}
+.former::before,.former::after{content:"";width:26px;height:1px;background:var(--line2)}
+.rule{
+  width:150px;height:1px;margin:28px auto 0;position:relative;
+  background:linear-gradient(90deg,transparent,var(--line2),var(--gold),var(--line2),transparent);
+}
+.rule i{
+  position:absolute;top:50%;left:50%;width:7px;height:7px;
+  background:var(--ink);border:1px solid var(--gold);
+  transform:translate(-50%,-50%) rotate(45deg);
+}
 /* ——— زر تبديل النمط (ليلي/نهاري) ——— */
 .themetoggle{
   position:fixed;top:14px;left:14px;z-index:30;
@@ -448,8 +466,7 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 <header>
   <div class="wordmark">TREND</div>
   <div class="former">بيوتي غاليري</div>
-  <p class="tag">هدايا · إكسسوار · ألعاب · مكياج · عطور</p>
-  <div class="rule"></div>
+  <div class="rule"><i></i></div>
 </header>
 <div class="ticker" id="ticker"><div class="trail" id="trail"></div></div>
 <div class="wrap">
