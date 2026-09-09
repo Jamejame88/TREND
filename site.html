@@ -830,7 +830,8 @@ var SB_URL = 'https://incloqbhtksnxqiohvaw.supabase.co';
 var SB_ANON = 'sb_publishable_jfAFLXWXJpIrRfkd_CcWlw_xjGgEUEX';
 
 function portal(action, phone, name){
-  return fetch(SB_URL + '/functions/v1/customer-portal', {
+  var url = SB_URL + '/functions/v1/customer-portal';
+  return fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -838,7 +839,22 @@ function portal(action, phone, name){
       'Authorization': 'Bearer ' + SB_ANON
     },
     body: JSON.stringify({ action: action, phone: phone, name: name || null })
-  }).then(function(r){ return r.json(); });
+  }).then(function(r){
+    return r.text().then(function(txt){
+      if (!r.ok){
+        /* رمز 401 غالبًا معناه إنه "Verify JWT" لسا مفعّل على الدالة بـSupabase */
+        var hint = (r.status === 401 || r.status === 403)
+          ? 'الدالة مقفلة (Verify JWT لسا شغّال) — أطفيه من إعدادات الدالة بـSupabase'
+          : (r.status === 404 ? 'الدالة customer-portal مو منشورة بعد' : 'رد غير متوقع من الخدمة');
+        return { ok: false, message: hint + ' [' + r.status + ']' };
+      }
+      try { return JSON.parse(txt); }
+      catch(e){ return { ok: false, message: 'رد غير مفهوم من الخدمة' }; }
+    });
+  }).catch(function(err){
+    /* هون بس فشل شبكة حقيقي أو حجب CORS */
+    return { ok: false, message: 'ما قدرنا نوصل للخدمة (' + (err && err.message ? err.message : 'شبكة') + ')' };
+  });
 }
 
 var MEMBER_KEY = 'trend_member';
@@ -957,9 +973,9 @@ function paintClub(){
         setVip(true);
         paintClub(); buildFilters(); render();
         var s2 = $('club'); if (s2) s2.scrollIntoView({ behavior: 'smooth' });
-      }).catch(function(){
+      }).catch(function(err){
         msg.style.color = '#d98c8c';
-        msg.textContent = 'ما قدرنا نوصل للخدمة — تأكد من الإنترنت';
+        msg.textContent = (err && err.message) || 'ما زبطت — جرّب مرة تانية';
         go2.disabled = false;
       });
     };
@@ -973,7 +989,10 @@ var GIFT_SVG = '<svg class="giftbox" viewBox="0 0 24 24" fill="none" stroke="cur
 
 function loadPointsPanel(box, phone){
   portal('status', phone).then(function(res){
-    if (!res || !res.ok){ box.innerHTML = '<div class="ptslbl">ما قدرنا نجيب نقاطك هلق</div>'; return; }
+    if (!res || !res.ok){
+      box.innerHTML = '<div class="ptslbl">' + ((res && res.message) || 'ما قدرنا نجيب نقاطك هلق') + '</div>';
+      return;
+    }
     var pts = Number(res.points) || 0;
     var tiers = (res.tiers || []).slice(0, 4);
     if (!tiers.length){
