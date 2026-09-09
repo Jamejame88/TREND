@@ -1,52 +1,41 @@
-/* لوحة TREND — عامل الخدمة
-   يخزّن ملف اللوحة محليًا حتى تفتح فورًا وتشتغل حتى لو النت ضعيف.
-   البيانات (المنتجات، الأرقام) بتضل تُجلب من الشبكة دائمًا.
+/* Service Worker بسيط لموقع TREND
+   وظيفته الأساسية تمكين تثبيت التطبيق على الجوال (شرط من المتصفح).
+   بيخزّن الصفحة وأيقوناتها بس - بيانات المنتجات والنقاط بتظل تتحمّل من الشبكة
+   دايمًا حتى ما يشوف الزبون أسعار أو نقاط قديمة. */
+const CACHE = 'trend-v1';
+const SHELL = ['site.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
-   ما بدك تعدّل رقم النسخة يدويًا — التحديث بيصير لحالو:
-   الشبكة أولاً + فحص دوري من اللوحة. */
-
-const CACHE = 'trend-panel';
-const SHELL = [
-  './panel.html',
-  './manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'
-];
-
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE)
-      .then(c => c.addAll(SHELL).catch(() => {}))
-      .then(() => self.skipWaiting())
-  );
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
 
-self.addEventListener('activate', e => {
+self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', e => {
-  const url = e.request.url;
+self.addEventListener('fetch', (e) => {
+  const url = new URL(e.request.url);
+  // أي طلب لخدمات خارجية (Supabase / Apps Script / الصور) بيروح للشبكة مباشرة
+  if (url.origin !== self.location.origin) return;
+  if (e.request.method !== 'GET') return;
 
-  /* لا نخزّن أي نداء بيانات — لازم يكون طازج دائمًا */
-  if (url.indexOf('script.google.com') !== -1 ||
-      url.indexOf('script.googleusercontent.com') !== -1 ||
-      url.indexOf('api.imgbb.com') !== -1 ||
-      e.request.method !== 'GET') {
+  // الصفحة نفسها: الشبكة أولًا، والكاش احتياط لو النت مقطوع
+  if (e.request.mode === 'navigate' || url.pathname.endsWith('site.html')) {
+    e.respondWith(
+      fetch(e.request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, copy));
+          return res;
+        })
+        .catch(() => caches.match(e.request).then((r) => r || caches.match('site.html')))
+    );
     return;
   }
 
-  /* الشبكة أولًا، والمخزّن احتياط عند انقطاع النت */
-  e.respondWith(
-    fetch(e.request)
-      .then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
-        return res;
-      })
-      .catch(() => caches.match(e.request))
-  );
+  e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));
 });
