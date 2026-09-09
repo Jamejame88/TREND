@@ -210,8 +210,25 @@ section{margin-top:46px}
 .gift:hover{border-color:var(--gold-lt)}
 .gift.done{border-color:var(--gold)}
 .gift.open{transform:scale(1.09);filter:brightness(.78);border-color:var(--gold);position:relative;z-index:2}
-.giftbox{width:30px;height:30px;margin:0 auto 7px;display:block;color:var(--line2)}
-.gift.done .giftbox{color:var(--gold)}
+.giftbox{width:42px;height:42px;margin:0 auto 8px;display:block;filter:grayscale(1) opacity(.45);transition:filter .3s,transform .3s}
+.gift.done .giftbox{filter:none}
+.gift.done .giftbox{animation:giftpop .5s cubic-bezier(.34,1.4,.64,1)}
+.gift:hover .giftbox{transform:translateY(-2px)}
+@keyframes giftpop{0%{transform:scale(.7)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+/* تنويه: كيف بتجمع النقاط */
+.ptshow{
+  margin:0 auto 20px;max-width:340px;border:1px solid var(--line2);
+  background:var(--panel);padding:13px 14px;text-align:right;
+}
+.ptshow-t{font-size:11px;letter-spacing:.16em;color:var(--gold);margin-bottom:9px}
+.ptshow-s{
+  display:flex;gap:9px;align-items:flex-start;font-size:11.5px;
+  color:var(--muted);line-height:1.75;padding:4px 0;
+}
+.ptshow-n{
+  flex:0 0 17px;height:17px;border-radius:50%;border:1px solid var(--gold);
+  color:var(--gold);font-size:9px;display:flex;align-items:center;justify-content:center;margin-top:2px;
+}
 .giftpts{font-size:13px;color:var(--muted);font-family:'Cormorant Garamond',serif}
 .gift.done .giftpts{color:var(--gold-lt)}
 .giftval{font-size:9px;color:var(--muted);letter-spacing:.06em;margin-top:2px}
@@ -983,9 +1000,41 @@ function paintClub(){
 }
 
 /* بيجيب نقاط العضو من الدالة الوسيطة ويرسم المحطات الأربع كصناديق هدايا */
-var GIFT_SVG = '<svg class="giftbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">' +
-  '<rect x="2.5" y="8.5" width="19" height="12.5"/><path d="M2.5 12.8h19"/><path d="M12 8.5V21"/>' +
-  '<path d="M12 8.5S9.6 3 7.2 3a2.4 2.4 0 0 0 0 5.5z"/><path d="M12 8.5S14.4 3 16.8 3a2.4 2.4 0 0 1 0 5.5z"/></svg>';
+/* صندوق هدية بمنظور ثلاثي الأبعاد: وجه أمامي + جانب مظلّل + غطاء علوي بمنظور،
+   وشريط ذهبي فاتح يلتف على الوجهين + فيونكة. متدرّجات مختلفة لكل سطح
+   عشان يبان الحجم والعمق بدون أي صورة خارجية. */
+var GIFT_SVG = [
+'<svg class="giftbox" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">',
+  '<defs>',
+    '<linearGradient id="gfront" x1="0" y1="0" x2="0" y2="1">',
+      '<stop offset="0" stop-color="#8C6B2F"/><stop offset="1" stop-color="#4A3617"/></linearGradient>',
+    '<linearGradient id="gside" x1="0" y1="0" x2="1" y2="0">',
+      '<stop offset="0" stop-color="#3A2A12"/><stop offset="1" stop-color="#5C4520"/></linearGradient>',
+    '<linearGradient id="glid" x1="0" y1="0" x2="1" y2="1">',
+      '<stop offset="0" stop-color="#E8D5A0"/><stop offset=".5" stop-color="#C9A961"/>',
+      '<stop offset="1" stop-color="#9A7B3A"/></linearGradient>',
+    '<linearGradient id="glidside" x1="0" y1="0" x2="1" y2="0">',
+      '<stop offset="0" stop-color="#8A6C33"/><stop offset="1" stop-color="#B08F4A"/></linearGradient>',
+    '<linearGradient id="gribbon" x1="0" y1="0" x2="0" y2="1">',
+      '<stop offset="0" stop-color="#F3E4B8"/><stop offset="1" stop-color="#C9A961"/></linearGradient>',
+  '</defs>',
+  /* ظل تحت الصندوق */
+  '<ellipse cx="32" cy="58" rx="19" ry="3.2" fill="#000" opacity=".28"/>',
+  /* جسم الصندوق: وجه أمامي + جانب أيمن بمنظور */
+  '<path d="M12 26 L40 26 L40 54 L12 54 Z" fill="url(#gfront)"/>',
+  '<path d="M40 26 L52 20 L52 48 L40 54 Z" fill="url(#gside)"/>',
+  /* شريط عمودي على الوجه والجانب */
+  '<path d="M23.5 26 L28.5 26 L28.5 54 L23.5 54 Z" fill="url(#gribbon)" opacity=".95"/>',
+  '<path d="M40 26 L52 20 L52 26 L40 32 Z" fill="url(#gribbon)" opacity=".28"/>',
+  /* الغطاء: سطح علوي بمنظور + واجهة الغطاء + جانبه */
+  '<path d="M8 18 L36 18 L48 12 L20 12 Z" fill="url(#glid)"/>',
+  '<path d="M8 18 L36 18 L36 26 L8 26 Z" fill="url(#glid)" opacity=".82"/>',
+  '<path d="M36 18 L48 12 L48 20 L36 26 Z" fill="url(#glidside)"/>',
+  /* الفيونكة */
+  '<path d="M26 12 C20 4 12 8 18 12 Z" fill="url(#gribbon)"/>',
+  '<path d="M26 12 C32 4 40 8 34 12 Z" fill="url(#gribbon)"/>',
+  '<circle cx="26" cy="12.5" r="2.6" fill="#F3E4B8"/>',
+'</svg>'].join('');
 
 function loadPointsPanel(box, phone){
   portal('status', phone).then(function(res){
@@ -1019,6 +1068,15 @@ function loadPointsPanel(box, phone){
     box.innerHTML =
       '<div class="ptsnum">' + pts + '</div>' +
       '<div class="ptslbl">نقطة</div>' +
+      '<div class="ptshow">' +
+        '<div class="ptshow-t">كيف بتجمّع نقاطك؟</div>' +
+        '<div class="ptshow-s"><span class="ptshow-n">1</span>' +
+          '<span>عند كل شرية، عطي رقم موبايلك للكاشير — نقاطك بتنضاف تلقائيًا.</span></div>' +
+        '<div class="ptshow-s"><span class="ptshow-n">2</span>' +
+          '<span>كل ما اشتريت أكتر، جمّعت نقاط أكتر — وبتوصل للصندوق الجاي أسرع.</span></div>' +
+        '<div class="ptshow-s"><span class="ptshow-n">3</span>' +
+          '<span>أول ما توصل صندوق، اطلب هديتك من المحل واختار الصنف يلي بيعجبك.</span></div>' +
+      '</div>' +
       '<div class="ptstrack"><div class="ptsfill" style="width:' + pct + '%"></div></div>' +
       '<div class="giftrow">' + boxes + '</div>' +
       '<div id="giftPanelHost"></div>' +
