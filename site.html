@@ -5,6 +5,9 @@
 <script>(function(){try{if(localStorage.getItem('trend_theme')==='light'){document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TREND — هدايا وإكسسوار وعطور | دمر، دمشق</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0E0E0E">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="description" content="TREND (بيوتي غاليري سابقًا) — هدايا، إكسسوار، ألعاب، مكياج وعطور. دمشق، دمر البلد. توصيل داخل دمشق.">
 <meta name="theme-color" content="#100D0C">
 <meta property="og:title" content="TREND — هدايا وإكسسوار وعطور">
@@ -183,6 +186,20 @@ section{margin-top:46px}
   display:inline-block;padding:5px 14px;border:1px solid var(--gold);
   color:var(--gold);font-size:10.5px;letter-spacing:.22em;
 }
+/* زر تنزيل التطبيق */
+.instwrap{max-width:360px;margin:14px auto 0}
+.instbtn{
+  display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  padding:15px 12px;border:1px solid var(--gold);background:var(--panel);
+  color:var(--gold);font:inherit;font-size:13px;letter-spacing:.08em;cursor:pointer;transition:.2s;
+}
+.instbtn:hover{background:var(--panel2)}
+.instbtn svg{width:17px;height:17px;fill:currentColor}
+.instbonus{
+  display:inline-block;margin-inline-start:6px;padding:2px 8px;
+  background:var(--gold);color:var(--on-gold);font-size:10px;letter-spacing:.08em;
+}
+.instmsg{font-size:11.5px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.8}
 .clubform{max-width:340px;margin:0 auto 6px}
 .clubform input{
   width:100%;padding:12px;margin-bottom:8px;background:var(--panel);
@@ -576,6 +593,14 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
       <span id="clubBtnTxt">نادي ترند — كبار العملاء</span>
     </a>
   </nav>
+  <div class="instwrap" id="instWrap" hidden>
+    <button class="instbtn" id="instBtn" type="button">
+      <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+      <span>نزّل تطبيق ترند على جوالك</span>
+      <span class="instbonus">+2 نقطة</span>
+    </button>
+    <div class="instmsg" id="instMsg"></div>
+  </div>
   <section>
     <div class="h"><span></span><b>المنتجات</b><span></span></div>
     <div class="filters" id="filters"></div>
@@ -904,6 +929,62 @@ function setVip(v){
   var q = String(location.search || '').toLowerCase();
   if (h.indexOf('vip') !== -1 || q.indexOf('vip=1') !== -1) setVip(true);
 })();
+/* ————— تثبيت التطبيق على الجوال + هدية النقطتين ————— */
+var deferredPrompt = null;
+var IOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+var STANDALONE = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+function paintInstall(){
+  var wrap = $('instWrap'), msg = $('instMsg');
+  if (!wrap) return;
+  if (STANDALONE){ wrap.hidden = true; return; }
+  if (deferredPrompt || IOS){
+    wrap.hidden = false;
+    if (msg && IOS) msg.textContent = 'من زر المشاركة تحت ← "إضافة إلى الشاشة الرئيسية"';
+  }
+}
+
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  deferredPrompt = e;
+  paintInstall();
+});
+
+$('instBtn') && $('instBtn').addEventListener('click', function(){
+  var msg = $('instMsg');
+  if (IOS){
+    msg.textContent = 'اضغط زر المشاركة ⬆ تحت المتصفح، وبعدين "إضافة إلى الشاشة الرئيسية".';
+    return;
+  }
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(res){
+    deferredPrompt = null;
+    if (res && res.outcome === 'accepted') claimInstallBonus();
+    else msg.textContent = 'تقدر تنزّله بأي وقت لاحق.';
+  });
+});
+
+window.addEventListener('appinstalled', function(){ claimInstallBonus(); });
+
+/* النقطتين بينضافوا مرة وحدة لكل رقم - التحقق بالسيرفر مو بالمتصفح */
+function claimInstallBonus(){
+  var msg = $('instMsg'), wrap = $('instWrap'), m = getMember();
+  if (!m || !m.phone){
+    if (msg) msg.innerHTML = 'تم التنزيل ✓ — سجّل بنادي ترند تحت حتى تاخد النقطتين.';
+    return;
+  }
+  if (msg) msg.textContent = 'تم التنزيل ✓ — عم نضيف نقاطك…';
+  portal('install_bonus', m.phone).then(function(res){
+    if (!res || !res.ok){ if (msg) msg.textContent = 'تم التنزيل ✓'; return; }
+    if (msg) msg.innerHTML = res.bonusGranted
+      ? '🎁 انضافت <b style="color:var(--gold)">نقطتين</b> لرصيدك!'
+      : 'تم التنزيل ✓ — النقطتين مضافين من قبل لهاد الرقم.';
+    if (wrap) setTimeout(function(){ wrap.hidden = true; }, 6000);
+    paintClub();
+  }).catch(function(){ if (msg) msg.textContent = 'تم التنزيل ✓'; });
+}
+
 function paintClub(){
   var vip = isVip(), member = getMember();
   var sec = $('club'), card = $('clubCard');
@@ -1190,6 +1271,14 @@ var DEFAULT_CAT_SET = false; /* أول ما توصل التصنيفات، بنح
 var cachedP = memo('products');
 if (cachedP && cachedP.length){ ALL = cachedP; buildFilters(); render(); }
 paintClub();
+paintInstall();
+
+/* تسجيل الـService Worker - شرط لازم حتى يسمح المتصفح بتثبيت التطبيق */
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(e){ console.log('SW:', e); });
+  });
+}
 /* نداء واحد يجيب العروض والمنتجات معًا */
 jsonp('action=all', 12000).then(function(r){
   if (r && r.set){ SET = r.set; keep('set', r.set); }
