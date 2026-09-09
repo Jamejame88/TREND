@@ -57,37 +57,19 @@ body{
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 /* ——— الترويسة ——— */
-/* شريط ذهبي رفيع ثابت أعلى الصفحة تمامًا - لمسة فخامة (متل واجهات المحلات الفاخرة) */
-body::before{
-  content:"";position:fixed;top:0;left:0;right:0;height:3px;z-index:31;pointer-events:none;
-  background:linear-gradient(90deg,var(--gold-dk),var(--gold-lt) 50%,var(--gold-dk));
-}
 header{
-  text-align:center;padding:58px 18px 42px;
-  background:radial-gradient(120% 80% at 50% 0%,var(--panel2),transparent 62%);
+  text-align:center;padding:52px 18px 38px;
+  background:radial-gradient(120% 80% at 50% 0%,#241C19,transparent 62%);
 }
 .wordmark{
   font-family:"Cormorant Garamond",Georgia,serif;font-weight:300;
   font-size:clamp(40px,13vw,56px);line-height:1;letter-spacing:.32em;
-  direction:ltr;margin-right:-.32em;
-  background:linear-gradient(115deg,var(--gold-dk) 12%,var(--gold-lt) 38%,var(--gold) 52%,var(--gold-lt) 66%,var(--gold-dk) 90%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 1px 1px rgba(0,0,0,.22));
+  direction:ltr;margin-right:-.32em;color:var(--gold-lt);
 }
-.former{
-  display:flex;align-items:center;justify-content:center;gap:11px;
-  font-size:12px;color:var(--muted);margin-top:12px;letter-spacing:.24em;
-}
-.former::before,.former::after{content:"";width:26px;height:1px;background:var(--line2)}
-.rule{
-  width:150px;height:1px;margin:28px auto 0;position:relative;
-  background:linear-gradient(90deg,transparent,var(--line2),var(--gold),var(--line2),transparent);
-}
-.rule i{
-  position:absolute;top:50%;left:50%;width:7px;height:7px;
-  background:var(--ink);border:1px solid var(--gold);
-  transform:translate(-50%,-50%) rotate(45deg);
-}
+.former{font-size:14px;color:var(--muted);margin-top:8px;letter-spacing:.05em}
+.tag{font-size:13px;color:var(--muted);margin-top:16px;letter-spacing:.03em}
+.rule{width:120px;height:1px;margin:22px auto 0;
+  background:linear-gradient(90deg,transparent,var(--line2),var(--gold),var(--line2),transparent)}
 /* ——— زر تبديل النمط (ليلي/نهاري) ——— */
 .themetoggle{
   position:fixed;top:14px;left:14px;z-index:30;
@@ -164,6 +146,76 @@ section{margin-top:46px}
 }
 .chip.on{border-color:var(--gold);color:var(--on-gold);
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold))}
+/* ——— نادي ترند (كبار العملاء) ——— */
+.qbtn.club{grid-column:1/-1;border-color:var(--gold);color:var(--gold)}
+.qbtn.club.on{background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));color:var(--on-gold);border-color:var(--gold)}
+.clubcard{
+  border:1px solid var(--line2);background:linear-gradient(178deg,var(--panel2),var(--panel));
+  padding:26px 18px;text-align:center;
+}
+.cseal{
+  width:56px;height:56px;margin:0 auto 16px;border:1px solid var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:var(--gold);
+  font-size:11px;letter-spacing:.12em;
+}
+.clubcard h3{margin:0 0 12px;font-size:12.5px;font-weight:400;letter-spacing:.2em;color:var(--gold)}
+.clubcard p{margin:0 0 16px;font-size:12.5px;line-height:2.05;color:var(--paper)}
+.clubmotto{
+  margin:0 0 20px;font-size:11.5px;letter-spacing:.14em;color:var(--gold-lt);
+  line-height:2;opacity:.9;
+}
+.clubperks{margin:0 auto 20px;max-width:340px;text-align:right}
+.perk{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line)}
+.perk:first-child{border-top:0}
+.perk-n{
+  flex:0 0 26px;height:26px;border:1px solid var(--line2);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--gold);font-size:10.5px;margin-top:2px;
+}
+.perk-t{font-size:12.5px;color:var(--paper);letter-spacing:.03em;margin-bottom:3px}
+.perk-soon{
+  display:inline-block;margin-inline-start:7px;padding:1px 7px;
+  border:1px solid var(--line2);color:var(--gold);font-size:9px;letter-spacing:.14em;
+  vertical-align:middle;
+}
+.perk-d{font-size:11.5px;color:var(--muted);line-height:1.85}
+.vipflag{
+  display:inline-block;padding:5px 14px;border:1px solid var(--gold);
+  color:var(--gold);font-size:10.5px;letter-spacing:.22em;
+}
+.clubform{max-width:340px;margin:0 auto 6px}
+.clubform input{
+  width:100%;padding:12px;margin-bottom:8px;background:var(--panel);
+  border:1px solid var(--line2);color:var(--paper);font:inherit;font-size:13px;text-align:center;
+}
+.clubform input:focus{outline:none;border-color:var(--gold)}
+.clubbtn{
+  display:block;width:100%;padding:14px;background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));
+  color:var(--on-gold);border:0;font:inherit;font-size:13px;letter-spacing:.14em;cursor:pointer;
+}
+.clubbtn:disabled{opacity:.55;cursor:default}
+.clubmsg{font-size:12px;margin-top:10px;line-height:1.8;min-height:18px}
+/* مؤشر النقاط - أربع محطات */
+.ptswrap{margin:18px auto 6px;max-width:340px}
+.ptsnum{font-size:34px;color:var(--gold);line-height:1.1;font-family:'Cormorant Garamond',serif}
+.ptslbl{font-size:11px;letter-spacing:.2em;color:var(--muted);margin-bottom:16px}
+.ptstrack{position:relative;height:3px;background:var(--line2);margin:26px 0 8px}
+.ptsfill{position:absolute;inset:0 auto 0 0;right:0;background:var(--gold);width:0%;transition:width .6s}
+.ptsstops{display:flex;justify-content:space-between;margin-top:-16px}
+.ptsstop{text-align:center;flex:1}
+.ptsdot{
+  width:22px;height:22px;margin:0 auto;border-radius:50%;background:var(--panel);
+  border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--muted);
+}
+.ptsstop.done .ptsdot{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
+.ptscap{font-size:9.5px;color:var(--muted);margin-top:6px;line-height:1.5}
+.ptsstop.done .ptscap{color:var(--gold-lt)}
+.ptsnext{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.9}
+.clubwa{
+  display:block;text-align:center;margin-top:6px;background:var(--wa);color:#fff;
+  padding:15px;font-size:12.5px;letter-spacing:.1em;
+}
 /* ——— المنتجات ——— */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 @media(min-width:560px){.grid{grid-template-columns:repeat(3,1fr)}}
@@ -466,7 +518,8 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
 <header>
   <div class="wordmark">TREND</div>
   <div class="former">بيوتي غاليري</div>
-  <div class="rule"><i></i></div>
+  <p class="tag">هدايا · إكسسوار · ألعاب · مكياج · عطور</p>
+  <div class="rule"></div>
 </header>
 <div class="ticker" id="ticker"><div class="trail" id="trail"></div></div>
 <div class="wrap">
@@ -483,6 +536,10 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
       <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.25 11 11 0 003.5.55 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.2.2 2.4.55 3.5a1 1 0 01-.25 1z"/></svg>
       اتصال
     </a>
+    <a class="qbtn club" id="clubBtn" href="#club">
+      <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.1 6.1 20.2l1.2-6.6L2.5 9l6.6-.9L12 2z"/></svg>
+      <span id="clubBtnTxt">نادي ترند — كبار العملاء</span>
+    </a>
   </nav>
   <section>
     <div class="h"><span></span><b>المنتجات</b><span></span></div>
@@ -491,6 +548,10 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
       <div class="skel"></div><div class="skel"></div><div class="skel"></div>
       <div class="skel"></div><div class="skel"></div><div class="skel"></div>
     </div>
+  </section>
+  <section id="club" hidden>
+    <div class="h"><span></span><b>نادي ترند</b><span></span></div>
+    <div class="clubcard" id="clubCard"></div>
   </section>
   <section>
     <div class="h"><span></span><b>المحل</b><span></span></div>
@@ -743,6 +804,188 @@ $('aiInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') aiS
 [].forEach.call($('aiQs').children, function(b){
   b.onclick = function(){ $('aiInput').value = b.textContent; aiSend(); };
 });
+/* ————— نادي ترند (كبار العملاء) —————
+   القسم الخاص بالأعضاء. اسم القسم لازم يكون مطابق تمامًا لاسم التصنيف
+   يلي بتحطه على المنتج (بشيت المنتجات أو بنقطة البيع) حتى ينخفي عن الزائر العادي. */
+/* الجسر مع Supabase - الدالة الوسيطة customer-portal.
+   المفتاح العام (anon) مصمّم أصلًا ليكون ظاهر بكود الصفحة، وما بيعطي أي وصول
+   مباشر للبيانات - كل شي بيمر عبر الدالة الوسيطة يلي بترجّع نقاط الرقم المطلوب بس. */
+var SB_URL = 'https://incloqbhtksnxqiohvaw.supabase.co';
+var SB_ANON = 'sb_publishable_jfAFLXWXJpIrRfkd_CcWlw_xjGgEUEX';
+
+function portal(action, phone, name){
+  return fetch(SB_URL + '/functions/v1/customer-portal', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SB_ANON,
+      'Authorization': 'Bearer ' + SB_ANON
+    },
+    body: JSON.stringify({ action: action, phone: phone, name: name || null })
+  }).then(function(r){ return r.json(); });
+}
+
+var MEMBER_KEY = 'trend_member';
+function getMember(){
+  try { return JSON.parse(localStorage.getItem(MEMBER_KEY) || 'null'); } catch(e){ return null; }
+}
+function setMember(m){
+  try { m ? localStorage.setItem(MEMBER_KEY, JSON.stringify(m)) : localStorage.removeItem(MEMBER_KEY); } catch(e){}
+}
+
+var VIP_CAT = 'كبار العملاء';
+var VIP_KEY = 'trend_vip';
+function isVip(){
+  try { return localStorage.getItem(VIP_KEY) === '1'; } catch(e){ return false; }
+}
+function setVip(v){
+  try { if (v) localStorage.setItem(VIP_KEY, '1'); else localStorage.removeItem(VIP_KEY); } catch(e){}
+}
+/* رابط الواتساب يلي بتبعتو للأعضاء لازم ينتهي بـ #vip - وهو يلي بيفعّل الشارة عندهم.
+   الـQR يلي بالمحل بيوصل على #club (صفحة التعريف بالنادي، بدون تفعيل). */
+(function clubRoute(){
+  var h = String(location.hash || '').toLowerCase();
+  var q = String(location.search || '').toLowerCase();
+  if (h.indexOf('vip') !== -1 || q.indexOf('vip=1') !== -1) setVip(true);
+})();
+function paintClub(){
+  var vip = isVip(), member = getMember();
+  var sec = $('club'), card = $('clubCard');
+  var btn = $('clubBtn'), btxt = $('clubBtnTxt');
+  if (btn) btn.classList.toggle('on', vip);
+  if (btxt) btxt.textContent = vip
+    ? ('نادي ترند — ' + ((member && member.name) ? member.name : 'عضو') + ' ★')
+    : 'نادي ترند — كبار العملاء';
+  if (!sec || !card) return;
+  sec.hidden = false;
+  card.innerHTML = '';
+  card.appendChild(el('div', 'cseal', 'TREND'));
+  card.appendChild(el('h3', null, 'نادي عملاء TREND — VIP'));
+  card.appendChild(el('div', 'clubmotto', 'شركاء البدايات هم شركاء النجاح'));
+
+  var perks = [
+    { t: 'أولوية على الوارد الجديد', d: 'بتشوف كل قطعة جديدة قبل ما تنزل لباقي الزباين.' },
+    { t: 'امتيازات الأعضاء',         d: 'مميزات إضافية مخصّصة لأعضاء النادي، بتتجدد كل فترة.' },
+    { t: 'نقاط على مشترياتك',        d: 'بتتجمّع مع كل فاتورة، وبتستبدلها بهدية من المحل.' }
+  ];
+  function perkList(){
+    var box = el('div', 'clubperks');
+    perks.forEach(function(k, i){
+      var row = el('div', 'perk');
+      row.appendChild(el('div', 'perk-n', String(i + 1)));
+      var col = el('div');
+      var t = el('div', 'perk-t', k.t);
+      if (k.soon) t.appendChild(el('span', 'perk-soon', 'قريبًا'));
+      col.appendChild(t);
+      col.appendChild(el('div', 'perk-d', k.d));
+      row.appendChild(col);
+      box.appendChild(row);
+    });
+    return box;
+  }
+
+  if (vip && member){
+    /* ——— عضو: مؤشر النقاط + مدخل القسم المقفل ——— */
+    var pts = el('div', 'ptswrap');
+    pts.innerHTML = '<div class="ptslbl">جارٍ تحديث نقاطك…</div>';
+    card.appendChild(pts);
+    loadPointsPanel(pts, member.phone);
+
+    var has = ALL.some(function(p){ return (p.cat || '').trim() === VIP_CAT; });
+    if (has){
+      var go = el('div', 'cta', 'ادخل قسم كبار العملاء');
+      go.style.cursor = 'pointer';
+      go.onclick = function(){
+        CAT = VIP_CAT;
+        buildFilters(); render();
+        var g = $('grid');
+        if (g) window.scrollTo({ top: g.offsetTop - 80, behavior: 'smooth' });
+      };
+      card.appendChild(go);
+    } else {
+      card.appendChild(el('p', 'o-note', 'قسم كبار العملاء عم نجهّزه — أول ما ينزل بتشوفه هون قبل الكل.'));
+    }
+    card.appendChild(perkList());
+    var out = el('div', 'ptscap', 'مو إنت؟ اضغط للخروج');
+    out.style.cursor = 'pointer';
+    out.style.marginTop = '14px';
+    out.onclick = function(){ setMember(null); setVip(false); paintClub(); buildFilters(); render(); };
+    card.appendChild(out);
+  } else {
+    /* ——— زائر: نموذج الانضمام ——— */
+    card.appendChild(perkList());
+    var form = el('div', 'clubform');
+    var iName = document.createElement('input');
+    iName.type = 'text'; iName.placeholder = 'اسمك';
+    var iPhone = document.createElement('input');
+    iPhone.type = 'tel'; iPhone.placeholder = 'رقم موبايلك';
+    iPhone.setAttribute('dir', 'ltr');
+    var go2 = document.createElement('button');
+    go2.className = 'clubbtn'; go2.type = 'button'; go2.textContent = 'انضم للنادي';
+    var msg = el('div', 'clubmsg');
+    form.appendChild(iName); form.appendChild(iPhone); form.appendChild(go2); form.appendChild(msg);
+    card.appendChild(form);
+
+    go2.onclick = function(){
+      var nm = iName.value.trim(), phv = iPhone.value.trim();
+      if (!nm){ msg.style.color = '#d98c8c'; msg.textContent = 'اكتب اسمك أول'; return; }
+      if (phv.replace(/\D/g, '').length < 9){ msg.style.color = '#d98c8c'; msg.textContent = 'الرقم مو مكتمل'; return; }
+      go2.disabled = true; msg.style.color = ''; msg.textContent = 'لحظة…';
+      portal('register', phv, nm).then(function(res){
+        if (!res || !res.ok){
+          msg.style.color = '#d98c8c';
+          msg.textContent = (res && res.message) || 'ما زبطت — جرّب مرة تانية';
+          go2.disabled = false; return;
+        }
+        setMember({ phone: res.phone, name: res.name || nm });
+        setVip(true);
+        paintClub(); buildFilters(); render();
+        var s2 = $('club'); if (s2) s2.scrollIntoView({ behavior: 'smooth' });
+      }).catch(function(){
+        msg.style.color = '#d98c8c';
+        msg.textContent = 'ما قدرنا نوصل للخدمة — تأكد من الإنترنت';
+        go2.disabled = false;
+      });
+    };
+  }
+}
+
+/* بيجيب نقاط العضو من الدالة الوسيطة ويرسم المحطات الأربع */
+function loadPointsPanel(box, phone){
+  portal('status', phone).then(function(res){
+    if (!res || !res.ok){ box.innerHTML = '<div class="ptslbl">ما قدرنا نجيب نقاطك هلق</div>'; return; }
+    var pts = Number(res.points) || 0;
+    var tiers = (res.tiers || []).slice(0, 4);
+    if (!tiers.length){
+      box.innerHTML = '<div class="ptsnum">' + pts + '</div><div class="ptslbl">نقطة</div>';
+      return;
+    }
+    var top = tiers[tiers.length - 1].points_required || 1;
+    var pct = Math.max(0, Math.min(100, (pts / top) * 100));
+    var next = null;
+    for (var i = 0; i < tiers.length; i++){
+      if (tiers[i].points_required > pts){ next = tiers[i]; break; }
+    }
+    var stops = tiers.map(function(t){
+      var done = pts >= t.points_required;
+      return '<div class="ptsstop' + (done ? ' done' : '') + '">' +
+               '<div class="ptsdot">' + (done ? '✓' : t.points_required) + '</div>' +
+               '<div class="ptscap">' + Number(t.gift_value).toFixed(0) + ' ل.س</div>' +
+             '</div>';
+    }).join('');
+    box.innerHTML =
+      '<div class="ptsnum">' + pts + '</div>' +
+      '<div class="ptslbl">نقطة</div>' +
+      '<div class="ptstrack"><div class="ptsfill" style="width:' + pct + '%"></div></div>' +
+      '<div class="ptsstops">' + stops + '</div>' +
+      '<div class="ptsnext">' + (next
+        ? ('باقي <b style="color:var(--gold)">' + (next.points_required - pts) + '</b> نقطة للهدية الجاية')
+        : 'وصلت لأعلى محطة — اسأل عن هديتك بالمحل 🎁') + '</div>';
+  }).catch(function(){
+    box.innerHTML = '<div class="ptslbl">ما قدرنا نجيب نقاطك هلق</div>';
+  });
+}
+
 /* ——— الأسعار وسعر الصرف — لازم تتعرّف قبل أي رسم ——— */
 var SET = memo('set') || { rate: 0, mode: 'syp' };
 var ROUND_TO   = 10;    /* التقريب لفوق لأقرب 10 ل.س */
@@ -811,6 +1054,7 @@ var ALL = [], CAT = 'الكل';
 var DEFAULT_CAT_SET = false; /* أول ما توصل التصنيفات، بنحاول نفتح على "هدايا" تلقائيًا - مرة وحدة بس */
 var cachedP = memo('products');
 if (cachedP && cachedP.length){ ALL = cachedP; buildFilters(); render(); }
+paintClub();
 /* نداء واحد يجيب العروض والمنتجات معًا */
 jsonp('action=all', 12000).then(function(r){
   if (r && r.set){ SET = r.set; keep('set', r.set); }
@@ -824,12 +1068,16 @@ jsonp('action=all', 12000).then(function(r){
     buildFilters();
     render();
   }
+  paintClub();
   paintCart();
 });
 function buildFilters(){
   var seen = {}, cats = ['الكل'];
+  var vip = isVip();
+  if (!vip && CAT === VIP_CAT) CAT = 'الكل';
   ALL.forEach(function(p){
     var c = (p.cat || '').trim();
+    if (c === VIP_CAT && !vip) return;   /* قسم كبار العملاء ما بيظهر لغير الأعضاء */
     if (c && !seen[c]){ seen[c] = 1; cats.push(c); }
   });
   /* فتح الموقع افتراضيًا على تصنيف "هدايا" (مرة وحدة بس، أول ما توصل التصنيفات الحقيقية) */
@@ -894,7 +1142,12 @@ function render(){
   var g = $('grid');
   g.innerHTML = '';
   ACTIONS = [];
-  var list = ALL.filter(function(p){ return CAT === 'الكل' || (p.cat || '').trim() === CAT; });
+  var list = ALL.filter(function(p){
+    var c = (p.cat || '').trim();
+    /* قسم كبار العملاء: للأعضاء بس، ولما يختاروه صراحةً (ما بينخلط مع "الكل") */
+    if (c === VIP_CAT) return isVip() && CAT === VIP_CAT;
+    return CAT === 'الكل' || c === CAT;
+  });
   if (!list.length){
     var e = el('div', 'empty', 'لسا ما في منتجات معروضة — تواصل معنا على واتساب.');
     e.style.gridColumn = '1 / -1';
