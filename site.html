@@ -215,16 +215,18 @@ section{margin-top:46px}
 .gift.done .giftbox{animation:giftpop .5s cubic-bezier(.34,1.4,.64,1)}
 .gift:hover .giftbox{transform:translateY(-2px)}
 @keyframes giftpop{0%{transform:scale(.7)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+/* صورة صندوق الهدايا فوق المؤشر */
+.ptsimg{
+  display:block;width:100%;max-width:300px;margin:0 auto 20px;
+  border:1px solid var(--line2);box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
 /* تنويه: كيف بتجمع النقاط */
 .ptshow{
   margin:0 auto 20px;max-width:340px;border:1px solid var(--line2);
   background:var(--panel);padding:13px 14px;text-align:right;
 }
 .ptshow-t{font-size:11px;letter-spacing:.16em;color:var(--gold);margin-bottom:9px}
-.ptshow-s{
-  display:flex;gap:9px;align-items:flex-start;font-size:11.5px;
-  color:var(--muted);line-height:1.75;padding:4px 0;
-}
+.ptshow-s{font-size:11.5px;color:var(--muted);line-height:1.85}
 .ptshow-n{
   flex:0 0 17px;height:17px;border-radius:50%;border:1px solid var(--gold);
   color:var(--gold);font-size:9px;display:flex;align-items:center;justify-content:center;margin-top:2px;
@@ -874,6 +876,11 @@ function portal(action, phone, name){
   });
 }
 
+/* صورة صندوق الهدايا فوق مؤشر النقاط.
+   ارفع الصورة على نفس مستودع الموقع باسم gift.jpg (أو غيّر الاسم/الرابط هون).
+   إذا الصورة مو موجودة، بتختفي لحالها وما بتأثر على باقي الصفحة. */
+var CLUB_IMG = 'gift.jpg';
+
 var MEMBER_KEY = 'trend_member';
 function getMember(){
   try { return JSON.parse(localStorage.getItem(MEMBER_KEY) || 'null'); } catch(e){ return null; }
@@ -1066,16 +1073,16 @@ function loadPointsPanel(box, phone){
     }).join('');
 
     box.innerHTML =
+      (CLUB_IMG
+        ? '<img class="ptsimg" src="' + CLUB_IMG + '" alt="هدايا نادي ترند" ' +
+          'onerror="this.style.display=\'none\'">'
+        : '') +
       '<div class="ptsnum">' + pts + '</div>' +
       '<div class="ptslbl">نقطة</div>' +
       '<div class="ptshow">' +
         '<div class="ptshow-t">كيف بتجمّع نقاطك؟</div>' +
-        '<div class="ptshow-s"><span class="ptshow-n">1</span>' +
-          '<span>عند كل شرية، عطي رقم موبايلك للكاشير — نقاطك بتنضاف تلقائيًا.</span></div>' +
-        '<div class="ptshow-s"><span class="ptshow-n">2</span>' +
-          '<span>كل ما اشتريت أكتر، جمّعت نقاط أكتر — وبتوصل للصندوق الجاي أسرع.</span></div>' +
-        '<div class="ptshow-s"><span class="ptshow-n">3</span>' +
-          '<span>أول ما توصل صندوق، اطلب هديتك من المحل واختار الصنف يلي بيعجبك.</span></div>' +
+        '<div class="ptshow-s">' +
+          '<span>عند كل عملية شراء، اعطي رقم موبايلك للكاشير — نقاطك بتنضاف تلقائيًا.</span></div>' +
       '</div>' +
       '<div class="ptstrack"><div class="ptsfill" style="width:' + pct + '%"></div></div>' +
       '<div class="giftrow">' + boxes + '</div>' +
