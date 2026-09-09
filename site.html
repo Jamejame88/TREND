@@ -195,23 +195,39 @@ section{margin-top:46px}
 }
 .clubbtn:disabled{opacity:.55;cursor:default}
 .clubmsg{font-size:12px;margin-top:10px;line-height:1.8;min-height:18px}
-/* مؤشر النقاط - أربع محطات */
-.ptswrap{margin:18px auto 6px;max-width:340px}
-.ptsnum{font-size:34px;color:var(--gold);line-height:1.1;font-family:'Cormorant Garamond',serif}
-.ptslbl{font-size:11px;letter-spacing:.2em;color:var(--muted);margin-bottom:16px}
-.ptstrack{position:relative;height:3px;background:var(--line2);margin:26px 0 8px}
-.ptsfill{position:absolute;inset:0 auto 0 0;right:0;background:var(--gold);width:0%;transition:width .6s}
-.ptsstops{display:flex;justify-content:space-between;margin-top:-16px}
-.ptsstop{text-align:center;flex:1}
-.ptsdot{
-  width:22px;height:22px;margin:0 auto;border-radius:50%;background:var(--panel);
-  border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;
-  font-size:9px;color:var(--muted);
+/* ——— مؤشر النقاط: أربع محطات على شكل صناديق هدايا ——— */
+.ptswrap{margin:20px auto 6px;max-width:360px}
+.ptsnum{font-size:44px;color:var(--gold);line-height:1;font-family:'Cormorant Garamond',serif;letter-spacing:.02em}
+.ptslbl{font-size:10.5px;letter-spacing:.24em;color:var(--muted);margin-bottom:22px}
+.ptstrack{position:relative;height:2px;background:var(--line2);margin:0 6% 20px}
+.ptsfill{position:absolute;top:0;bottom:0;right:0;background:linear-gradient(90deg,var(--gold-dk),var(--gold));width:0%;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.giftrow{display:flex;gap:6px;align-items:flex-start}
+.gift{
+  flex:1;cursor:pointer;text-align:center;padding:12px 3px 10px;
+  border:1px solid var(--line2);background:var(--panel);
+  transition:transform .25s cubic-bezier(.34,1.3,.64,1),filter .25s,border-color .25s;
 }
-.ptsstop.done .ptsdot{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
-.ptscap{font-size:9.5px;color:var(--muted);margin-top:6px;line-height:1.5}
-.ptsstop.done .ptscap{color:var(--gold-lt)}
-.ptsnext{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.9}
+.gift:hover{border-color:var(--gold-lt)}
+.gift.done{border-color:var(--gold)}
+.gift.open{transform:scale(1.09);filter:brightness(.78);border-color:var(--gold);position:relative;z-index:2}
+.giftbox{width:30px;height:30px;margin:0 auto 7px;display:block;color:var(--line2)}
+.gift.done .giftbox{color:var(--gold)}
+.giftpts{font-size:13px;color:var(--muted);font-family:'Cormorant Garamond',serif}
+.gift.done .giftpts{color:var(--gold-lt)}
+.giftval{font-size:9px;color:var(--muted);letter-spacing:.06em;margin-top:2px}
+.giftpanel{
+  margin-top:12px;border:1px solid var(--line2);border-top:2px solid var(--gold);
+  background:var(--panel2);padding:14px;text-align:right;
+}
+.giftpanel h4{margin:0 0 4px;font-size:12px;color:var(--gold);letter-spacing:.1em;font-weight:400}
+.giftpanel .gp-state{font-size:10.5px;color:var(--muted);margin-bottom:10px;letter-spacing:.05em}
+.gp-item{
+  font-size:12px;color:var(--paper);padding:7px 0;border-top:1px solid var(--line);
+  display:flex;align-items:center;gap:8px;
+}
+.gp-item:first-of-type{border-top:0}
+.gp-item::before{content:'◆';color:var(--gold);font-size:7px}
+.ptsnext{font-size:11.5px;color:var(--muted);margin-top:16px;line-height:1.9}
 .clubwa{
   display:block;text-align:center;margin-top:6px;background:var(--wa);color:#fff;
   padding:15px;font-size:12.5px;letter-spacing:.1em;
@@ -950,7 +966,11 @@ function paintClub(){
   }
 }
 
-/* بيجيب نقاط العضو من الدالة الوسيطة ويرسم المحطات الأربع */
+/* بيجيب نقاط العضو من الدالة الوسيطة ويرسم المحطات الأربع كصناديق هدايا */
+var GIFT_SVG = '<svg class="giftbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">' +
+  '<rect x="2.5" y="8.5" width="19" height="12.5"/><path d="M2.5 12.8h19"/><path d="M12 8.5V21"/>' +
+  '<path d="M12 8.5S9.6 3 7.2 3a2.4 2.4 0 0 0 0 5.5z"/><path d="M12 8.5S14.4 3 16.8 3a2.4 2.4 0 0 1 0 5.5z"/></svg>';
+
 function loadPointsPanel(box, phone){
   portal('status', phone).then(function(res){
     if (!res || !res.ok){ box.innerHTML = '<div class="ptslbl">ما قدرنا نجيب نقاطك هلق</div>'; return; }
@@ -960,27 +980,58 @@ function loadPointsPanel(box, phone){
       box.innerHTML = '<div class="ptsnum">' + pts + '</div><div class="ptslbl">نقطة</div>';
       return;
     }
+
     var top = tiers[tiers.length - 1].points_required || 1;
     var pct = Math.max(0, Math.min(100, (pts / top) * 100));
     var next = null;
     for (var i = 0; i < tiers.length; i++){
       if (tiers[i].points_required > pts){ next = tiers[i]; break; }
     }
-    var stops = tiers.map(function(t){
+
+    var boxes = tiers.map(function(t, i){
       var done = pts >= t.points_required;
-      return '<div class="ptsstop' + (done ? ' done' : '') + '">' +
-               '<div class="ptsdot">' + (done ? '✓' : t.points_required) + '</div>' +
-               '<div class="ptscap">' + Number(t.gift_value).toFixed(0) + ' ل.س</div>' +
+      return '<div class="gift' + (done ? ' done' : '') + '" data-i="' + i + '">' +
+               GIFT_SVG +
+               '<div class="giftpts">' + t.points_required + '</div>' +
+               '<div class="giftval">نقطة</div>' +
              '</div>';
     }).join('');
+
     box.innerHTML =
       '<div class="ptsnum">' + pts + '</div>' +
       '<div class="ptslbl">نقطة</div>' +
       '<div class="ptstrack"><div class="ptsfill" style="width:' + pct + '%"></div></div>' +
-      '<div class="ptsstops">' + stops + '</div>' +
+      '<div class="giftrow">' + boxes + '</div>' +
+      '<div id="giftPanelHost"></div>' +
       '<div class="ptsnext">' + (next
         ? ('باقي <b style="color:var(--gold)">' + (next.points_required - pts) + '</b> نقطة للهدية الجاية')
         : 'وصلت لأعلى محطة — اسأل عن هديتك بالمحل 🎁') + '</div>';
+
+    /* ضغطة على صندوق: بيكبر ويغمق، وبيفتح تحته الأصناف يلي بياخدها بهاي المحطة */
+    var host = box.querySelector('#giftPanelHost');
+    var openIdx = null;
+    box.querySelectorAll('.gift').forEach(function(g){
+      g.addEventListener('click', function(){
+        var i = Number(g.getAttribute('data-i'));
+        box.querySelectorAll('.gift').forEach(function(x){ x.classList.remove('open'); });
+        if (openIdx === i){ openIdx = null; host.innerHTML = ''; return; }
+        openIdx = i;
+        g.classList.add('open');
+        var t = tiers[i];
+        var done = pts >= t.points_required;
+        var items = t.items || [];
+        host.innerHTML =
+          '<div class="giftpanel">' +
+            '<h4>هدية بقيمة ' + Number(t.gift_value).toFixed(0) + ' ل.س</h4>' +
+            '<div class="gp-state">' + (done
+              ? '✓ مفتوحة — اطلبها من المحل'
+              : 'باقي ' + (t.points_required - pts) + ' نقطة') + '</div>' +
+            (items.length
+              ? items.map(function(n){ return '<div class="gp-item">' + n + '</div>'; }).join('')
+              : '<div class="gp-item">الأصناف بتنزل قريبًا</div>') +
+          '</div>';
+      });
+    });
   }).catch(function(){
     box.innerHTML = '<div class="ptslbl">ما قدرنا نجيب نقاطك هلق</div>';
   });
