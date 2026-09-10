@@ -254,6 +254,28 @@ section{margin-top:46px}
   color:var(--gold);font-size:10.5px;letter-spacing:.22em;
 }
 /* زر تنزيل التطبيق */
+/* بديل الصورة بوضع التوفير */
+.imgsave{
+  width:100%;height:100%;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:6px;cursor:pointer;color:var(--muted);
+  background:var(--img-bg);transition:color .5s var(--ease);
+}
+.imgsave b{font-size:24px;color:var(--line2);font-weight:400}
+.imgsave span{font-size:10.5px;letter-spacing:.06em}
+.imgsave:hover{color:var(--gold)}
+/* زر وضع التوفير */
+.saveBtn{
+  position:fixed;top:14px;left:60px;z-index:30;height:38px;padding:0 12px;border-radius:19px;
+  border:.5px solid var(--line2);background:var(--panel);color:var(--muted);
+  font:inherit;font-size:11px;letter-spacing:.06em;cursor:pointer;
+  display:flex;align-items:center;gap:5px;transition:all .5s var(--ease);
+}
+.saveBtn.on{border-color:var(--gold);color:var(--gold)}
+.savenote{
+  margin:12px 0 0;padding:9px 12px;border:1px solid var(--line2);border-radius:8px;
+  background:rgba(198,164,78,.06);color:var(--muted);font-size:11.5px;
+  text-align:center;line-height:1.7;
+}
 .instwrap{max-width:360px;margin:14px auto 0}
 .instbtn{
   display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
@@ -267,6 +289,13 @@ section{margin-top:46px}
   background:var(--gold);color:var(--on-gold);font-size:10px;letter-spacing:.08em;
 }
 .instmsg{font-size:11.5px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.8}
+/* إبراز زر التنزيل لما يجي الزائر من رابط #install */
+.instbtn.spot{animation:spotPulse 1.6s ease-out 3}
+@keyframes spotPulse{
+  0%{box-shadow:0 0 0 0 rgba(230,198,135,.55)}
+  70%{box-shadow:0 0 0 14px rgba(230,198,135,0)}
+  100%{box-shadow:0 0 0 0 rgba(230,198,135,0)}
+}
 .clubform{max-width:340px;margin:0 auto 6px}
 .clubform input{
   width:100%;padding:12px;margin-bottom:8px;background:var(--panel);
@@ -690,6 +719,10 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
       <span id="clubBtnTxt">نادي ترند — كبار العملاء</span>
     </a>
   </nav>
+  <button class="saveBtn" id="saveBtn" type="button" title="وضع توفير البيانات">
+    <span>⚡</span><span id="saveTxt">توفير</span>
+  </button>
+  <div class="savenote" id="saveNote" hidden></div>
   <div class="instwrap" id="instWrap" hidden>
     <button class="instbtn" id="instBtn" type="button">
       <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
@@ -1010,6 +1043,49 @@ function getMember(){
 function setMember(m){
   try { m ? localStorage.setItem(MEMBER_KEY, JSON.stringify(m)) : localStorage.removeItem(MEMBER_KEY); } catch(e){}
 }
+
+/* ————— وضع توفير البيانات —————
+   الصور هي 99% من وزن الصفحة. بهاد الوضع ما بتنحمّل ولا صورة تلقائيًا،
+   والزائر بيضغط على يلي بدو يشوفه. بينفتح لحاله أول مرة إذا:
+   - المتصفح مفعّل عنده "توفير البيانات"، أو
+   - الشبكة بطيئة (2g / slow-2g)
+   وبيقدر يطفيه بضغطة، والاختيار بينحفظ بالجهاز. */
+var SAVE_KEY = 'trend_save';
+var SAVE = false, saveAuto = false;
+
+(function initSave(){
+  var stored = null;
+  try { stored = localStorage.getItem(SAVE_KEY); } catch(e){}
+  if (stored === '1'){ SAVE = true; return; }
+  if (stored === '0'){ SAVE = false; return; }
+  /* ما في اختيار محفوظ - منقرر حسب حالة الشبكة */
+  var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (c){
+    var t = String(c.effectiveType || '');
+    if (c.saveData === true || t === '2g' || t === 'slow-2g'){ SAVE = true; saveAuto = true; }
+  }
+})();
+
+function paintSaveBtn(){
+  var b = $('saveBtn'), n = $('saveNote');
+  if (b){
+    b.classList.toggle('on', SAVE);
+    $('saveTxt').textContent = SAVE ? 'التوفير شغّال' : 'توفير';
+    b.title = SAVE ? 'الصور ما بتنحمّل - اضغط لإطفاء التوفير' : 'وضع توفير البيانات';
+  }
+  if (n){
+    if (SAVE && saveAuto){
+      n.hidden = false;
+      n.innerHTML = '⚡ شغّلنا <b>وضع التوفير</b> لأنه النت عندك بطيء — الصور بتنحمّل لما تضغط عليها. اضغط زر "التوفير" فوق لإطفائه.';
+    } else { n.hidden = true; }
+  }
+}
+
+$('saveBtn') && $('saveBtn').addEventListener('click', function(){
+  SAVE = !SAVE; saveAuto = false;
+  try { localStorage.setItem(SAVE_KEY, SAVE ? '1' : '0'); } catch(e){}
+  paintSaveBtn(); render();
+});
 
 var VIP_CAT = 'كبار العملاء';
 var VIP_KEY = 'trend_vip';
@@ -1392,11 +1468,39 @@ var cachedP = memo('products');
 if (cachedP && cachedP.length){ ALL = cachedP; buildFilters(); render(); }
 paintClub();
 paintInstall();
+paintSaveBtn();
 
 /* التطبيق مفتوح من الشاشة الرئيسية = مثبّت فعليًا.
    هي الحالة الوحيدة يلي بتغطي الآيفون (ما بيرسل إشارة تثبيت)،
    وكمان بتغطي اللي نزّل قبل ما يسجّل بالنادي. */
 if (STANDALONE) setTimeout(claimInstallBonus, 1200);
+
+/* رابط #install: بينزّل الزائر على زر تنزيل التطبيق ويلمّعه.
+   موجود للتوافق مع الروابط القديمة يلي انبعتت أو انطبعت. */
+(function installRoute(){
+  var h = String(location.hash || '').toLowerCase();
+  if (h.indexOf('install') === -1) return;
+  setTimeout(function(){
+    var wrap = $('instWrap'), btn = $('instBtn'), msg = $('instMsg');
+    if (!wrap) return;
+    if (STANDALONE){
+      /* مثبّت أصلًا - منطمّنه بدل ما نفرجيه زر ما إله لزوم */
+      var t = $('sToast');
+      if (t){
+        t.textContent = 'التطبيق مثبّت عندك أصلًا ✓';
+        t.classList.add('on');
+        setTimeout(function(){ t.classList.remove('on'); }, 4000);
+      }
+      return;
+    }
+    wrap.hidden = false;                 /* بيظهر حتى لو المتصفح ما أعطى إشارة التثبيت */
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (btn) btn.classList.add('spot');
+    if (msg && !deferredPrompt && !IOS){
+      msg.textContent = 'إذا ما فتحت نافذة التثبيت، من قائمة المتصفح (⋮) اختار "إضافة إلى الشاشة الرئيسية".';
+    }
+  }, 700);
+})();
 
 /* تسجيل الـService Worker - شرط لازم حتى يسمح المتصفح بتثبيت التطبيق */
 if ('serviceWorker' in navigator){
@@ -1531,11 +1635,30 @@ function render(){
     var th = el('div', 'thumb');
     /* عدة صور لنفس المنتج (p.imgs) - نقاط + عدّاد + ضغطة عالصورة تنقّل للتالية */
     var imgs = (p.imgs && p.imgs.length) ? p.imgs : (p.img ? [p.img] : []);
-    if (imgs.length){
+    if (imgs.length && SAVE){
+      /* وضع التوفير: ما منحمّل ولا صورة - الزائر بيضغط على يلي بدو يشوفه */
+      var ph = el('div', 'imgsave');
+      ph.innerHTML = '<b>◆</b><span>اضغط لعرض الصورة</span>';
+      ph.onclick = function(e){
+        e.stopPropagation();
+        var im2 = new Image();
+        im2.alt = p.name || '';
+        im2.decoding = 'async';
+        im2.onerror = function(){ th.innerHTML = '<div class="noimg">◆</div>'; };
+        im2.src = imgs[0];
+        th.innerHTML = '';
+        th.appendChild(im2);
+      };
+      th.appendChild(ph);
+    } else if (imgs.length){
       var idx = 0;
       var im = new Image();
-      im.src = imgs[0]; im.alt = p.name || ''; im.loading = 'lazy'; im.decoding = 'async';
+      /* مهم: loading و decoding لازم ينحطوا قبل src - لو انحطوا بعده
+         بيكون المتصفح بلّش التحميل والتأجيل ما بيشتغل */
+      im.loading = 'lazy'; im.decoding = 'async';
+      im.alt = p.name || '';
       im.onerror = function(){ th.innerHTML = '<div class="noimg">◆</div>'; };
+      im.src = imgs[0];
       th.appendChild(im);
       if (imgs.length > 1){
         var dots = el('div', 'tdots');
