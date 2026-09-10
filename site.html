@@ -53,7 +53,9 @@
   --gold:#C5A059;--gold-lt:#7A5F26;--gold-dk:#9A7B32;
   --line:rgba(197,160,89,.18);--line2:rgba(197,160,89,.40);
   --paper:#1A1A1A;--muted:#6E6459;
-  --ok:#3E8E52;--img-bg:#EFEAE0;--on-gold:#FFFFFF;
+  /* النص فوق أي تعبئة ذهبية لازم يكون غامق بالنمط النهاري -
+     الذهبي الساتان فاتح، والأبيض عليه تباينه 1.6 فقط (غير مقروء) */
+  --ok:#3E8E52;--img-bg:#EFEAE0;--on-gold:#1A1A1A;
   --shadow:0 10px 40px rgba(197,160,89,.10);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -107,6 +109,10 @@ header{
     #4A3A14 0%, #6B5320 12%, #9A7B32 26%, #C5A059 40%,
     #E8D6A8 50%, #C5A059 60%, #9A7B32 74%, #6B5320 88%, #4A3A14 100%);
   background-size:280% 100%;
+  /* لازم تتعاد هون: خاصية background المختصرة بتصفّر background-clip،
+     وبدونها التدرّج بيتعبى المربع كله بدل ما ينقصّ على شكل الحروف */
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
 }
 .former{
   font-size:13px;color:var(--muted);margin-top:11px;letter-spacing:.24em;
@@ -192,18 +198,24 @@ section{margin-top:46px}
 .filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:18px;scrollbar-width:none}
 .filters::-webkit-scrollbar{display:none}
 .chip{
-  position:relative;overflow:hidden;flex:0 0 auto;
-  border:.5px solid var(--line2);border-radius:var(--r-sm);color:var(--gold-lt);
-  padding:9px 18px;font-size:12.5px;letter-spacing:.06em;cursor:pointer;
-  transition:color .5s var(--ease),border-color .5s var(--ease);
+  flex:0 0 auto;border:.5px solid var(--line2);border-radius:var(--r-sm);
+  color:var(--gold-lt);padding:9px 18px;font-size:12.5px;letter-spacing:.06em;cursor:pointer;
+  /* التعبئة بتصير على خلفية الزر نفسه (بتكبر من اليمين) بدل طبقة فوقه -
+     هيك النص بيضل ظاهر مهما كان شكله (نص مباشر أو عنصر داخلي) */
+  background-color:transparent;
+  background-image:linear-gradient(var(--gold),var(--gold));
+  background-repeat:no-repeat;background-position:right center;background-size:0% 100%;
+  transition:background-size .5s var(--ease),color .5s var(--ease),border-color .5s var(--ease);
 }
-.chip::before{content:"";position:absolute;inset:0;background:var(--gold);
-  transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ease);z-index:0}
-.chip > *{position:relative;z-index:1}
-.chip:hover::before,.chip.on::before{transform:scaleX(1)}
-.chip:hover,.chip.on{color:var(--on-gold);border-color:var(--gold)}
-.chip.on{border-color:var(--gold);color:var(--on-gold);
-  background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold))}
+/* تعبئة موحّدة للحالتين (مرور + محدد). القاعدة القديمة يلي كانت تحط تدرّج
+   بخاصية background المختصرة انشالت: كانت تصفّر background-size وتغطي النص. */
+.chip:hover,.chip.on{
+  background-size:100% 100%;
+  color:var(--on-gold);
+  border-color:var(--gold);
+}
+.chip.on{font-weight:500}
+.chip:hover *,.chip.on *{color:inherit}
 /* ——— نادي ترند (كبار العملاء) ——— */
 .qbtn.club{grid-column:1/-1;border-color:var(--gold);color:var(--gold)}
 .qbtn.club.on{background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));color:var(--on-gold);border-color:var(--gold)}
@@ -372,11 +384,15 @@ section{margin-top:46px}
 .p-act{margin-top:11px}
 .p-add{
   width:100%;height:38px;border:.5px solid var(--line2);border-radius:var(--r-sm);
-  background:transparent;color:var(--gold-lt);font-family:inherit;font-size:11.5px;
-  letter-spacing:.1em;cursor:pointer;transition:all .5s var(--ease);
+  color:var(--gold-lt);font-family:inherit;font-size:11.5px;
+  letter-spacing:.1em;cursor:pointer;
+  background-color:transparent;
+  background-image:linear-gradient(var(--gold),var(--gold));
+  background-repeat:no-repeat;background-position:right center;background-size:0% 100%;
+  transition:background-size .5s var(--ease),color .5s var(--ease),border-color .5s var(--ease);
 }
-.p-add:hover{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
-.p-add:hover{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
+
+
 .p-ask{
   display:block;width:100%;height:38px;line-height:36px;border:1px solid var(--line2);
   text-align:center;font-size:11.5px;color:var(--muted);letter-spacing:.08em;transition:.22s;
@@ -433,8 +449,8 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   padding:9px;font-size:11.5px;color:var(--gold-lt);letter-spacing:.06em;transition:.2s;
   background:transparent;font-family:inherit;width:100%;
 }
-.p-add:hover{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
-.p-add.added{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
+
+.p-add:hover,.p-add.added{background-size:100% 100%;color:var(--on-gold);border-color:var(--gold)}
 .cartbar{
   position:fixed;bottom:0;left:0;right:0;z-index:22;display:none;
   background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));
@@ -624,8 +640,11 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
   box-shadow:0 4px 10px rgba(0,0,0,.14);
 }
 :root[data-theme="light"] .p-add:hover,:root[data-theme="light"] .p-add.added{
-  background:var(--cardcolor,#8B5CF6);opacity:.9;color:#fff;border-color:transparent;
+  background-image:none;background:var(--cardcolor,#8B5CF6);
+  opacity:.9;color:#fff;border-color:transparent;
 }
+/* النمط النهاري بيستخدم أزرار ملوّنة (لون لكل كرت)، فمنلغي تعبئة الذهب هون */
+:root[data-theme="light"] .p-add{background-image:none}
 :root[data-theme="light"] .stepper{
   border:none;border-radius:999px;overflow:hidden;background:var(--cardcolor,#8B5CF6);
   box-shadow:0 4px 10px rgba(0,0,0,.14);
@@ -1354,7 +1373,29 @@ paintInstall();
 /* تسجيل الـService Worker - شرط لازم حتى يسمح المتصفح بتثبيت التطبيق */
 if ('serviceWorker' in navigator){
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('sw.js').catch(function(e){ console.log('SW:', e); });
+    navigator.serviceWorker.register('sw.js').then(function(reg){
+      /* بيدوّر عن نسخة أحدث عند كل فتحة، ولو لقى وحدة جاهزة بيستلمها فورًا
+         ويعيد تحميل الصفحة مرة وحدة - فما بيعلق الزبون على نسخة قديمة */
+      reg.update();
+      function takeOver(w){
+        if (!w) return;
+        w.addEventListener('statechange', function(){
+          if (w.state === 'installed' && navigator.serviceWorker.controller){
+            w.postMessage('skipWaiting');
+          }
+        });
+      }
+      if (reg.waiting) reg.waiting.postMessage('skipWaiting');
+      takeOver(reg.installing);
+      reg.addEventListener('updatefound', function(){ takeOver(reg.installing); });
+    }).catch(function(e){ console.log('SW:', e); });
+
+    var reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if (reloaded) return;   /* مرة وحدة بس - تفاديًا لحلقة إعادة تحميل */
+      reloaded = true;
+      location.reload();
+    });
   });
 }
 /* نداء واحد يجيب العروض والمنتجات معًا */
