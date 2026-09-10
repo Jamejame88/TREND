@@ -1065,21 +1065,42 @@ $('instBtn') && $('instBtn').addEventListener('click', function(){
 window.addEventListener('appinstalled', function(){ claimInstallBonus(); });
 
 /* النقطتين بينضافوا مرة وحدة لكل رقم - التحقق بالسيرفر مو بالمتصفح */
-function claimInstallBonus(){
-  var msg = $('instMsg'), wrap = $('instWrap'), m = getMember();
-  if (!m || !m.phone){
-    if (msg) msg.innerHTML = 'تم التنزيل ✓ — سجّل بنادي ترند تحت حتى تاخد النقطتين.';
-    return;
+/* بينادى من أربع حالات: موافقة على التثبيت (أندرويد)، اكتمال التثبيت،
+   فتح التطبيق من الشاشة الرئيسية (وهي الحالة الوحيدة يلي بتغطي الآيفون)،
+   وبعد التسجيل مباشرة لمين نزّل قبل ما يسجّل.
+   السيرفر بيتأكد إنه الرقم ما أخد النقطتين قبل، فتكرار النداء ما بيضر. */
+var bonusAsked = false;
+
+function bonusSay(html){
+  var msg = $('instMsg');
+  if (msg && $('instWrap') && !$('instWrap').hidden){ msg.innerHTML = html; return; }
+  /* لو زر التنزيل مخفي (متل حالة فتح التطبيق المثبّت)، منعرض تنبيه عائم */
+  var t = $('sToast');
+  if (t){
+    t.innerHTML = html;
+    t.classList.add('on');
+    setTimeout(function(){ t.classList.remove('on'); }, 4500);
   }
-  if (msg) msg.textContent = 'تم التنزيل ✓ — عم نضيف نقاطك…';
+}
+
+function claimInstallBonus(){
+  if (bonusAsked) return;          /* مرة وحدة بالجلسة - تفاديًا لرسائل متضاربة */
+  var m = getMember();
+  if (!m || !m.phone){
+    bonusSay('تم التنزيل ✓ — سجّل بنادي ترند تحت حتى تاخد النقطتين.');
+    return;                        /* ما منرفع العلم: لسا ما طلبناهن فعليًا */
+  }
+  bonusAsked = true;
   portal('install_bonus', m.phone).then(function(res){
-    if (!res || !res.ok){ if (msg) msg.textContent = 'تم التنزيل ✓'; return; }
-    if (msg) msg.innerHTML = res.bonusGranted
-      ? '🎁 انضافت <b style="color:var(--gold)">نقطتين</b> لرصيدك!'
-      : 'تم التنزيل ✓ — النقطتين مضافين من قبل لهاد الرقم.';
-    if (wrap) setTimeout(function(){ wrap.hidden = true; }, 6000);
-    paintClub();
-  }).catch(function(){ if (msg) msg.textContent = 'تم التنزيل ✓'; });
+    if (!res || !res.ok) return;
+    if (res.bonusGranted){
+      bonusSay('🎁 انضافت <b style="color:var(--gold)">نقطتين</b> لرصيدك!');
+      var wrap = $('instWrap');
+      if (wrap && !wrap.hidden) setTimeout(function(){ wrap.hidden = true; }, 6000);
+      paintClub();
+    }
+    /* لو أخدهن من قبل ما منزعجه برسالة */
+  }).catch(function(){ bonusAsked = false; });
 }
 
 function paintClub(){
@@ -1174,6 +1195,8 @@ function paintClub(){
         setMember({ phone: res.phone, name: res.name || nm });
         setVip(true);
         paintClub(); buildFilters(); render();
+        /* لو كان نزّل التطبيق قبل ما يسجّل، هلق صار عنده رقم - منعطيه نقاطه */
+        if (STANDALONE) setTimeout(claimInstallBonus, 600);
         var s2 = $('club'); if (s2) s2.scrollIntoView({ behavior: 'smooth' });
       }).catch(function(err){
         msg.style.color = '#d98c8c';
@@ -1369,6 +1392,11 @@ var cachedP = memo('products');
 if (cachedP && cachedP.length){ ALL = cachedP; buildFilters(); render(); }
 paintClub();
 paintInstall();
+
+/* التطبيق مفتوح من الشاشة الرئيسية = مثبّت فعليًا.
+   هي الحالة الوحيدة يلي بتغطي الآيفون (ما بيرسل إشارة تثبيت)،
+   وكمان بتغطي اللي نزّل قبل ما يسجّل بالنادي. */
+if (STANDALONE) setTimeout(claimInstallBonus, 1200);
 
 /* تسجيل الـService Worker - شرط لازم حتى يسمح المتصفح بتثبيت التطبيق */
 if ('serviceWorker' in navigator){
