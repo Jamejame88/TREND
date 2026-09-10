@@ -99,6 +99,33 @@ body{
   font-size:15px;letter-spacing:.06em;
 }
 
+/* ——— شريط وضع اللفّة (تجريبي / حقيقي) ——— */
+.modebar{
+  border:1px solid var(--line2);border-radius:8px;padding:10px 12px;margin-top:14px;
+  background:rgba(198,164,78,.06);text-align:center;
+}
+.modebar b{display:block;font-size:12.5px;color:var(--gold);letter-spacing:.12em;margin-bottom:3px}
+.modebar span{font-size:11.5px;color:var(--muted);line-height:1.7}
+.modebar.real{background:rgba(143,211,125,.08);border-color:rgba(143,211,125,.45)}
+.modebar.real b{color:#8FD37D}
+.demoprize{
+  display:none;margin-top:12px;padding:12px;border:1px dashed var(--line2);border-radius:8px;
+  text-align:center;font-size:13px;color:var(--paper);line-height:1.8;
+}
+.demoprize.on{display:block}
+.demoprize i{display:block;font-style:normal;font-size:11px;color:var(--muted);margin-top:5px}
+/* ——— تذكير التطبيق والنادي بصفحة النتيجة ——— */
+.nextsteps{margin-top:16px;border-top:1px solid var(--line2);padding-top:14px}
+.nextstep{
+  display:flex;gap:10px;align-items:flex-start;text-align:right;
+  padding:11px 0;font-size:12.5px;line-height:1.75;color:var(--paper);
+}
+.nextstep + .nextstep{border-top:1px solid var(--line)}
+.nextstep b{color:var(--gold);font-weight:500}
+.nextstep .n{
+  flex:0 0 20px;height:20px;border-radius:50%;border:1px solid var(--gold);
+  color:var(--gold);font-size:10px;display:flex;align-items:center;justify-content:center;margin-top:2px;
+}
 /* ——— شريط الفائزين ——— */
 .ticker{
   position:relative;overflow:hidden;margin:0 0 26px;
@@ -382,21 +409,27 @@ button{
       <button class="sndBtn" id="sndBtn" type="button">♪</button>
       <svg id="wheel" viewBox="0 0 320 320" role="img" aria-label="عجلة الجوائز"></svg>
     </div>
+    <div class="modebar" id="modeBar">
+      <b>لفّة تجريبية</b>
+      <span>شوف كيف بتشتغل وشو الجوائز — الرمز بينعطى بعد التسجيل بس</span>
+    </div>
+    <div class="demoprize" id="demoPrize"></div>
     <button class="primary btn-space" id="spin">لِف العجلة</button>
+    <button class="primary btn-space" id="goReg" style="display:none">سجّل رقمك وخد لفتك الحقيقية</button>
     <a class="ghost shopBtn" id="shopBtn2" target="_blank" rel="noopener">تصفّح منتجاتنا</a>
   </section>
 
   <section class="card step" id="stepForm">
     <div class="won">
-      <p class="kicker">مبروك</p>
-      <h2 id="wonPrize"></h2>
-      <p class="wonhint">عبّي بياناتك ليوصلك الرمز</p>
+      <p class="kicker">لفتك الحقيقية</p>
+      <h2 id="wonPrize">سجّل رقمك</h2>
+      <p class="wonhint">رقم واحد = لفّة وحدة. بعد التسجيل بتلف وبيوصلك الرمز.</p>
     </div>
 
     <div class="field">
-      <label for="name">الاسم</label>
-      <input id="name" type="text" autocomplete="name" required>
-      <p class="err" id="errName">اكتب اسمك أولاً</p>
+      <label for="name">الاسم <span style="color:var(--muted);font-size:11px">(اختياري)</span></label>
+      <input id="name" type="text" autocomplete="name" placeholder="اتركه فاضي ومنعطيك رمز">
+      <p class="hint" id="nameHint"></p>
     </div>
 
     <div class="field">
@@ -426,7 +459,7 @@ button{
       <p class="hint">لإرسال أفكار هدايا قبل موعد المناسبة ضمن الميزانية.</p>
     </div>
 
-    <button class="primary btn-space" id="claim">استلم الرمز</button>
+    <button class="primary btn-space" id="claim">سجّل ولِف</button>
     <a class="ghost shopBtn" id="shopBtn3" target="_blank" rel="noopener">تصفّح منتجاتنا</a>
   </section>
 
@@ -446,7 +479,14 @@ button{
       <li>صالح لعملية شراء واحدة، ولا يُجمع مع عرض آخر.</li>
       <li>فعّل الرمز عبر واتساب حتى يُحفظ باسمك.</li>
     </ul>
-    <button class="primary" id="waBtn">تفعيل الرمز عبر واتساب</button>
+    <div class="nextsteps">
+      <div class="nextstep"><span class="n">١</span>
+        <span><b>نزّل تطبيق ترند على جوالك</b> واربح <b>نقطتين</b> تنضاف لرصيدك — نقاطك بتستبدلها بهدايا من المحل.</span></div>
+      <div class="nextstep"><span class="n">٢</span>
+        <span>سجّل بـ<b>نادي ترند</b> وشوف نقاطك وقسم كبار العملاء — من نفس الموقع.</span></div>
+    </div>
+    <a class="primary btn-space" id="appBtn" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">نزّل التطبيق واربح نقطتين</a>
+    <button class="primary" id="waBtn" style="margin-top:9px">تفعيل الرمز عبر واتساب</button>
     <button class="ghost" id="copyBtn">نسخ الرمز</button>
     <p class="sent" id="copied">تم نسخ الرمز</p>
     <a class="ghost shopBtn" id="shopBtn" target="_blank" rel="noopener">تصفّح منتجاتنا</a>
@@ -476,7 +516,12 @@ const CONFIG = {
     { label: "عطر 35مل بنصف السعر",      lines: ["عطر 35مل", "بنصف السعر"],  weight: 10, tag: "P35" },
     { label: "حسم 50% على قسم الإكسسوار",lines: ["حسم 50%", "الإكسسوار"],    weight:  5, tag: "ACC" },
     { label: "طقم إكسسوار ستيل",         lines: ["طقم إكسسوار", "ستيل"],     weight:  1, tag: "STL" }
-  ]
+  ],
+  /* أوزان اللفّة التجريبية: كل الجوائز بنفس الاحتمال، عشان الزائر يشوف
+     كل الخانات (خصوصًا النادرة) ويعرف شو ممكن يربح. الأوزان الحقيقية فوق
+     ما بتتأثر - هي وحدها يلي بتحدد الجائزة بعد التسجيل.
+     خلي القيمة false لو بدك التجريبي يستخدم نفس الأوزان الحقيقية. */
+  demoEqualWeights: true
 };
 /* ———————————————————————————————— */
 
@@ -484,6 +529,9 @@ const SEG = CONFIG.prizes.length;
 const ARC = 360 / SEG;
 const $ = id => document.getElementById(id);
 let picked = null, spun = false, entry = {};
+/* REAL = صار مسجّل ومسموح له بلفّة حقيقية وحدة.
+   قبلها كل اللفّات تجريبية معلنة: بتدور وبتوقف بس بدون رمز. */
+let REAL = false, realDone = false, demoCount = 0;
 
 $('brandName').textContent = CONFIG.shopName;
 $('footAddr').textContent = CONFIG.address;
@@ -833,9 +881,28 @@ function peg(strength){
   };
 })();
 
+/* بعد ما توقف العجلة: باللفّة التجريبية منعرض الجائزة كعيّنة بدون رمز،
+   وباللفّة الحقيقية منكمل لصفحة النتيجة والرمز. */
+function afterSpin(){
+  if (REAL){ realDone = true; finish(); return; }
+
+  demoCount++;
+  const d = $('demoPrize');
+  d.innerHTML = 'وقفت على: <b style="color:var(--gold)">' + picked.label + '</b>' +
+    '<i>هاي لفّة تجريبية — سجّل رقمك ولفّتك الحقيقية بتحدد جائزتك الفعلية</i>';
+  d.classList.add('on');
+
+  $('goReg').style.display = 'block';
+  spun = false;                       /* بيقدر يجرّب تجريبي مرة تانية */
+  $('spin').disabled = false;
+  $('spin').textContent = demoCount >= 2 ? 'جرّب مرة تانية (تجريبي)' : 'لِف مرة تانية (تجريبي)';
+}
+
 /* ١ — اللفّة */
 $('spin').addEventListener('click', () => {
   if (spun) return;
+  if (REAL && realDone) return;       /* اللفّة الحقيقية مرة وحدة بس */
+  $('demoPrize').classList.remove('on');
   spun = true;
   $('spin').disabled = true;
   $('spin').textContent = 'جارٍ الدوران';
@@ -853,7 +920,7 @@ $('spin').addEventListener('click', () => {
   if (reduce){
     grp.style.transition = 'transform 1.1s ease-out';
     grp.style.transform  = `rotate(${360 * 2 - (i * ARC + ARC / 2)}deg)`;
-    setTimeout(showForm, 1300);
+    setTimeout(afterSpin, 1300);
     return;
   }
 
@@ -896,18 +963,31 @@ $('spin').addEventListener('click', () => {
     else {
       grp.style.transform = `rotate(${landing}deg)`;
       hilite(i);
-      setTimeout(showForm, 1100);
+      setTimeout(afterSpin, 1100);
     }
   }
   requestAnimationFrame(frame);
 });
 
-/* ٢ — عرض الجائزة وطلب البيانات */
+/* ٢ — الانتقال لصفحة التسجيل */
+$('goReg').addEventListener('click', showForm);
+
 function showForm(){
-  $('wonPrize').textContent = picked.label;
   $('stepWheel').classList.remove('on');
   $('stepForm').classList.add('on');
-  $('name').focus();
+  suggestName();
+  $('phone').focus();
+}
+
+/* اسم مقترح تسلسلي لمين ما بدو يكتب اسمه - بينبني من آخر 3 أرقام
+   من رقمه حتى يضل ثابت لنفس الشخص وما يتكرر كتير بين الزباين */
+function suggestedFromPhone(phone){
+  const tail = String(phone || '').replace(/\D/g, '').slice(-3) || '000';
+  return 'ضيف ترند ' + tail;
+}
+function suggestName(){
+  const h = $('nameHint');
+  if (h) h.textContent = 'إذا تركته فاضي منسجّلك برمز تلقائي.';
 }
 
 $('name').addEventListener('input', () => $('errName').classList.remove('on'));
@@ -919,28 +999,47 @@ $('phone').addEventListener('input', () => {
 /* ٣ — التفعيل والتحقق */
 $('claim').addEventListener('click', async () => {
   const btn   = $('claim');
-  const name  = $('name').value.trim();
+  let   name  = $('name').value.trim();
   const phone = $('phone').value.replace(/\D/g, '');
-  const okName  = name.length >= 2;
   const okPhone = /^09\d{8}$/.test(phone);
-  $('errName').classList.toggle('on', !okName);
   $('errPhone').classList.toggle('on', !okPhone);
   $('errDaily').classList.remove('on');
-  if (!okName || !okPhone) return;
+  if (!okPhone) return;
+
+  if (name.length < 2) name = suggestedFromPhone(phone);   /* الاسم اختياري */
 
   btn.disabled = true;
   btn.textContent = 'جارٍ التحقق';
   const allowed = await checkAllowed(phone);
   btn.disabled = false;
-  btn.textContent = 'استلم الرمز';
+  btn.textContent = 'سجّل ولِف';
 
   if (!allowed){ $('errDaily').classList.add('on'); return; }
 
   entry = { name, phone, occasion: $('occasion').value, occDate: $('occDate').value };
-  finish();
+
+  /* التسجيل نجح - منرجّعه للعجلة للفّته الحقيقية الوحيدة */
+  REAL = true; realDone = false; spun = false;
+  $('stepForm').classList.remove('on');
+  $('stepWheel').classList.add('on');
+  $('demoPrize').classList.remove('on');
+  $('goReg').style.display = 'none';
+  const mb = $('modeBar');
+  mb.classList.add('real');
+  mb.innerHTML = '<b>لفّتك الحقيقية</b><span>أهلاً ' + name +
+    ' — لفّة وحدة، والجائزة يلي بتوقف عليها بتاخد رمزها فورًا</span>';
+  const sp = $('spin');
+  sp.disabled = false;
+  sp.textContent = 'لِف لفتك الحقيقية';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 function pickPrize(){
+  /* باللفّة التجريبية كل الخانات بنفس الاحتمال (لو الإعداد مفعّل)،
+     وباللفّة الحقيقية منستخدم الأوزان الفعلية. */
+  if (!REAL && CONFIG.demoEqualWeights){
+    return Math.floor(Math.random() * SEG);
+  }
   const total = CONFIG.prizes.reduce((s, p) => s + p.weight, 0);
   let n = Math.random() * total;
   for (let i = 0; i < SEG; i++){ n -= CONFIG.prizes[i].weight; if (n <= 0) return i; }
@@ -985,6 +1084,8 @@ function finish(){
 الرمز: ${entry.code}
 رقم التعريف: ${pid}`;
   $('waBtn').onclick = () => window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+  const appB = $('appBtn');
+  if (appB) appB.href = CONFIG.siteUrl + '#club';   /* بيفتح الموقع على قسم النادي وزر التنزيل */
   $('copyBtn').onclick = async () => {
     try { await navigator.clipboard.writeText(code); $('copied').classList.add('on'); } catch(e){}
   };
