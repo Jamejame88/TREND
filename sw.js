@@ -1,12 +1,22 @@
-/* Service Worker بسيط لموقع TREND
-   وظيفته الأساسية تمكين تثبيت التطبيق على الجوال (شرط من المتصفح).
-   بيخزّن الصفحة وأيقوناتها بس - بيانات المنتجات والنقاط بتظل تتحمّل من الشبكة
-   دايمًا حتى ما يشوف الزبون أسعار أو نقاط قديمة. */
-const CACHE = 'trend-v1';
+/* Service Worker — موقع TREND
+   وظيفتان: تمكين تثبيت التطبيق على الجوال، وتشغيله لو انقطع النت.
+
+   قاعدة أساسية: الصفحة والملفات بتُجلب من الشبكة أولًا دايمًا،
+   والكاش احتياط بس. هيك أي تحديث بترفعه بيوصل الزبون فورًا
+   بدل ما يعلق على نسخة قديمة.
+
+   ⚠ لما تعدّل هاد الملف مستقبلًا، غيّر رقم CACHE تحت (v2 ← v3...)
+   حتى ينمسح الكاش القديم تلقائيًا عند كل الزباين. */
+const CACHE = 'trend-v2';
 const SHELL = ['site.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // skipWaiting: النسخة الجديدة بتشتغل فورًا بدل ما تنتظر إغلاق كل النوافذ
+  e.waitUntil(
+    caches.open(CACHE)
+      .then((c) => c.addAll(SHELL).catch(() => null))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -17,25 +27,28 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+// رسالة من الصفحة بتخلي النسخة الجديدة تستلم بدون انتظار
+self.addEventListener('message', (e) => {
+  if (e.data === 'skipWaiting') self.skipWaiting();
+});
+
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  // أي طلب لخدمات خارجية (Supabase / Apps Script / الصور) بيروح للشبكة مباشرة
+
+  // أي طلب لخدمة خارجية (Supabase / Apps Script / الصور) بيروح للشبكة مباشرة
   if (url.origin !== self.location.origin) return;
   if (e.request.method !== 'GET') return;
 
-  // الصفحة نفسها: الشبكة أولًا، والكاش احتياط لو النت مقطوع
-  if (e.request.mode === 'navigate' || url.pathname.endsWith('site.html')) {
-    e.respondWith(
-      fetch(e.request)
-        .then((res) => {
+  // الشبكة أولًا، والكاش بس لو فشل الاتصال
+  e.respondWith(
+    fetch(e.request)
+      .then((res) => {
+        if (res && res.status === 200) {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
-          return res;
-        })
-        .catch(() => caches.match(e.request).then((r) => r || caches.match('site.html')))
-    );
-    return;
-  }
-
-  e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));
+          caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+        }
+        return res;
+      })
+      .catch(() => caches.match(e.request).then((r) => r || caches.match('site.html')))
+  );
 });
