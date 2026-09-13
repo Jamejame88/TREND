@@ -591,6 +591,16 @@ let picked = null, spun = false, entry = {};
    قبلها كل اللفّات تجريبية معلنة: بتدور وبتوقف بس بدون رمز. */
 let REAL = false, realDone = false, demoCount = 0;
 
+/* بيانات الزائر المسجّل - محفوظة بالجهاز حتى ما نطلب منه التسجيل كل مرة.
+   بيسجّل مرة وحدة، وبعدها بيلف مباشرة (والحد اليومي بيتحقق بالسيرفر). */
+const WHEEL_REG_KEY = 'trend_wheel_reg';
+function getReg(){
+  try { return JSON.parse(localStorage.getItem(WHEEL_REG_KEY) || 'null'); } catch(e){ return null; }
+}
+function saveReg(r){
+  try { localStorage.setItem(WHEEL_REG_KEY, JSON.stringify(r)); } catch(e){}
+}
+
 $('brandName').textContent = CONFIG.shopName;
 $('footAddr').textContent = CONFIG.address;
 ['shopBtn', 'shopBtn2', 'shopBtn3'].forEach(function(id){
@@ -1103,6 +1113,24 @@ $('regFab').addEventListener('click', () => {
   showForm();
 });
 
+/* زائر مسجّل من قبل: منتخطى نموذج التسجيل كليًا ومنخليه يلف مباشرة.
+   الحد اليومي محميّ بالسيرفر، فما في خطر من تخطي النموذج. */
+(function resumeReg(){
+  const r = getReg();
+  if (!r || !r.phone) return;
+  REAL = true; realDone = false; entry = r;
+  const mb = $('modeBar');
+  if (mb){
+    mb.classList.add('real');
+    mb.innerHTML = '<b>أهلاً ' + (r.name || '') +
+      '</b><span>لِف، والجائزة يلي بتوقف عليها بتاخد رمزها فورًا</span>';
+  }
+  const gr = $('goReg');
+  if (gr) gr.style.display = 'none';
+  const sp = $('spin');
+  if (sp) sp.textContent = 'لِف العجلة';
+})();
+
 paintRegFab();
 
 function showForm(){
@@ -1156,6 +1184,7 @@ $('claim').addEventListener('click', async () => {
   if (!allowed){ $('errDaily').classList.add('on'); return; }
 
   entry = { name, phone, occasion: $('occasion').value, occDate: $('occDate').value };
+  saveReg({ name, phone, occasion: entry.occasion, occDate: entry.occDate });
 
   /* التسجيل نجح - منرجّعه للعجلة للفّته الحقيقية الوحيدة */
   REAL = true; realDone = false; spun = false;
