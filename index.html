@@ -1113,7 +1113,13 @@ function suggestName(){
   if (h) h.textContent = 'إذا تركته فاضي منسجّلك برمز تلقائي.';
 }
 
-$('name').addEventListener('input', () => $('errName').classList.remove('on'));
+/* حقل الاسم صار اختياري وما عاد إله عنصر خطأ - منخفي التلميح بس.
+   (السطر القديم كان بينادي $('errName') المحذوف، فبيرمي خطأ وقت التحميل
+   وبيوقف كل الكود بعده - وفيه ربط زر اللف، فالعجلة بطّلت تلف.) */
+$('name').addEventListener('input', () => {
+  const h = $('nameHint');
+  if (h && $('name').value.trim()) h.textContent = '';
+});
 $('phone').addEventListener('input', () => {
   $('errPhone').classList.remove('on');
   $('errDaily').classList.remove('on');
