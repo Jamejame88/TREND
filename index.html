@@ -99,6 +99,23 @@ body{
   font-size:15px;letter-spacing:.06em;
 }
 
+/* ——— تنويه حد اللفّات ——— */
+.spinlimit{
+  margin-top:8px;font-size:11px;color:var(--muted);
+  letter-spacing:.04em;text-align:center;line-height:1.7;
+}
+/* ——— زر التسجيل الثابت (الزاوية اليسارية العلوية) ——— */
+.regfab{
+  position:fixed;top:12px;left:12px;z-index:40;
+  display:flex;align-items:center;gap:6px;
+  padding:9px 15px;border-radius:22px;
+  border:1px solid var(--gold);background:rgba(16,13,12,.88);
+  color:var(--gold);font:inherit;font-size:12px;letter-spacing:.06em;
+  cursor:pointer;backdrop-filter:blur(6px);
+  transition:transform .25s,background .25s;
+}
+.regfab:hover{transform:translateY(-1px);background:rgba(198,164,78,.14)}
+.regfab.member{border-color:var(--gold);background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));color:#100D0C}
 /* ——— شريط وضع اللفّة (تجريبي / حقيقي) ——— */
 .modebar{
   border:1px solid var(--line2);border-radius:8px;padding:10px 12px;margin-top:14px;
@@ -409,13 +426,15 @@ button{
       <button class="sndBtn" id="sndBtn" type="button">♪</button>
       <svg id="wheel" viewBox="0 0 320 320" role="img" aria-label="عجلة الجوائز"></svg>
     </div>
-    <div class="modebar" id="modeBar">
+    <button class="regfab" id="regFab" type="button">سجّل مجانًا</button>
+  <div class="modebar" id="modeBar">
       <b>لفّة تجريبية</b>
       <span>شوف كيف بتشتغل وشو الجوائز — الرمز بينعطى بعد التسجيل بس</span>
     </div>
+    <div class="spinlimit">⏱ محاولة وحدة كل يوم لكل رقم موبايل</div>
     <div class="demoprize" id="demoPrize"></div>
     <button class="primary btn-space" id="spin">لِف العجلة</button>
-    <button class="primary btn-space" id="goReg" style="display:none">سجّل رقمك وخد لفتك الحقيقية</button>
+    <button class="primary btn-space" id="goReg" style="display:none">سجّل لتحصل على كود الجائزة</button>
     <a class="ghost shopBtn" id="shopBtn2" target="_blank" rel="noopener">تصفّح منتجاتنا</a>
   </section>
 
@@ -423,7 +442,8 @@ button{
     <div class="won">
       <p class="kicker">لفتك الحقيقية</p>
       <h2 id="wonPrize">سجّل رقمك</h2>
-      <p class="wonhint">رقم واحد = لفّة وحدة. بعد التسجيل بتلف وبيوصلك الرمز.</p>
+      <p class="wonhint">بعد التسجيل بتلف وبيوصلك رمز الجائزة.<br>
+        <span style="opacity:.75">⏱ محاولة وحدة كل يوم لكل رقم موبايل</span></p>
     </div>
 
     <div class="field">
@@ -523,10 +543,48 @@ const CONFIG = {
      خلي القيمة false لو بدك التجريبي يستخدم نفس الأوزان الحقيقية. */
   demoEqualWeights: true
 };
+
+
 /* ———————————————————————————————— */
 
-const SEG = CONFIG.prizes.length;
-const ARC = 360 / SEG;
+/* PRIZES = الجوائز الفعّالة حاليًا. بتنجلب من قاعدة البيانات عند التحميل،
+   وبترجع للمكتوبة بـCONFIG لو فشل الاتصال - فالعجلة بتشتغل بكل الحالات. */
+let PRIZES = CONFIG.prizes.slice();
+let SEG = PRIZES.length;
+let ARC = 360 / SEG;
+
+const SB_URL  = 'https://incloqbhtksnxqiohvaw.supabase.co';
+const SB_ANON = 'sb_publishable_jfAFLXWXJpIrRfkd_CcWlw_xjGgEUEX';
+
+function portal(action, extra){
+  return fetch(SB_URL + '/functions/v1/customer-portal', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON },
+    body: JSON.stringify(Object.assign({ action }, extra || {})),
+  }).then(r => r.json()).catch(() => null);
+}
+
+/* بيحوّل صف قاعدة البيانات لشكل الجائزة يلي بتفهمه العجلة */
+function rowToPrize(r){
+  return {
+    label: r.label,
+    lines: [r.line1 || r.label, r.line2 || ''].filter(x => x !== ''),
+    weight: Number(r.weight) || 1,
+    tag: String(r.tag || 'GEN').toUpperCase(),
+  };
+}
+
+/* بيبدّل مجموعة الجوائز ويعيد رسم العجلة */
+function setPrizes(list){
+  if (!Array.isArray(list) || list.length < 3) return false;
+  PRIZES = list;
+  SEG = PRIZES.length;
+  ARC = 360 / SEG;
+  const w = $('wheel');
+  if (w) w.innerHTML = '';
+  drawWheel();
+  return true;
+}
 const $ = id => document.getElementById(id);
 let picked = null, spun = false, entry = {};
 /* REAL = صار مسجّل ومسموح له بلفّة حقيقية وحدة.
@@ -571,8 +629,8 @@ $('footAddr').textContent = CONFIG.address;
   document.body.appendChild(s);
 })();
 
-/* رسم العجلة */
-(function draw(){
+/* رسم العجلة - صارت دالة حتى نقدر نعيد الرسم لما تتبدل الجوائز */
+function drawWheel(){
   const c = 175, R = 143, ns = 'http://www.w3.org/2000/svg';
   const wheel = $('wheel');
   wheel.setAttribute('viewBox', '0 0 350 350');
@@ -655,7 +713,7 @@ $('footAddr').textContent = CONFIG.address;
   const g = el('g', { id:'spinGroup' });
   wheel.appendChild(g);
 
-  CONFIG.prizes.forEach((p, i) => {
+  PRIZES.forEach((p, i) => {
     const a0 = i * ARC, a1 = a0 + ARC;
     const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R);
     const d = `M${c} ${c} L${x0} ${y0} A${R} ${R} 0 0 1 ${x1} ${y1} Z`;
@@ -687,7 +745,7 @@ $('footAddr').textContent = CONFIG.address;
   });
 
   /* المسامير على حافة القرص */
-  CONFIG.prizes.forEach((p, i) => {
+  PRIZES.forEach((p, i) => {
     const [px, py] = pt(i * ARC, R + 3);
     g.appendChild(el('circle', { cx:px, cy:py + 1, r:5, fill:'#000', opacity:.5 }));
     g.appendChild(el('circle', { cx:px, cy:py, r:4.4, fill:'url(#jew)' }));
@@ -707,6 +765,50 @@ $('footAddr').textContent = CONFIG.address;
   wheel.appendChild(el('circle', { cx:c, cy:c, r:R1, fill:'url(#ao)',    'pointer-events':'none' }));
   wheel.appendChild(el('circle', { cx:c, cy:c, r:R1, fill:'url(#vig)',   'pointer-events':'none' }));
   wheel.appendChild(el('circle', { cx:c, cy:c, r:R1, fill:'url(#glass)', 'pointer-events':'none' }));
+
+  /* منطقة ضغط شفافة على المحور (ثابتة، ما بتلف مع القرص) -
+     الضغط عليها = نفس ضغط زر "لِف". نصف قطرها 36 ليسهل ضغطها بالإصبع. */
+  const hubBtn = el('circle', { cx:c, cy:c, r:36, fill:'transparent', cursor:'pointer' });
+  hubBtn.setAttribute('role', 'button');
+  hubBtn.setAttribute('tabindex', '0');
+  hubBtn.setAttribute('aria-label', 'لِف العجلة');
+  hubBtn.addEventListener('click', () => {
+    const sp = $('spin');
+    if (sp && !sp.disabled) sp.click();
+  });
+  hubBtn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hubBtn.dispatchEvent(new Event('click')); }
+  });
+  wheel.appendChild(hubBtn);
+}
+
+drawWheel();
+
+/* جلب الجوائز من قاعدة البيانات - لو نجح منعيد الرسم، ولو فشل منضل
+   على الجوائز المكتوبة بـCONFIG فوق (فالصفحة ما بتتعطّل أبدًا) */
+portal('wheel_prizes').then(res => {
+  if (!res || !res.ok) return;
+  const free = (res.free || []).map(rowToPrize);
+  if (free.length >= 3) setPrizes(free);   /* العجلة العامة = الجوائز المجانية بس */
+});
+
+/* نبضة خفيفة على المحور تدل الزائر إنه فيه يضغط - بتوقف أول ما يلف */
+(function hubHint(){
+  const sp = $('spin');
+  if (!sp) return;
+  const ring = document.querySelector('#wheel');
+  if (!ring) return;
+  const pulse = el('circle', { cx:160, cy:160, r:28, fill:'none',
+    stroke:'#C6A44E', 'stroke-width':1.2, opacity:.7, 'pointer-events':'none' });
+  pulse.setAttribute('id', 'hubPulse');
+  pulse.innerHTML =
+    '<animate attributeName="r" values="26;38;26" dur="2.2s" repeatCount="indefinite"/>' +
+    '<animate attributeName="opacity" values="0.55;0;0.55" dur="2.2s" repeatCount="indefinite"/>';
+  ring.appendChild(pulse);
+  sp.addEventListener('click', () => {
+    const p = document.getElementById('hubPulse');
+    if (p) p.remove();
+  }, { once: true });
 })();
 
 /* إبراز الخانة الفائزة بعد التوقف */
@@ -889,7 +991,7 @@ function afterSpin(){
   demoCount++;
   const d = $('demoPrize');
   d.innerHTML = 'وقفت على: <b style="color:var(--gold)">' + picked.label + '</b>' +
-    '<i>هاي لفّة تجريبية — سجّل رقمك ولفّتك الحقيقية بتحدد جائزتك الفعلية</i>';
+    '<i>يرجى التسجيل لتفعيل الكود</i>';
   d.classList.add('on');
 
   $('goReg').style.display = 'block';
@@ -908,7 +1010,7 @@ $('spin').addEventListener('click', () => {
   $('spin').textContent = 'جارٍ الدوران';
 
   const i = pickPrize();
-  picked = CONFIG.prizes[i];
+  picked = PRIZES[i];
 
   const grp     = document.getElementById('spinGroup');
   const pointer = document.querySelector('.pointer');
@@ -972,6 +1074,27 @@ $('spin').addEventListener('click', () => {
 /* ٢ — الانتقال لصفحة التسجيل */
 $('goReg').addEventListener('click', showForm);
 
+/* الزر الثابت: قبل التسجيل بيوديه للنموذج، وبعده بيتحوّل لمدخل نادي ترند */
+function paintRegFab(){
+  const b = $('regFab');
+  if (!b) return;
+  if (REAL){
+    b.textContent = 'نادي ترند ★';
+    b.classList.add('member');
+  } else {
+    b.textContent = 'سجّل مجانًا';
+    b.classList.remove('member');
+  }
+}
+
+$('regFab').addEventListener('click', () => {
+  if (REAL){ window.open(CONFIG.siteUrl + '#club', '_blank'); return; }
+  if ($('stepForm').classList.contains('on')) return;   /* هو أصلًا بصفحة التسجيل */
+  showForm();
+});
+
+paintRegFab();
+
 function showForm(){
   $('stepWheel').classList.remove('on');
   $('stepForm').classList.add('on');
@@ -1020,17 +1143,20 @@ $('claim').addEventListener('click', async () => {
 
   /* التسجيل نجح - منرجّعه للعجلة للفّته الحقيقية الوحيدة */
   REAL = true; realDone = false; spun = false;
+  paintRegFab();
+
   $('stepForm').classList.remove('on');
   $('stepWheel').classList.add('on');
   $('demoPrize').classList.remove('on');
   $('goReg').style.display = 'none';
   const mb = $('modeBar');
   mb.classList.add('real');
-  mb.innerHTML = '<b>لفّتك الحقيقية</b><span>أهلاً ' + name +
-    ' — لفّة وحدة، والجائزة يلي بتوقف عليها بتاخد رمزها فورًا</span>';
+  mb.innerHTML = '<b>أهلاً ' + name + '</b><span>لِف، والجائزة يلي بتوقف عليها بتاخد رمزها فورًا</span>';
+  const sl = document.querySelector('.spinlimit');
+  if (sl) sl.textContent = '⏱ محاولتك الجاية بكرة';
   const sp = $('spin');
   sp.disabled = false;
-  sp.textContent = 'لِف لفتك الحقيقية';
+  sp.textContent = 'لِف العجلة';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
@@ -1040,9 +1166,9 @@ function pickPrize(){
   if (!REAL && CONFIG.demoEqualWeights){
     return Math.floor(Math.random() * SEG);
   }
-  const total = CONFIG.prizes.reduce((s, p) => s + p.weight, 0);
+  const total = PRIZES.reduce((s, p) => s + p.weight, 0);
   let n = Math.random() * total;
-  for (let i = 0; i < SEG; i++){ n -= CONFIG.prizes[i].weight; if (n <= 0) return i; }
+  for (let i = 0; i < SEG; i++){ n -= PRIZES[i].weight; if (n <= 0) return i; }
   return 0;
 }
 function makeCode(tag){
