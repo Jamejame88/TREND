@@ -794,21 +794,31 @@ portal('wheel_prizes').then(res => {
 
 /* نبضة خفيفة على المحور تدل الزائر إنه فيه يضغط - بتوقف أول ما يلف */
 (function hubHint(){
-  const sp = $('spin');
-  if (!sp) return;
-  const ring = document.querySelector('#wheel');
-  if (!ring) return;
-  const pulse = el('circle', { cx:160, cy:160, r:28, fill:'none',
-    stroke:'#C6A44E', 'stroke-width':1.2, opacity:.7, 'pointer-events':'none' });
-  pulse.setAttribute('id', 'hubPulse');
-  pulse.innerHTML =
-    '<animate attributeName="r" values="26;38;26" dur="2.2s" repeatCount="indefinite"/>' +
-    '<animate attributeName="opacity" values="0.55;0;0.55" dur="2.2s" repeatCount="indefinite"/>';
-  ring.appendChild(pulse);
-  sp.addEventListener('click', () => {
-    const p = document.getElementById('hubPulse');
-    if (p) p.remove();
-  }, { once: true });
+  try {
+    const sp = $('spin');
+    const ring = document.querySelector('#wheel');
+    if (!sp || !ring) return;
+
+    /* ملاحظة: el() معرّفة جوا drawWheel() فما بتوصلها من هون -
+       منبني العنصر بـcreateElementNS مباشرة. */
+    const NS = 'http://www.w3.org/2000/svg';
+    const pulse = document.createElementNS(NS, 'circle');
+    const attrs = { id:'hubPulse', cx:175, cy:175, r:28, fill:'none',
+      stroke:'#C6A44E', 'stroke-width':1.2, opacity:0.7, 'pointer-events':'none' };
+    for (const k in attrs) pulse.setAttribute(k, attrs[k]);
+    pulse.innerHTML =
+      '<animate attributeName="r" values="26;38;26" dur="2.2s" repeatCount="indefinite"/>' +
+      '<animate attributeName="opacity" values="0.55;0;0.55" dur="2.2s" repeatCount="indefinite"/>';
+    ring.appendChild(pulse);
+
+    sp.addEventListener('click', () => {
+      const p = document.getElementById('hubPulse');
+      if (p) p.remove();
+    }, { once: true });
+  } catch (err) {
+    /* النبضة زخرفة بحتة - لو فشلت ما لازم توقف باقي الصفحة أبدًا */
+    console.log('hubHint:', err);
+  }
 })();
 
 /* إبراز الخانة الفائزة بعد التوقف */
