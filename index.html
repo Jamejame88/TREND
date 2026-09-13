@@ -601,6 +601,50 @@ function saveReg(r){
   try { localStorage.setItem(WHEEL_REG_KEY, JSON.stringify(r)); } catch(e){}
 }
 
+/* تاريخ آخر لفّة حقيقية بهاد الجهاز - بيقفل العجلة فورًا بعد أول لفّة
+   حتى ما يرجع الزائر للخلف ويلف تاني لحتى تطلعله جائزة أحلى.
+   (الحماية الحقيقية بالسيرفر، بس هاي بتمنعه يشوف جوائز ما رح ياخدها) */
+const WHEEL_LAST_KEY = 'trend_wheel_last';
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+}
+function lastSpin(){
+  try { return JSON.parse(localStorage.getItem(WHEEL_LAST_KEY) || 'null'); } catch(e){ return null; }
+}
+function spunToday(){
+  const l = lastSpin();
+  return !!(l && l.d === todayStr());
+}
+function markSpunToday(code){
+  try { localStorage.setItem(WHEEL_LAST_KEY, JSON.stringify({ d: todayStr(), code: code || '' })); } catch(e){}
+}
+
+/* بيقفل العجلة ويوضّح السبب - بينادى عند الرجوع للصفحة بعد لفّة */
+function lockWheelForToday(){
+  realDone = true;
+  const sp = $('spin');
+  if (sp){ sp.disabled = true; sp.textContent = 'خلصت محاولتك اليوم'; }
+  const mb = $('modeBar');
+  if (mb){
+    mb.classList.remove('real');
+    const l = lastSpin();
+    const codeTxt = (l && l.code)
+      ? ' (<b style="color:var(--gold);letter-spacing:.06em">' + l.code + '</b>)'
+      : '';
+    mb.innerHTML = '<b>محاولتك اليوم خلصت</b>' +
+      '<span>رمزك محفوظ' + codeTxt + ' — جرّب حظك معنا بكرة 🌿</span>';
+  }
+  const gr = $('goReg');
+  if (gr) gr.style.display = 'none';
+  const dp = $('demoPrize');
+  if (dp) dp.classList.remove('on');
+  const sl = document.querySelector('.spinlimit');
+  if (sl) sl.textContent = '⏱ محاولتك الجاية بكرة';
+  const pulse = document.getElementById('hubPulse');
+  if (pulse) pulse.remove();
+}
+
 $('brandName').textContent = CONFIG.shopName;
 $('footAddr').textContent = CONFIG.address;
 ['shopBtn', 'shopBtn2', 'shopBtn3'].forEach(function(id){
@@ -1024,6 +1068,7 @@ function afterSpin(){
 $('spin').addEventListener('click', () => {
   if (spun) return;
   if (REAL && realDone) return;       /* اللفّة الحقيقية مرة وحدة بس */
+  if (REAL && spunToday()){ lockWheelForToday(); return; }   /* حماية أخيرة */
   $('demoPrize').classList.remove('on');
   spun = true;
   $('spin').disabled = true;
@@ -1119,6 +1164,8 @@ $('regFab').addEventListener('click', () => {
   const r = getReg();
   if (!r || !r.phone) return;
   REAL = true; realDone = false; entry = r;
+  /* لف اليوم أصلًا؟ منقفل العجلة قبل ما يشوفها */
+  if (spunToday()){ setTimeout(lockWheelForToday, 0); return; }
   const mb = $('modeBar');
   if (mb){
     mb.classList.add('real');
@@ -1130,6 +1177,15 @@ $('regFab').addEventListener('click', () => {
   const sp = $('spin');
   if (sp) sp.textContent = 'لِف العجلة';
 })();
+
+/* الرجوع للصفحة من كاش المتصفح (زر الرجوع) ما بيعيد تشغيل السكربت -
+   فمنفحص من جديد عند كل ظهور للصفحة. */
+window.addEventListener('pageshow', function(){
+  if (REAL && spunToday()) lockWheelForToday();
+});
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden && REAL && spunToday()) lockWheelForToday();
+});
 
 paintRegFab();
 
@@ -1238,6 +1294,7 @@ function finish(){
   const exp  = new Date(Date.now() + CONFIG.expiryDays * 864e5);
   const expStr = exp.toLocaleDateString('ar-SY', { day:'numeric', month:'long' });
 
+  markSpunToday(code);  /* تقفل العجلة فورًا وبتحفظ الرمز - حتى لو رجع للخلف */
   entry.prize = picked.label;
   entry.code  = code;
   entry.expiry = exp.toISOString().slice(0, 10);
