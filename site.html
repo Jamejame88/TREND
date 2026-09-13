@@ -328,6 +328,60 @@ section{margin-top:46px}
 .gift.done .giftbox{animation:giftpop .5s cubic-bezier(.34,1.4,.64,1)}
 .gift:hover .giftbox{transform:translateY(-2px)}
 @keyframes giftpop{0%{transform:scale(.7)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+/* ——— تنويه "اضغط لرؤية جميع الموديلات" ——— */
+.tmhint{
+  position:absolute;inset-inline:0;bottom:0;z-index:2;
+  padding:7px 8px;text-align:center;
+  background:linear-gradient(to top,rgba(10,10,10,.92),rgba(10,10,10,.72) 60%,transparent);
+  color:var(--gold-lt);font-size:10px;letter-spacing:.04em;line-height:1.5;
+  pointer-events:none;
+}
+/* ——— معرض الموديلات ——— */
+.tmodels{
+  position:absolute;inset-inline-start:8px;bottom:30px;z-index:3;
+  padding:4px 10px;border-radius:14px;background:rgba(10,10,10,.82);
+  color:var(--gold);font-size:10px;letter-spacing:.05em;border:.5px solid var(--line2);
+}
+.gal{
+  position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.92);
+  display:none;flex-direction:column;
+}
+.gal.on{display:flex}
+.gal-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;border-bottom:.5px solid var(--line);
+}
+.gal-head b{font-size:14px;color:var(--paper);font-weight:400}
+.gal-head span{font-size:11.5px;color:var(--muted)}
+.gal-x{
+  width:34px;height:34px;border-radius:50%;flex:0 0 34px;
+  border:.5px solid var(--line2);background:transparent;color:var(--gold);
+  font-size:17px;cursor:pointer;
+}
+.gal-body{flex:1;overflow-y:auto;padding:14px}
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:600px){.gal-grid{grid-template-columns:repeat(4,1fr)}}
+.gal-grid img{
+  width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--r-sm);
+  border:.5px solid var(--line);cursor:pointer;transition:all .3s var(--ease);
+}
+.gal-grid img:hover,.gal-grid img.sel{border-color:var(--gold);transform:translateY(-2px)}
+.gal-big{margin-bottom:12px;text-align:center}
+.gal-big img{
+  width:100%;max-width:420px;aspect-ratio:1;object-fit:cover;
+  border-radius:var(--r);border:.5px solid var(--line2);
+}
+.gal-big div{font-size:11px;color:var(--muted);letter-spacing:.16em;margin-top:8px}
+.gal-foot{
+  padding:14px 16px;border-top:.5px solid var(--line);background:var(--panel);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.gal-foot .pr{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:var(--gold)}
+.gal-add{
+  flex:1;max-width:220px;padding:14px;border:0;border-radius:var(--r-sm);
+  background:linear-gradient(120deg,var(--gold-dk),#E0CB92 45%,var(--gold));
+  color:var(--on-gold);font:inherit;font-size:13px;letter-spacing:.1em;cursor:pointer;
+}
 /* صورة صندوق الهدايا فوق المؤشر */
 .ptsimg{
   display:block;width:100%;max-width:300px;margin:0 auto 20px;
@@ -723,6 +777,24 @@ footer{text-align:center;padding:44px 18px 26px;font-size:11.5px;color:var(--mut
     <span>⚡</span><span id="saveTxt">توفير</span>
   </button>
   <div class="savenote" id="saveNote" hidden></div>
+  <div class="gal" id="gal">
+    <div class="gal-head">
+      <div>
+        <b id="galName"></b><br>
+        <span id="galCount"></span>
+      </div>
+      <button class="gal-x" id="galClose" type="button">✕</button>
+    </div>
+    <div class="gal-body">
+      <div class="gal-big" id="galBig"></div>
+      <div class="gal-grid" id="galGrid"></div>
+    </div>
+    <div class="gal-foot">
+      <span class="pr" id="galPrice"></span>
+      <button class="gal-add" id="galAdd" type="button">أضف للسلة</button>
+    </div>
+  </div>
+
   <div class="instwrap" id="instWrap" hidden>
     <button class="instbtn" id="instBtn" type="button">
       <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
@@ -1178,6 +1250,62 @@ function claimInstallBonus(){
     /* لو أخدهن من قبل ما منزعجه برسالة */
   }).catch(function(){ bonusAsked = false; });
 }
+
+/* ————— معرض الموديلات —————
+   كل الموديلات بنفس السعر (قرار صاحب المحل: سعر واحد لكل قسم)،
+   فالإضافة للسلة بتضيف نفس المنتج مهما كان الموديل المختار.
+   الموديل المحدد بينكتب بملاحظة الطلب حتى يعرف المحل شو بدها الزبونة. */
+var galProduct = null, galImgs = [], galPick = 0;
+
+function openGallery(p, imgs){
+  galProduct = p; galImgs = imgs || []; galPick = 0;
+  $('galName').textContent = p.name || '';
+  $('galCount').textContent = galImgs.length + ' موديل — اضغط على الموديل يلي بيعجبك';
+  $('galPrice').textContent = (typeof money === 'function' && money(p.price) > 0)
+    ? fmt(money(p.price), p.cur) : '';
+  renderGallery();
+  $('gal').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderGallery(){
+  var big = $('galBig');
+  big.innerHTML = galImgs.length
+    ? '<img src="' + galImgs[galPick] + '" alt="">' +
+      '<div>الموديل رقم ' + (galPick + 1) + '</div>'
+    : '';
+  var grid = $('galGrid');
+  grid.innerHTML = '';
+  galImgs.forEach(function(src, i){
+    var im = new Image();
+    im.src = src; im.loading = 'lazy'; im.decoding = 'async';
+    if (i === galPick) im.className = 'sel';
+    im.onclick = function(){
+      galPick = i;
+      renderGallery();
+      $('galBig').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    };
+    grid.appendChild(im);
+  });
+}
+
+function closeGallery(){
+  $('gal').classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+$('galClose') && $('galClose').addEventListener('click', closeGallery);
+$('gal') && $('gal').addEventListener('click', function(e){ if (e.target === this) closeGallery(); });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && $('gal') && $('gal').classList.contains('on')) closeGallery();
+});
+
+$('galAdd') && $('galAdd').addEventListener('click', function(){
+  if (!galProduct) return;
+  /* منمرّر رقم الموديل مع المنتج - بيظهر بنص طلب الواتساب */
+  addToCart(galProduct, 'الموديل رقم ' + (galPick + 1), galImgs[galPick] || '');
+  closeGallery();
+});
 
 function paintClub(){
   var vip = isVip(), member = getMember();
@@ -1665,13 +1793,12 @@ function render(){
         imgs.forEach(function(_, di){ dots.appendChild(el('i', di === 0 ? 'on' : null)); });
         th.appendChild(dots);
         th.appendChild(el('div', 'tcount', '1/' + imgs.length));
+        th.appendChild(el('div', 'tmodels', '◈ ' + imgs.length + ' موديل'));
+        th.appendChild(el('div', 'tmhint', 'اضغط لرؤية جميع الموديلات'));
         th.style.cursor = 'pointer';
-        th.onclick = function(){
-          idx = (idx + 1) % imgs.length;
-          im.src = imgs[idx];
-          [].forEach.call(dots.children, function(d, di){ d.classList.toggle('on', di === idx); });
-          th.querySelector('.tcount').textContent = (idx + 1) + '/' + imgs.length;
-        };
+        /* ضغطة على الصورة = يفتح معرض كل الموديلات مع بعض (بدل التنقّل
+           صورة صورة، يلي بيصير مرهق لما يكونوا 10 موديلات) */
+        th.onclick = function(){ openGallery(p, imgs); };
       }
     } else th.innerHTML = '<div class="noimg">◆</div>';
     if (out) th.appendChild(el('span', 'badge out', 'نفد'));
@@ -1720,12 +1847,48 @@ function oldStr(v){
 function fmt(n, cur){
   return syp(n, cur).toLocaleString('en-US') + ' ل.س';
 }
-function addToCart(p){
+function addToCart(p, variant, variantImg){
+  /* variant = رقم الموديل (اختياري) - بيخلي كل موديل سطر مستقل بالسلة
+     عشان الزبونة تقدر تطلب موديلين مختلفين من نفس الصنف. */
+  var label = variant ? (p.name + ' — ' + variant) : p.name;
   var i = -1;
-  for (var k = 0; k < CART.length; k++) if (CART[k].name === p.name) i = k;
+  for (var k = 0; k < CART.length; k++) if (CART[k].name === label) i = k;
   if (i >= 0) CART[i].qty++;
-  else { CART.push({ name: p.name, price: money(p.price), cur: p.cur, img: p.img || '', qty: 1 }); track('cart'); }
+  else {
+    /* منحفظ صورة الموديل المختار تحديدًا (مو أول صورة بالمنتج) -
+       عشان ترفق برابط الطلب ويعرف المحل شو بدها الزبونة بالضبط */
+    var shot = variantImg || p.img || ((p.imgs && p.imgs[0]) || '');
+    CART.push({ name: label, price: money(p.price), cur: p.cur, img: shot, qty: 1 });
+    track('cart');
+  }
   saveCart();
+  showAddToast(label);
+}
+
+/* تنبيه عابر "أُضيف للسلة" - بينعمل لحاله أول مرة، ما بيحتاج عنصر بالصفحة */
+function showAddToast(label){
+  var t = document.getElementById('addToast');
+  if (!t){
+    t = document.createElement('div');
+    t.id = 'addToast';
+    t.style.cssText =
+      'position:fixed;bottom:86px;left:50%;transform:translateX(-50%) translateY(10px);' +
+      'z-index:70;background:var(--panel);color:var(--gold);border:.5px solid var(--gold);' +
+      'border-radius:22px;padding:10px 18px;font-size:12.5px;letter-spacing:.05em;' +
+      'opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;max-width:86vw;' +
+      'text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4)';
+    document.body.appendChild(t);
+  }
+  t.textContent = '✓ ' + (label || '') + ' — أُضيف للسلة';
+  requestAnimationFrame(function(){
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+  });
+  clearTimeout(t._tm);
+  t._tm = setTimeout(function(){
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(10px)';
+  }, 2200);
 }
 function priceNote(){
   var hasUsd = CART.some(function(c){ return c.cur === 'usd'; });
@@ -1804,6 +1967,9 @@ function orderLink(){
   var lines = ['مرحبا، بدي أطلب من TREND:', ''];
   CART.forEach(function(c){
     lines.push('• ' + c.name + ' ×' + c.qty + ' — ' + fmt(c.price * c.qty, c.cur));
+    /* رابط صورة الصنف - الزبونة بتتأكد من طلبها والمحل بيعرف الموديل بالضبط.
+       واتساب ما بيقبل إرفاق صور برابط wa.me، فالرابط النصي هو الحل العملي. */
+    if (c.img) lines.push('   ' + c.img);
   });
   lines.push('');
   lines.push('المجموع: ' + cartTotal().toLocaleString('en-US') + ' ل.س'
