@@ -1109,8 +1109,25 @@ function portal(action, phone, name){
 var CLUB_IMG = 'gift.jpg';
 
 var MEMBER_KEY = 'trend_member';
+var WHEEL_REG_KEY = 'trend_wheel_reg';   /* اللي بتستخدمه صفحة العجلة */
+var VIP_KEY = 'trend_vip';               /* لازم تتعرّف قبل getMember() يلي بتستخدمها */
+
+/* هوية موحّدة: الموقع والعجلة على نفس النطاق فبيتشاركوا التخزين.
+   لو الزبون سجّل بالعجلة، منعتبره عضو هون كمان بدون ما يعيد التسجيل. */
 function getMember(){
-  try { return JSON.parse(localStorage.getItem(MEMBER_KEY) || 'null'); } catch(e){ return null; }
+  try {
+    var m = JSON.parse(localStorage.getItem(MEMBER_KEY) || 'null');
+    if (m && m.phone) return m;
+    /* ما في تسجيل بالموقع - منشوف تسجيل العجلة */
+    var w = JSON.parse(localStorage.getItem(WHEEL_REG_KEY) || 'null');
+    if (w && w.phone){
+      var unified = { phone: w.phone, name: w.name || '' };
+      localStorage.setItem(MEMBER_KEY, JSON.stringify(unified));
+      localStorage.setItem(VIP_KEY, '1');
+      return unified;
+    }
+  } catch(e){}
+  return null;
 }
 function setMember(m){
   try { m ? localStorage.setItem(MEMBER_KEY, JSON.stringify(m)) : localStorage.removeItem(MEMBER_KEY); } catch(e){}
@@ -1160,9 +1177,12 @@ $('saveBtn') && $('saveBtn').addEventListener('click', function(){
 });
 
 var VIP_CAT = 'كبار العملاء';
-var VIP_KEY = 'trend_vip';
 function isVip(){
-  try { return localStorage.getItem(VIP_KEY) === '1'; } catch(e){ return false; }
+  try {
+    if (localStorage.getItem(VIP_KEY) === '1') return true;
+    /* سجّل بالعجلة؟ إذن هو عضو - getMember() بتوحّد المفاتيح تلقائيًا */
+    return !!(getMember() && getMember().phone);
+  } catch(e){ return false; }
 }
 function setVip(v){
   try { if (v) localStorage.setItem(VIP_KEY, '1'); else localStorage.removeItem(VIP_KEY); } catch(e){}
