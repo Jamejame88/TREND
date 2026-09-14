@@ -100,6 +100,15 @@ body{
 }
 
 /* ——— تنويه حد اللفّات ——— */
+.modebar.done{background:rgba(198,164,78,.08);border-color:var(--gold)}
+.modebar.done b{color:var(--gold)}
+.dbtn{
+  display:block;width:100%;margin:10px 0 8px;padding:12px;
+  border-radius:8px;border:1px solid var(--gold);
+  background:rgba(198,164,78,.1);color:var(--gold);
+  font:inherit;font-size:12.5px;letter-spacing:.05em;cursor:pointer;transition:.2s;
+}
+.dbtn:hover{background:rgba(198,164,78,.2)}
 .spinlimit{
   margin-top:8px;font-size:11px;color:var(--muted);
   letter-spacing:.04em;text-align:center;line-height:1.7;
@@ -428,13 +437,13 @@ button{
     </div>
     <button class="regfab" id="regFab" type="button">سجّل مجانًا</button>
   <div class="modebar" id="modeBar">
-      <b>لفّة تجريبية</b>
-      <span>شوف كيف بتشتغل وشو الجوائز — الرمز بينعطى بعد التسجيل بس</span>
+      <b>جرّب حظك</b>
+      <span>شوف الجوائز على العجلة — سجّل رقمك ولِف واربح رمز حسم فورًا</span>
     </div>
     <div class="spinlimit">⏱ محاولة واحدة يومياً</div>
     <div class="demoprize" id="demoPrize"></div>
-    <button class="primary btn-space" id="spin">لِف العجلة</button>
-    <button class="primary btn-space" id="goReg" style="display:none">سجّل لتحصل على كود الجائزة</button>
+    <button class="primary btn-space" id="goReg">سجّل لتحصل على كود الجائزة</button>
+    <button class="primary btn-space" id="spin" style="display:none">لِف العجلة</button>
     <a class="ghost shopBtn" id="shopBtn2" target="_blank" rel="noopener">تصفّح منتجاتنا</a>
   </section>
 
@@ -594,11 +603,29 @@ let REAL = false, realDone = false, demoCount = 0;
 /* بيانات الزائر المسجّل - محفوظة بالجهاز حتى ما نطلب منه التسجيل كل مرة.
    بيسجّل مرة وحدة، وبعدها بيلف مباشرة (والحد اليومي بيتحقق بالسيرفر). */
 const WHEEL_REG_KEY = 'trend_wheel_reg';
+const MEMBER_KEY    = 'trend_member';   /* نفس المفتاح المستخدم بالموقع */
+const VIP_KEY       = 'trend_vip';
+
+/* هوية موحّدة: العجلة والموقع على نفس النطاق فبيتشاركوا التخزين.
+   منقرا من الاثنين حتى لو سجّل بمكان واحد بس. */
 function getReg(){
-  try { return JSON.parse(localStorage.getItem(WHEEL_REG_KEY) || 'null'); } catch(e){ return null; }
+  try {
+    const own = JSON.parse(localStorage.getItem(WHEEL_REG_KEY) || 'null');
+    if (own && own.phone) return own;
+    const site = JSON.parse(localStorage.getItem(MEMBER_KEY) || 'null');
+    if (site && site.phone) return { name: site.name || '', phone: site.phone };
+  } catch(e){}
+  return null;
 }
+
 function saveReg(r){
-  try { localStorage.setItem(WHEEL_REG_KEY, JSON.stringify(r)); } catch(e){}
+  try {
+    localStorage.setItem(WHEEL_REG_KEY, JSON.stringify(r));
+    /* منسجّله بالموقع كمان - فلما يفتح الموقع بيلاقي حاله عضو بالنادي
+       ويشوف نقاطه وقسم كبار العملاء بدون ما يسجّل مرة تانية */
+    localStorage.setItem(MEMBER_KEY, JSON.stringify({ phone: r.phone, name: r.name || '' }));
+    localStorage.setItem(VIP_KEY, '1');
+  } catch(e){}
 }
 
 /* تاريخ آخر لفّة حقيقية بهاد الجهاز - بيقفل العجلة فورًا بعد أول لفّة
@@ -616,11 +643,43 @@ function spunToday(){
   const l = lastSpin();
   return !!(l && l.d === todayStr());
 }
-function markSpunToday(code){
-  try { localStorage.setItem(WHEEL_LAST_KEY, JSON.stringify({ d: todayStr(), code: code || '' })); } catch(e){}
+function markSpunToday(code, prize, expiry){
+  try {
+    localStorage.setItem(WHEEL_LAST_KEY, JSON.stringify({
+      d: todayStr(), code: code || '', prize: prize || '', expiry: expiry || '',
+    }));
+  } catch(e){}
 }
 
 /* بيقفل العجلة ويوضّح السبب - بينادى عند الرجوع للصفحة بعد لفّة */
+/* بيرجّع الزائر لصفحة الجائزة الكاملة (الرمز + الصلاحية + واتساب +
+   خطوات التطبيق والنادي) من البيانات المحفوظة بجهازه - بدون ما نكرر
+   عرض الرمز بمكانين. */
+function showSavedPrize(){
+  const l = lastSpin();
+  if (!l || !l.code) return;
+  const r = getReg() || {};
+
+  $('prizeText').textContent = l.prize || '';
+  $('codeText').textContent  = l.code;
+  if (l.expiry) $('expiryText').textContent = 'صالح لغاية ' + l.expiry;
+
+  const msg = 'مرحبا، بدي فعّل كود عجلة الحظ.' +
+    (r.name ? '\nالاسم: ' + r.name : '') +
+    (l.prize ? '\nالجائزة: ' + l.prize : '') +
+    '\nالكود: ' + l.code;
+  const wb = $('waBtn');
+  if (wb) wb.onclick = () => window.open(
+    'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+  const ab = $('appBtn');
+  if (ab) ab.href = CONFIG.siteUrl + '#club';
+
+  $('stepWheel').classList.remove('on');
+  $('stepForm').classList.remove('on');
+  $('stepResult').classList.add('on');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function lockWheelForToday(){
   realDone = true;
   const sp = $('spin');
@@ -628,12 +687,13 @@ function lockWheelForToday(){
   const mb = $('modeBar');
   if (mb){
     mb.classList.remove('real');
-    const l = lastSpin();
-    const codeTxt = (l && l.code)
-      ? ' (<b style="color:var(--gold);letter-spacing:.06em">' + l.code + '</b>)'
-      : '';
+    mb.classList.add('done');
+    const l = lastSpin() || {};
     mb.innerHTML = '<b>محاولتك اليوم خلصت</b>' +
-      '<span>رمزك محفوظ' + codeTxt + ' — جرّب حظك معنا بكرة 🌿</span>';
+      (l.code ? '<button type="button" class="dbtn" id="showPrizeBtn">🎁 شوف رمزك وجائزتك</button>' : '') +
+      '<span>جرّب حظك معنا بكرة 🌿</span>';
+    const b = $('showPrizeBtn');
+    if (b) b.onclick = showSavedPrize;
   }
   const gr = $('goReg');
   if (gr) gr.style.display = 'none';
@@ -827,6 +887,7 @@ function drawWheel(){
   hubBtn.setAttribute('tabindex', '0');
   hubBtn.setAttribute('aria-label', 'لِف العجلة');
   hubBtn.addEventListener('click', () => {
+    if (!REAL){ showForm(); return; }   /* ضغطة المحور قبل التسجيل = تسجيل */
     const sp = $('spin');
     if (sp && !sp.disabled) sp.click();
   });
@@ -1049,23 +1110,15 @@ function peg(strength){
 
 /* بعد ما توقف العجلة: باللفّة التجريبية منعرض الجائزة كعيّنة بدون رمز،
    وباللفّة الحقيقية منكمل لصفحة النتيجة والرمز. */
+/* ما عاد في لفّة تجريبية - أي لفّة هي الحقيقية وبتاخد رمزها فورًا */
 function afterSpin(){
-  if (REAL){ realDone = true; finish(); return; }
-
-  demoCount++;
-  const d = $('demoPrize');
-  d.innerHTML = 'وقفت على: <b style="color:var(--gold)">' + picked.label + '</b>' +
-    '<i>يرجى التسجيل لتفعيل الكود</i>';
-  d.classList.add('on');
-
-  $('goReg').style.display = 'block';
-  spun = false;                       /* بيقدر يجرّب تجريبي مرة تانية */
-  $('spin').disabled = false;
-  $('spin').textContent = demoCount >= 2 ? 'جرّب مرة تانية (تجريبي)' : 'لِف مرة تانية (تجريبي)';
+  realDone = true;
+  finish();
 }
 
 /* ١ — اللفّة */
 $('spin').addEventListener('click', () => {
+  if (!REAL){ showForm(); return; }   /* ما سجّل بعد - منوديه للتسجيل */
   if (spun) return;
   if (REAL && realDone) return;       /* اللفّة الحقيقية مرة وحدة بس */
   if (REAL && spunToday()){ lockWheelForToday(); return; }   /* حماية أخيرة */
@@ -1175,7 +1228,7 @@ $('regFab').addEventListener('click', () => {
   const gr = $('goReg');
   if (gr) gr.style.display = 'none';
   const sp = $('spin');
-  if (sp) sp.textContent = 'لِف العجلة';
+  if (sp){ sp.style.display = 'block'; sp.textContent = 'لِف العجلة'; }
 })();
 
 /* الرجوع للصفحة من كاش المتصفح (زر الرجوع) ما بيعيد تشغيل السكربت -
@@ -1250,6 +1303,7 @@ $('claim').addEventListener('click', async () => {
   $('stepWheel').classList.add('on');
   $('demoPrize').classList.remove('on');
   $('goReg').style.display = 'none';
+  $('spin').style.display = 'block';
   const mb = $('modeBar');
   mb.classList.add('real');
   mb.innerHTML = '<b>أهلاً ' + name + '</b><span>لِف، والجائزة يلي بتوقف عليها بتاخد رمزها فورًا</span>';
@@ -1294,7 +1348,8 @@ function finish(){
   const exp  = new Date(Date.now() + CONFIG.expiryDays * 864e5);
   const expStr = exp.toLocaleDateString('ar-SY', { day:'numeric', month:'long' });
 
-  markSpunToday(code);  /* تقفل العجلة فورًا وبتحفظ الرمز - حتى لو رجع للخلف */
+  /* تقفل العجلة فورًا وبتحفظ النتيجة كاملة - حتى لو رجع للخلف */
+  markSpunToday(code, picked.label, expStr);
   entry.prize = picked.label;
   entry.code  = code;
   entry.expiry = exp.toISOString().slice(0, 10);
