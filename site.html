@@ -1159,8 +1159,11 @@ var SAVE = false, saveAuto = false;
   /* ما في اختيار محفوظ - منقرر حسب حالة الشبكة */
   var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   if (c){
-    var t = String(c.effectiveType || '');
-    if (c.saveData === true || t === '2g' || t === 'slow-2g'){ SAVE = true; saveAuto = true; }
+    var t  = String(c.effectiveType || '');
+    var dl = Number(c.downlink || 0);   /* السرعة التقديرية بالميغا */
+    if (c.saveData === true || t === '2g' || t === 'slow-2g' || t === '3g' || (dl > 0 && dl < 1)){
+      SAVE = true; saveAuto = true;
+    }
   }
 })();
 
@@ -1184,6 +1187,64 @@ $('saveBtn') && $('saveBtn').addEventListener('click', function(){
   try { localStorage.setItem(SAVE_KEY, SAVE ? '1' : '0'); } catch(e){}
   paintSaveBtn(); render();
 });
+
+/* ——— قياس فعلي لسرعة النت (بيشتغل على كل الأجهزة، حتى الآيفون) ———
+   منراقب زمن تحميل أول 3 صور من imgbb. إذا الوسيط طوّل أكتر من 3 ثواني،
+   أو صورة وحدة طوّلت أكتر من 8، منشغّل التوفير لحاله لباقي الصور.
+   ما منقيس طلب المنتجات لأنه بطؤه ممكن يكون من Apps Script مو من نت الزبون.
+   ولو الزبون طفّى التوفير بإيده من قبل، ما منرجع نشغّله. */
+var SLOW_IMG_MS = 3000, VERY_SLOW_IMG_MS = 8000;
+
+function autoSave(){
+  if (SAVE) return;
+  try { if (localStorage.getItem(SAVE_KEY) !== null) return; } catch(e){}
+  SAVE = true; saveAuto = true;
+  paintSaveBtn();
+  applySaveToPending();
+  toast('⚡ النت بطيء — شغّلنا وضع التوفير. اضغط "توفير" فوق لإطفائه', 5000);
+}
+
+/* الصور يلي لسا ما نزلت بتتحول لـ"اضغط لعرض الصورة"، ويلي نزلت بتضل */
+function applySaveToPending(){
+  var ims = document.querySelectorAll('#grid .thumb img');
+  [].forEach.call(ims, function(im){
+    if (im.complete && im.naturalWidth > 0) return;
+    var src = im.getAttribute('src');
+    if (!src) return;
+    var ph = el('div', 'imgsave');
+    ph.innerHTML = '<b>◆</b><span>اضغط لعرض الصورة</span>';
+    ph.onclick = function(e){
+      e.stopPropagation();
+      var n = new Image();
+      n.alt = im.alt || '';
+      n.decoding = 'async';
+      n.src = src;
+      ph.replaceWith(n);
+    };
+    im.removeAttribute('src');   /* بيوقف التحميل الجاري */
+    im.replaceWith(ph);
+  });
+}
+
+(function watchImgSpeed(){
+  if (SAVE || !('PerformanceObserver' in window)) return;
+  var times = [];
+  try {
+    var po = new PerformanceObserver(function(list){
+      list.getEntries().forEach(function(en){
+        if (times.length >= 3 || String(en.name).indexOf('i.ibb.co') === -1) return;
+        times.push(en.duration);
+        if (en.duration > VERY_SLOW_IMG_MS){ po.disconnect(); autoSave(); return; }
+        if (times.length === 3){
+          po.disconnect();
+          times.sort(function(a, b){ return a - b; });
+          if (times[1] > SLOW_IMG_MS) autoSave();
+        }
+      });
+    });
+    po.observe({ type: 'resource', buffered: true });
+  } catch(e){}
+})();
 
 var VIP_CAT = 'كبار العملاء';
 function isVip(){
@@ -1942,6 +2003,10 @@ function addToCart(p, variant, variantImg){
 
 /* تنبيه عابر "أُضيف للسلة" - بينعمل لحاله أول مرة، ما بيحتاج عنصر بالصفحة */
 function showAddToast(label){
+  toast('✓ ' + (label || '') + ' — أُضيف للسلة', 2200);
+}
+/* تنبيه عابر عام أسفل الشاشة */
+function toast(text, ms){
   var t = document.getElementById('addToast');
   if (!t){
     t = document.createElement('div');
@@ -1954,7 +2019,7 @@ function showAddToast(label){
       'text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4)';
     document.body.appendChild(t);
   }
-  t.textContent = '✓ ' + (label || '') + ' — أُضيف للسلة';
+  t.textContent = text;
   requestAnimationFrame(function(){
     t.style.opacity = '1';
     t.style.transform = 'translateX(-50%) translateY(0)';
@@ -1963,7 +2028,7 @@ function showAddToast(label){
   t._tm = setTimeout(function(){
     t.style.opacity = '0';
     t.style.transform = 'translateX(-50%) translateY(10px)';
-  }, 2200);
+  }, ms || 2200);
 }
 function priceNote(){
   var hasUsd = CART.some(function(c){ return c.cur === 'usd'; });
