@@ -953,6 +953,15 @@ function jsonp(params, ms){
     document.body.appendChild(s);
   });
 }
+/* ترتيب الطلبات: طلب المنتجات بيطلع أول لحاله، وباقي طلبات Apps Script
+   (الفائزين، تسجيل الزيارة) بتستنى لحد ما يرجع - حتى ما تزاحمه وتبطّئه. */
+var MAIN_DONE = false, AFTER_MAIN = [];
+function afterMain(fn){ if (MAIN_DONE) fn(); else AFTER_MAIN.push(fn); }
+function mainDone(){
+  if (MAIN_DONE) return;
+  MAIN_DONE = true;
+  AFTER_MAIN.splice(0).forEach(function(f){ try { f(); } catch(e){} });
+}
 function el(tag, cls, txt){
   var n = document.createElement(tag);
   if (cls) n.className = cls;
@@ -974,7 +983,7 @@ function track(ev){
     img.src = CONFIG.sheetUrl + '?action=track&ev=' + ev + '&callback=cb&_=' + Date.now();
   } catch(e){}
 }
-track('view');
+afterMain(function(){ track('view'); });
 /* ————— المساعد الذكي ————— */
 var AI_HIST = [];
 function aiAdd(cls, text){
@@ -1556,7 +1565,7 @@ var CART = [];
 var OFFERS = [];
 try { localStorage.removeItem('trend_cart'); } catch(e){}
 /* ═══ شريط الفائزين ═══ */
-(function loadWins(){
+afterMain(function loadWins(){
   jsonp('action=wins', 9000).then(function(r){
     var w = (r && r.wins) ? r.wins : [];
     if (w.length < 2) return;
@@ -1578,7 +1587,7 @@ try { localStorage.removeItem('trend_cart'); } catch(e){}
     w.forEach(add); w.forEach(add);
     document.getElementById('ticker').classList.add('on');
   });
-})();
+});
 /* ——— العروض ——— */
 function paintOffers(list){
   if (!list || !list.length) return;
@@ -1671,15 +1680,60 @@ if ('serviceWorker' in navigator){
     }).catch(function(e){ console.log('SW:', e); });
 
     var reloaded = false;
+    var hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener('controllerchange', function(){
+      /* أول زيارة ما في نسخة قديمة نبدّلها - إعادة التحميل هون كانت بتقطع
+         طلب المنتجات وبتبلّشه من الصفر */
+      if (!hadController) return;
       if (reloaded) return;   /* مرة وحدة بس - تفاديًا لحلقة إعادة تحميل */
       reloaded = true;
       location.reload();
     });
   });
 }
-/* نداء واحد يجيب العروض والمنتجات معًا */
-jsonp('action=all', 12000).then(function(r){
+/* نداء واحد يجيب العروض والمنتجات معًا.
+   Apps Script ممكن يتأخر كتير بأول طلب، فمنستنى لحد 30 ثانية، ولو فشل
+   ولسا ما في منتجات معروضة منعيد المحاولة مرة وحدة قبل ما نستسلم. */
+function gridNote(txt, withRetry){
+  var g = $('grid');
+  g.innerHTML = '';
+  var e = el('div', 'empty', txt);
+  e.style.gridColumn = '1 / -1';
+  if (withRetry){
+    var b = el('button', 'p-add', 'حاول مرة تانية');
+    b.style.cssText = 'display:block;margin:12px auto 0;max-width:200px';
+    b.onclick = function(){ loadMain(1); };
+    e.appendChild(b);
+  }
+  g.appendChild(e);
+}
+var SLOW_TIMER = null;
+function loadMain(attempt){
+  if (!ALL.length){
+    /* ما في نسخة محفوظة: منخلي الهيكل الرمادي، ومنطمّن الزبون إذا طوّل */
+    clearTimeout(SLOW_TIMER);
+    SLOW_TIMER = setTimeout(function(){
+      if (!ALL.length){
+        var h = document.querySelector('#grid .empty.slow');
+        if (!h){
+          h = el('div', 'empty slow', 'عم نجهّز المنتجات… لحظات ✨');
+          h.style.gridColumn = '1 / -1';
+          $('grid').insertBefore(h, $('grid').firstChild);
+        }
+      }
+    }, 4000);
+  }
+  jsonp('action=all', 30000).then(function(r){
+    clearTimeout(SLOW_TIMER);
+    if (!(r && r.products) && !ALL.length && attempt < 2){
+      loadMain(attempt + 1);
+      return;
+    }
+    onMain(r);
+    mainDone();
+  });
+}
+function onMain(r){
   if (r && r.set){ SET = r.set; keep('set', r.set); }
   if (r && r.offers){ keep('offers', r.offers); paintOffers(r.offers); }
   if (r && r.products){
@@ -1689,11 +1743,12 @@ jsonp('action=all', 12000).then(function(r){
     render();
   } else if (!ALL.length){
     buildFilters();
-    render();
+    gridNote('الاتصال بطيء حاليًا وما قدرنا نحمّل المنتجات.', true);
   }
   paintClub();
   paintCart();
-});
+}
+loadMain(1);
 function buildFilters(){
   var seen = {}, cats = ['الكل'];
   var vip = isVip();
