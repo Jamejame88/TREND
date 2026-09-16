@@ -945,7 +945,7 @@ function jsonp(params, ms){
     var cb = 'cb_' + Date.now() + Math.floor(Math.random() * 9999);
     var s  = document.createElement('script');
     var done = false;
-    function end(v){ if (done) return; done = true; clearTimeout(t); try{ delete window[cb]; }catch(e){} s.remove(); res(v); }
+    function end(v){ if (done) return; done = true; clearTimeout(t); window[cb] = function(){}; /* رد متأخر بعد انتهاء المهلة ما بيطلع خطأ */ s.remove(); res(v); }
     var t = setTimeout(function(){ end(null); }, ms || 9000);
     window[cb] = end;
     s.onerror = function(){ end(null); };
@@ -1566,7 +1566,7 @@ var OFFERS = [];
 try { localStorage.removeItem('trend_cart'); } catch(e){}
 /* ═══ شريط الفائزين ═══ */
 afterMain(function loadWins(){
-  jsonp('action=wins', 9000).then(function(r){
+  jsonp('action=wins', 25000).then(function(r){
     var w = (r && r.wins) ? r.wins : [];
     if (w.length < 2) return;
     var trail = document.getElementById('trail');
