@@ -5,10 +5,16 @@
    والكاش احتياط بس. هيك أي تحديث بترفعه بيوصل الزبون فورًا
    بدل ما يعلق على نسخة قديمة.
 
-   ⚠ لما تعدّل هاد الملف مستقبلًا، غيّر رقم CACHE تحت (v2 ← v3...)
+   ⚠ لما تعدّل هاد الملف مستقبلًا، غيّر رقم CACHE تحت (v3 ← v4...)
    حتى ينمسح الكاش القديم تلقائيًا عند كل الزباين. */
-const CACHE = 'trend-v2';
-const SHELL = ['site.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
+const CACHE = 'trend-v3';
+const SHELL = [
+  'site.html', 'manifest.json', 'icon-192.png', 'icon-512.png',
+  'css/site.css',
+  'js/site/core.js', 'js/site/ai.js', 'js/site/member.js', 'js/site/save-mode.js',
+  'js/site/vip-install.js', 'js/site/gallery.js', 'js/site/club.js',
+  'js/site/catalog.js', 'js/site/cart.js', 'js/site/app.js'
+];
 
 self.addEventListener('install', (e) => {
   // skipWaiting: النسخة الجديدة بتشتغل فورًا بدل ما تنتظر إغلاق كل النوافذ
@@ -32,6 +38,8 @@ self.addEventListener('message', (e) => {
   if (e.data === 'skipWaiting') self.skipWaiting();
 });
 
+/* ignoreSearch بالبحث عن نسخة الكاش: الملفات بتنطلب مع ?v=1 لكسر كاش المتصفح،
+   والكاش مخزّنها بدون الرقم - فبدونها الموقع ما بيشتغل بدون نت. */
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
@@ -49,6 +57,7 @@ self.addEventListener('fetch', (e) => {
         }
         return res;
       })
-      .catch(() => caches.match(e.request).then((r) => r || caches.match('site.html')))
+      .catch(() => caches.match(e.request, { ignoreSearch: true })
+        .then((r) => r || caches.match('site.html')))
   );
 });
