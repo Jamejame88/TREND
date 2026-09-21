@@ -7,7 +7,7 @@
 
    ⚠ لما تعدّل هاد الملف مستقبلًا، غيّر رقم CACHE تحت (v4 ← v5...)
    حتى ينمسح الكاش القديم تلقائيًا عند كل الزباين. */
-const CACHE = 'trend-v4';
+const CACHE = 'trend-v5';
 const SHELL = [
   'site.html', 'manifest.json', 'icon-192.png', 'icon-512.png',
   'css/site.css',
