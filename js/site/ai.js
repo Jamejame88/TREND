@@ -1,8 +1,13 @@
 /* TREND — ai.js
-   المساعد الذكي: نافذة المحادثة، شريط الاقتراحات، إرسال السؤال. */
+   المساعد الذكي: نافذة المحادثة، أزرار الأقسام، شريط الاقتراحات، إرسال السؤال. */
 
 /* ————— المساعد الذكي ————— */
 var AI_HIST = [];
+
+/* الأقسام كما هي بالشيت. الترتيب هون هو ترتيب الأزرار بالمحادثة. */
+var AI_CATS = ['هدايا', 'عطر', 'إكسسوار', 'حقائب/جزدان', 'مكياج', 'ألعاب'];
+var AI_CAT  = '';   /* القسم المختار حاليًا — فاضي يعني كل البضاعة */
+
 function aiAdd(cls, text){
   var log = $('aiLog');
   var m = el('div', 'msg ' + cls, text);
@@ -10,13 +15,55 @@ function aiAdd(cls, text){
   log.scrollTop = log.scrollHeight;
   return m;
 }
+
+/* صف أزرار الأقسام — بيضل ظاهر فوق المحادثة، والزبون فيه يبدّل القسم بأي لحظة.
+   ما بينادي النموذج أبدًا، فهو فوري وبدون أي استهلاك. */
+function aiCatBar(){
+  var row = el('div', 'qs');
+  row.id = 'aiCatBar';
+  var btns = [];
+
+  function paint(){
+    for (var i = 0; i < btns.length; i++){
+      var on = (btns[i].getAttribute('data-cat') || '') === AI_CAT;
+      btns[i].style.color       = on ? 'var(--gold-lt)' : '';
+      btns[i].style.borderColor = on ? 'var(--gold)'    : '';
+    }
+  }
+
+  function make(label, cat){
+    var b = el('button', '', label);
+    b.type = 'button';
+    b.setAttribute('data-cat', cat);
+    b.onclick = function(){
+      AI_CAT = cat;
+      paint();
+      if (cat){
+        aiAdd('a', 'تمام، قسم ' + label + '. قلّي لمين الهدية وشو ميزانيتك تقريبًا، وبرشّحلك.');
+      } else {
+        aiAdd('a', 'ولا يهمك. قلّي لمين الهدية وشو ميزانيتك، وبدوّرلك بكل البضاعة.');
+      }
+      $('aiInput').focus();
+    };
+    btns.push(b);
+    row.appendChild(b);
+  }
+
+  for (var i = 0; i < AI_CATS.length; i++) make(AI_CATS[i], AI_CATS[i]);
+  make('مو متأكد', '');
+  paint();
+  $('aiLog').appendChild(row);
+}
+
 function aiOpen(){
   $('aiWrap').classList.add('on');
   if (!AI_HIST.length && !$('aiLog').children.length){
-    aiAdd('a', 'أهلاً فيك 🌿 قلي لمين الهدية وشو ميزانيتك، وبرشحلك من بضاعتنا.');
+    aiAdd('a', 'أهلاً فيك 🌿 اختار القسم يلي ببالك، أو اكتبلي مباشرة لمين الهدية وشو ميزانيتك.');
+    aiCatBar();
   }
   setTimeout(function(){ $('aiInput').focus(); }, 100);
 }
+
 /* شريط المنتجات أثناء الانتظار — يبدأ بالعروض */
 function buildStrip(){
   var pool = [];
@@ -58,6 +105,7 @@ function buildStrip(){
   });
   return true;
 }
+
 function aiSend(){
   var inp = $('aiInput');
   var q = inp.value.trim();
@@ -71,8 +119,12 @@ function aiSend(){
     $('aiStatTxt').textContent = 'لسا عم فكّر… شوي كمان';
   }, 6000);
   if (buildStrip()) $('aiStrip').classList.add('on');
+
+  /* القسم بينبعت جوّا نص السؤال — بدون أي معامل جديد بالرابط */
+  var sent = AI_CAT ? ('[قسم: ' + AI_CAT + '] ' + q) : q;
   var hist = JSON.stringify(AI_HIST.slice(-4));
-  jsonp('action=ask&q=' + encodeURIComponent(q) + '&h=' + encodeURIComponent(hist), 55000)
+
+  jsonp('action=ask&q=' + encodeURIComponent(sent) + '&h=' + encodeURIComponent(hist), 55000)
     .then(function(r){
       clearTimeout(slow);
       $('aiStat').classList.remove('on');
